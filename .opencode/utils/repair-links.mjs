@@ -3,9 +3,12 @@ import { join, resolve, dirname, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const agentsRoot = resolve(__dirname, '..');
+const projectRoot = resolve(__dirname, '../..');
 
-const EXCLUDED_DIRS = ['cache-session', 'node_modules', '.git'];
+// Accept target directory as CLI argument, default to project root
+const targetDir = process.argv[2] ? resolve(process.argv[2]) : projectRoot;
+
+const EXCLUDED_DIRS = ['cache-session', 'node_modules', '.git', 'dist', 'build', '.next'];
 
 /**
  * Recursively collect all .md files.
@@ -27,7 +30,7 @@ function collectMdFiles(dir, base = dir) {
 }
 
 /**
- * Build a map of filename -> absolute path.
+ * Build a map of filename -> absolute path(s).
  */
 function buildFileMap(mdFiles) {
   const map = new Map();
@@ -56,8 +59,11 @@ function stripInlineCode(line) {
   return line.replace(/`[^`]*`/g, '');
 }
 
-const mdFiles = collectMdFiles(agentsRoot);
+const mdFiles = collectMdFiles(targetDir);
 const fileMap = buildFileMap(mdFiles);
+
+console.log(`Scanning: ${relative(projectRoot, targetDir) || targetDir}`);
+console.log(`Found ${mdFiles.length} markdown file(s).\n`);
 
 let totalFixed = 0;
 let totalAmbiguous = 0;
@@ -96,7 +102,7 @@ for (const file of mdFiles) {
         const targetPath = candidates[0];
         const newRelativePath = relative(sourceDir, targetPath).replace(/\\/g, '/');
         const newLink = anchorPart ? `${newRelativePath}#${anchorPart}` : newRelativePath;
-        console.log(`✅ Fixed: ${relative(agentsRoot, file)}:${i + 1} -> [${match[1]}](${newLink})`);
+        console.log(`Fixed: ${relative(targetDir, file)}:${i + 1} -> [${match[1]}](${newLink})`);
         totalFixed++;
         modified = true;
         // Replace in the original content (on the original line)
@@ -104,7 +110,7 @@ for (const file of mdFiles) {
         const newLine = originalLine.replace(match[0], `[${match[1]}](${newLink})`);
         result = result.split('\n').map((l, idx) => idx === i ? newLine : l).join('\n');
       } else if (candidates.length > 1) {
-        console.warn(`⚠️ Ambiguous: ${fileName} in ${relative(agentsRoot, file)}:${i + 1}. Candidates: ${candidates.map(c => relative(agentsRoot, c)).join(', ')}`);
+        console.warn(`Ambiguous: ${fileName} in ${relative(targetDir, file)}:${i + 1}. Candidates: ${candidates.map(c => relative(targetDir, c)).join(', ')}`);
         totalAmbiguous++;
       }
     }

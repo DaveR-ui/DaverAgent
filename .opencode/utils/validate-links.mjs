@@ -1,11 +1,14 @@
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const agentsRoot = resolve(__dirname, '..');
+const projectRoot = resolve(__dirname, '../..');
 
-const EXCLUDED_DIRS = ['cache-session', 'node_modules', '.git'];
+// Accept target directory as CLI argument, default to project root
+const targetDir = process.argv[2] ? resolve(process.argv[2]) : projectRoot;
+
+const EXCLUDED_DIRS = ['cache-session', 'node_modules', '.git', 'dist', 'build', '.next'];
 
 /**
  * Recursively collect all .md files under a directory, skipping excluded dirs.
@@ -32,7 +35,6 @@ function collectMdFiles(dir, base = dir) {
  */
 function stripFencedCodeBlocks(content) {
   return content.replace(/```[\s\S]*?```/g, (match) => {
-    // Replace the entire block with empty lines to preserve line numbers
     return match.replace(/[^\n]/g, '');
   });
 }
@@ -55,21 +57,16 @@ function extractLinks(content) {
   const links = [];
   const cleaned = stripFencedCodeBlocks(content);
   const lines = cleaned.split('\n');
-  // Match [text](path) but skip images ![alt](path)
   const linkRegex = /(?<!!)\[([^\]]*)\]\(([^)]+)\)/g;
 
   for (let i = 0; i < lines.length; i++) {
     const line = stripInlineCode(lines[i]);
     let match;
-    // Reset regex lastIndex since we reuse it across lines
     linkRegex.lastIndex = 0;
     while ((match = linkRegex.exec(line)) !== null) {
       const rawPath = match[2].trim();
-      // Skip external URLs
       if (/^https?:\/\//.test(rawPath)) continue;
-      // Skip anchor-only links
       if (rawPath.startsWith('#')) continue;
-      // Remove optional title: [text](path "title")
       const cleanPath = rawPath.split(/\s+"?/)[0].trim();
       links.push({ line: i + 1, linkPath: cleanPath });
     }
@@ -82,14 +79,16 @@ function extractLinks(content) {
  */
 function resolveLink(sourceFile, linkPath) {
   const sourceDir = dirname(sourceFile);
-  // Remove optional anchor: path#anchor
   const pathOnly = linkPath.split('#')[0];
-  if (!pathOnly) return null; // anchor-only already skipped
+  if (!pathOnly) return null;
   return resolve(sourceDir, pathOnly);
 }
 
 // Main
-const mdFiles = collectMdFiles(agentsRoot);
+console.log(`Scanning: ${relative(projectRoot, targetDir) || targetDir}`);
+const mdFiles = collectMdFiles(targetDir);
+console.log(`Found ${mdFiles.length} markdown file(s).\n`);
+
 const brokenLinks = [];
 
 for (const file of mdFiles) {
@@ -100,7 +99,7 @@ for (const file of mdFiles) {
     if (!resolved) continue;
     if (!existsSync(resolved)) {
       brokenLinks.push({
-        source: relative(agentsRoot, file),
+        source: relative(targetDir, file),
         line,
         linkPath,
       });
@@ -109,10 +108,10 @@ for (const file of mdFiles) {
 }
 
 if (brokenLinks.length === 0) {
-  console.log('✅ All links are valid.');
+  console.log('All internal links are valid.');
   process.exit(0);
 } else {
-  console.log(`❌ Found ${brokenLinks.length} broken link(s):\n`);
+  console.log(`Found ${brokenLinks.length} broken link(s):\n`);
   for (const { source, line, linkPath } of brokenLinks) {
     console.log(`  ${source}:${line} -> ${linkPath}`);
   }
