@@ -1,7 +1,6 @@
 ---
 description: Documenter subagent - Documentation, README, comments, API docs, guides
 mode: subagent
-model: qwen/qwen3.6-plus
 temperature: 0.4
 tools:
   write: true

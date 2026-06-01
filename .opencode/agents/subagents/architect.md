@@ -1,7 +1,6 @@
 ---
 description: Architect subagent - System design, architecture, module boundaries, patterns
 mode: subagent
-model: qwen/qwen3.6-plus
 temperature: 0.3
 tools:
   write: true

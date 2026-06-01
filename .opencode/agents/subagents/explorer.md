@@ -1,7 +1,6 @@
 ---
 description: Explorer subagent - Codebase exploration, file search, dependency analysis
 mode: subagent
-model: qwen/qwen3.6-plus
 temperature: 0.1
 tools:
   write: false

@@ -1,7 +1,6 @@
 ---
 description: Coder subagent - Programming, bug fixes, feature implementation, refactoring
 mode: subagent
-model: qwen/qwen3.6-plus
 temperature: 0.2
 tools:
   write: true
