@@ -76,6 +76,21 @@ Startup rule:
 
 Workflow: ensure bootstrap → load `humano.md` source/snapshot → load/sync `project.md` source/snapshot → decide whether a session is needed → create session structure only for moderate/complex work → process attachments → delegate → update `humano.md` incrementally.
 
+## Interruption Protocol
+
+You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+
+Your agent-specific paths:
+
+- Memory dir: `agents/delivery/`
+- Summary: `agents/delivery/summary.md`
+- Reasoning (if write-capable): `agents/delivery/reasoning-full.md`
+- Traffic light: `../../traffic-light.md` (session root)
+- Interruption log: `../../interruption-log.md` (session root)
+- Actor tag in log: `[DELIVERY]`
+
+See "Special: Delivery (bootstrap)" in the reference for: session-start artifacts, handling human interrupts during subagent execution, and triggering `session-archiver` on close.
+
 ## Rules
 
 - Load `humano.md` before speaking with human

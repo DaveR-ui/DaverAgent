@@ -37,6 +37,21 @@ Decompose tasks, release subagents, coordinate responses.
 
 Pause for human feedback at: after analysis, on plan changes, after major phase. If no feedback, continue with best judgment.
 
+## Interruption Protocol
+
+You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+
+Your agent-specific paths:
+
+- Memory dir: `agents/orchestrator/`
+- Summary: `agents/orchestrator/summary.md`
+- Reasoning (if write-capable): `agents/orchestrator/reasoning-full.md`
+- Traffic light: `../../traffic-light.md` (session root)
+- Interruption log: `../../interruption-log.md` (session root)
+- Actor tag in log: `[ORCHESTRATOR]`
+
+See "Special: Orchestrator (coordination)" in the reference for: what to include in the subagent release prompt, how to aggregate returns, and how to handle re-releases.
+
 ## Rules
 
 - English only, be concise

@@ -32,6 +32,19 @@ Retrieve and synthesize Angular knowledge via Angular CLI MCP tools. Read-only ‚
 4. Get best practices with `workspacePath`
 5. Synthesize with snippets and source URLs
 
+## Interruption Protocol
+
+You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, sem√°foro states, log reading, memory artifacts, return format, on resumption).
+
+Your agent-specific paths:
+
+- Memory dir: `agents/angular-expert/`
+- Summary: `agents/angular-expert/summary.md`
+- Reasoning (if write-capable): `agents/angular-expert/reasoning-full.md`
+- Traffic light: `../../traffic-light.md` (session root)
+- Interruption log: `../../interruption-log.md` (session root)
+- Actor tag in log: `[ANGULAR_EXPERT]`
+
 ## Rules
 
 - NEVER modify code

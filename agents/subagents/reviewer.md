@@ -35,6 +35,19 @@ Analyze code — never modify it.
 APPROVE / REQUEST_CHANGES / NEEDS_DISCUSSION
 ```
 
+## Interruption Protocol
+
+You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+
+Your agent-specific paths:
+
+- Memory dir: `agents/reviewer/`
+- Summary: `agents/reviewer/summary.md`
+- Reasoning (if write-capable): `agents/reviewer/reasoning-full.md`
+- Traffic light: `../../traffic-light.md` (session root)
+- Interruption log: `../../interruption-log.md` (session root)
+- Actor tag in log: `[REVIEWER]`
+
 ## Rules
 
 - NEVER modify code

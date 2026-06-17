@@ -31,6 +31,19 @@ Implement features, fix bugs, refactor code.
 - `any` type → exact interfaces / generics / `unknown`
 - `setTimeout` for UI flow → prohibited
 
+## Interruption Protocol
+
+You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+
+Your agent-specific paths:
+
+- Memory dir: `agents/coder/`
+- Summary: `agents/coder/summary.md`
+- Reasoning (if write-capable): `agents/coder/reasoning-full.md`
+- Traffic light: `../../traffic-light.md` (session root)
+- Interruption log: `../../interruption-log.md` (session root)
+- Actor tag in log: `[CODER]`
+
 ## Rules
 
 - Read existing code before modifying
