@@ -20,8 +20,13 @@
 
 ## Opencode Paths
 
+- **Opencode home**: `~/.config/opencode/`
+- **Opencode home guide**: `~/.config/opencode/README.md`
+- **Human profile source**: `~/.config/opencode/humans/david.romaniuk/humano.md`
+- **Project context source**: `~/.config/opencode/projects/DFCustomerPortal_SPA_AIR226766/project.md`
 - **Sessions root**: `~/.config/opencode/sessions/`
-- **Human profile**: `~/.config/opencode/sessions/david.romaniuk/humano.md`
+- **Session snapshots**: `~/.config/opencode/sessions/david.romaniuk/DFCustomerPortal_SPA_AIR226766/`
+- **Bootstrap scripts (repo source)**: `.opencode/scripts/`
 - **Agent prompts**: `.opencode/agents/`
 - **Skills**: `.opencode/skills/`
 - **Routing rules**: `.opencode/llm-routing.md`, `.opencode/model-routing.md`
@@ -59,7 +64,7 @@ npm run lint:agents
 | `librarian` | Angular/Opencode/VSCode docs |
 | `doc-maintainer` | Doc health validation |
 | `customize-opencode` | Opencode config editing |
-| `sessions-setup` | Sessions bootstrap |
+| `sessions-setup` | Sessions/bootstrap structure audit |
 
 ## LLM Routing
 
@@ -70,3 +75,4 @@ See `.opencode/llm-routing.md` and `.github/agent-workflows/llm-routing.md`.
 - This file is opencode config, NOT project documentation
 - For project info (Angular version, conventions, anti-patterns), see `.github/agent-context/`
 - Do not duplicate info from agent-context here
+- For opencode home structure, bootstrap flow, and file purposes, see `.opencode/session-structure.md`

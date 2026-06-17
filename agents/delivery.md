@@ -7,6 +7,8 @@ permission:
     canonical-prompter: allow
     context-reductor: allow
     librarian: allow
+    sessions-setup: allow
+    customize-opencode: allow
   task:
     orchestrator: allow
     coder: allow
@@ -55,9 +57,24 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 
 ## Sessions
 
-`SESSIONS_ROOT = ~/.config/opencode/sessions/` — structure: `{humano}/{project}/{DDMMYYYY-keywords}/` with `general-context.md`, `enhanced-prompt.md`, `scope.md`, `assets/`.
+`OPENCODE_HOME = ~/.config/opencode/`
 
-Workflow: load `humano.md` → load/sync `project.md` → propose session name → create structure → process attachments → delegate → update `humano.md` incrementally.
+Required base layout:
+- `README.md` — explains the top-level purpose of the opencode home
+- `humans/{human_id}/humano.md` — master human profile source
+- `projects/{project_id}/project.md` — master project source copied from repo docs
+- `sessions/_scripts/` — bootstrap and sync helpers
+- `sessions/_templates/` — templates for session artifacts
+- `sessions/{human_id}/humano.md` — session snapshot copy
+- `sessions/{human_id}/{project_id}/project.md` — condensed session snapshot
+- `sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}/` — work session with `general-context.md`, `enhanced-prompt.md`, `scope.md`, `assets/`
+
+Startup rule:
+- Do NOT assume the base layout already exists.
+- If required directories/files are missing, treat it as a bootstrapable configuration state, not a runtime failure.
+- Use the `sessions-setup` skill and the bootstrap script documented in `.opencode/session-structure.md`.
+
+Workflow: ensure bootstrap → load `humano.md` source/snapshot → load/sync `project.md` source/snapshot → decide whether a session is needed → create session structure only for moderate/complex work → process attachments → delegate → update `humano.md` incrementally.
 
 ## Rules
 
@@ -65,3 +82,4 @@ Workflow: load `humano.md` → load/sync `project.md` → propose session name �
 - Load `project.md` before creating sessions
 - Update `humano.md` incrementally, keep it compact
 - Infer project slang from codebase
+- Prefer source-of-truth docs/scripts over implicit filesystem assumptions
