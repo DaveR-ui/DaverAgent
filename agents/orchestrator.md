@@ -10,14 +10,15 @@ tools:
   skill: true
   task: true
 permission:
-  skill:
-    librarian: allow
   task:
     coder: allow
     tester: allow
     reviewer: allow
     architect: allow
     project-context: allow
+    angular-expert: allow
+    opencode-expert: allow
+    vscode-expert: allow
 ---
 
 # Orchestrator Agent

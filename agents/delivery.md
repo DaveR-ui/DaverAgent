@@ -6,7 +6,6 @@ permission:
   skill:
     canonical-prompter: allow
     context-reductor: allow
-    librarian: allow
     sessions-setup: allow
     customize-opencode: allow
   task:
@@ -17,6 +16,9 @@ permission:
     architect: allow
     explorer: allow
     project-context: allow
+    angular-expert: allow
+    opencode-expert: allow
+    vscode-expert: allow
   external_directory:
     "~/.config/opencode/**": "allow"
 ---
@@ -29,13 +31,15 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 
 | Layer | Location | Role |
 |---|---|---|
-| **Documentation** | `.github/agent-context/` | Canonical project info |
+| **Project documentation** | `.github/agent-context/` | Canonical project info |
+| **Opencode documentation** | `.opencode/docs/{angular,opencode,vscode}/` | Reference docs for the three expert subagents |
 | **Agents** | `.opencode/agents/` | Reference docs, do not duplicate |
 
 **Routing**:
 - "Update project info" → edit `.github/agent-context/` via `project-context`
-- "Improve opencode" → edit `.opencode/agents/`
+- "Improve opencode" → edit `.opencode/agents/` or `.opencode/docs/`
 - "Need project context" → delegate to `project-context`
+- "Question about Angular / Opencode / VSCode" → delegate to `angular-expert` / `opencode-expert` / `vscode-expert`
 
 ## Delegation
 

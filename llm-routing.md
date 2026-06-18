@@ -36,16 +36,19 @@ When the context is trending toward the budget limit:
 1. Keep only the bounded task slice, current plan, and the smallest necessary evidence.
 2. Replace large file dumps with targeted excerpts or summaries.
 3. Split exploration into a separate `explorer` handoff instead of bloating the execution agent.
-4. Route documentation lookup through `librarian` / Gemini instead of carrying raw docs into GPT-5.4.
+4. Route documentation lookup through the dedicated expert subagents (see below) instead of carrying raw docs into GPT-5.4.
 5. If needed, split the work into multiple bounded subagents rather than letting one context sprawl.
 
 ## Documentation Topic Fast Path
 
-When the user asks for **Opencode**, **VSCode**, or **Angular** documentation/data lookup:
+When the user asks for **Angular**, **Opencode**, or **VSCode** documentation/data lookup:
 
-1. Use the **`librarian` skill** first.
-2. Keep the answer read-only unless the user explicitly asks for configuration changes.
-3. Because this route is documentation/research, default to the **Docs / Read-Only** route and apply compact-output discipline.
+1. Delegate to the dedicated read-only expert subagent:
+   - `angular-expert` — consults `.opencode/docs/angular/` and Angular CLI / AG Grid MCP tools.
+   - `opencode-expert` — consults `.opencode/docs/opencode/`.
+   - `vscode-expert` — consults `.opencode/docs/vscode/`.
+2. These agents are **read-only** and **must not** fall back to the web or to training data. If the expected docs folder is missing, they report the exact path and stop.
+3. Because this route is documentation/research, default to the **Docs / Read-Only** route and apply compact-output discipline. Keep the answer read-only unless the user explicitly asks for configuration changes.
 
 ## Exploration Fast Path
 

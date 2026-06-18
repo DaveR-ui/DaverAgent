@@ -61,10 +61,17 @@ npm run lint:agents
 | `postgres-best-practices` | Supabase Postgres optimization |
 | `canonical-prompter` | Prompt analysis |
 | `context-reductor` | Scope definition |
-| `librarian` | Angular/Opencode/VSCode docs |
 | `doc-maintainer` | Doc health validation |
 | `customize-opencode` | Opencode config editing |
 | `sessions-setup` | Sessions/bootstrap structure audit |
+
+## Expert Documentation Subagents
+
+| Subagent | Purpose |
+|---|---|
+| `angular-expert` | Angular + AG Grid — uses `.opencode/docs/angular/` and Angular CLI / AG Grid MCP tools |
+| `opencode-expert` | Opencode — reads `.opencode/docs/opencode/` |
+| `vscode-expert` | VSCode — reads `.opencode/docs/vscode/` |
 
 ## LLM Routing
 
