@@ -84,6 +84,7 @@ When invoking the orchestrator, use this structure:
 - Branch: <current branch from `git branch --show-current`>
 - Recent changes: <1-3 line summary of what changed since last orchestrator>
 - Hot files: <paths if relevant, e.g., files the human mentioned>
+- Session path: ~/.config/opencode/sessions/{human_id}/{project_id}/{session_id}
 
 ## Prior orchestrator snapshot (if restart)
 <paste the agent-snapshot from the previous orchestrator instance>
@@ -93,6 +94,7 @@ When invoking the orchestrator, use this structure:
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
 - Run `npm run lint` and `npm test` before reporting done
+- Initialize manifest at {session_path}/agents/manifest.md before releasing subagents
 
 ## Stop conditions
 Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
@@ -115,6 +117,12 @@ DONE | NEEDS_HUMAN | STUCK
 
 ## Files changed
 - `path/to/file.ts` — <what was done>
+
+## Agent outputs (on disk)
+- Manifest: `{session_path}/agents/manifest.md`
+- Coder: `{session_path}/agents/coder-{timestamp}/summary.md`
+- Tester: `{session_path}/agents/tester-{timestamp}/summary.md`
+- <other agents as applicable>
 
 ## Commands run
 - `npm run lint` — OK

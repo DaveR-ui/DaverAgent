@@ -7,6 +7,9 @@ tools:
   edit: true
   bash: true
   read: true
+permission:
+  external_directory:
+    "~/.config/opencode/sessions/**": allow
 ---
 
 # Tester Subagent
@@ -35,6 +38,15 @@ Your agent-specific paths:
 - Traffic light: `../../traffic-light.md` (session root)
 - Interruption log: `../../interruption-log.md` (session root)
 - Actor tag in log: `[TESTER]`
+
+## Output Protocol
+
+See `.opencode/docs/agent-output-protocol.md` for the complete specification.
+
+**Quick reference**:
+- Return summary (5-10 lines) to orchestrator
+- Write `summary.md` + `output-full.md` to `{session_path}/agents/tester-{timestamp}/`
+- Append row to `{session_path}/agents/manifest.md`
 
 ## Rules
 

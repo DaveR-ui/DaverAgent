@@ -66,6 +66,7 @@ You will receive a handoff prompt structured like this:
 - Branch: <current branch>
 - Recent changes: <1-3 line summary>
 - Hot files: <paths if relevant>
+- Session path: ~/.config/opencode/sessions/{human}/{project}/{session_id}
 
 ## Prior orchestrator snapshot (if restart)
 <paste the agent-snapshot from the previous orchestrator instance>
@@ -80,6 +81,15 @@ You will receive a handoff prompt structured like this:
 Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
 Plus an `agent-snapshot` block.
 ```
+
+### Session Initialization
+
+On receiving the handoff:
+
+1. **Extract the session_path** from the handoff prompt
+2. **Create the agents directory**: `{session_path}/agents/`
+3. **Initialize the manifest**: Copy `sessions/_templates/agent-manifest-template.md` to `{session_path}/agents/manifest.md`
+4. **Pass session_path to all subagents** when releasing them
 
 ### Output (to delivery)
 
@@ -99,6 +109,12 @@ DONE | NEEDS_HUMAN | STUCK
 - `path/to/file.ts` — <what was done>
 - `path/to/other.ts` — <what was done>
 
+## Agent outputs (on disk)
+- Manifest: `{session_path}/agents/manifest.md`
+- Coder: `{session_path}/agents/coder-{timestamp}/summary.md`
+- Tester: `{session_path}/agents/tester-{timestamp}/summary.md`
+- <other agents as applicable>
+
 ## Commands run
 - `npm run lint` — OK
 - `npm test` — 12 passed
@@ -109,6 +125,16 @@ DONE | NEEDS_HUMAN | STUCK
 ## Resume instructions (if restart)
 For the next orchestrator: <3-5 lines with the minimum context needed to continue>
 ```
+
+## Subagent Output Protocol
+
+See `.opencode/docs/agent-output-protocol.md` for the complete specification.
+
+**Quick reference**:
+1. Before releasing subagents: Create `{session_path}/agents/manifest.md` from template
+2. Pass `session_path` to subagents when releasing them
+3. Subagents return only summaries (5-10 lines), write full outputs to disk
+4. If you need details: Read the physical file instead of asking subagent to repeat
 
 ## Available Subagents
 

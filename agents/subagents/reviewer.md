@@ -3,10 +3,13 @@ description: Reviewer subagent - Code review, security audit, best practices, pe
 mode: subagent
 temperature: 0.1
 tools:
-  write: false
+  write: true
   edit: false
   bash: true
   read: true
+permission:
+  external_directory:
+    "~/.config/opencode/sessions/**": allow
 ---
 
 # Reviewer Subagent
@@ -47,6 +50,15 @@ Your agent-specific paths:
 - Traffic light: `../../traffic-light.md` (session root)
 - Interruption log: `../../interruption-log.md` (session root)
 - Actor tag in log: `[REVIEWER]`
+
+## Output Protocol
+
+See `.opencode/docs/agent-output-protocol.md` for the complete specification.
+
+**Quick reference**:
+- Return summary (5-10 lines) to orchestrator
+- Write `summary.md` + `output-full.md` to `{session_path}/agents/reviewer-{timestamp}/`
+- Append row to `{session_path}/agents/manifest.md`
 
 ## Rules
 

@@ -24,6 +24,7 @@ The delivery agent and session workflow use files outside the repo for human-spe
     ├── README.md                         # snapshot/session rules
     ├── _scripts/                         # bootstrap, sync, new-session helpers
     ├── _templates/                       # templates copied by bootstrap
+    │   └── agent-manifest-template.md    # template for agent output manifest
     └── {human_id}/
         ├── humano.md                     # synced human snapshot used by sessions
         └── {project_id}/
@@ -32,7 +33,24 @@ The delivery agent and session workflow use files outside the repo for human-spe
                 ├── general-context.md    # raw prompt + translation + metadata
                 ├── enhanced-prompt.md    # optional prompt-analysis output
                 ├── scope.md              # optional scope-analysis output
-                └── assets/               # attached files/images for the task
+                ├── assets/               # attached files/images for the task
+                └── agents/               # subagent outputs (physical files)
+                    ├── manifest.md       # index of all agent outputs in this session
+                    ├── coder-{timestamp}/
+                    │   ├── summary.md    # short report returned to orchestrator
+                    │   └── output-full.md # detailed report with diffs, logs, etc.
+                    ├── tester-{timestamp}/
+                    │   ├── summary.md
+                    │   └── output-full.md
+                    ├── reviewer-{timestamp}/
+                    │   ├── summary.md
+                    │   └── output-full.md
+                    ├── explorer-{timestamp}/
+                    │   ├── summary.md
+                    │   └── output-full.md
+                    └── architect-{timestamp}/
+                        ├── summary.md
+                        └── output-full.md
 ```
 
 ## Purpose of each relevant item
@@ -52,6 +70,10 @@ The delivery agent and session workflow use files outside the repo for human-spe
 | `sessions/{human_id}/{project_id}/project.md` | Session-facing condensed copy of the project source. |
 | `sessions/{human_id}/{project_id}/{session_id}/general-context.md` | Preserves the original request and session metadata. |
 | `sessions/{human_id}/{project_id}/{session_id}/assets/` | Stores task-specific attachments. |
+| `sessions/{human_id}/{project_id}/{session_id}/agents/` | Physical outputs from subagents (summaries + full reports). |
+| `sessions/{human_id}/{project_id}/{session_id}/agents/manifest.md` | Index of all agent outputs; orchestrator reads this to know what was done. |
+| `sessions/{human_id}/{project_id}/{session_id}/agents/{agent}-{timestamp}/summary.md` | Short report returned to orchestrator (keeps context small). |
+| `sessions/{human_id}/{project_id}/{session_id}/agents/{agent}-{timestamp}/output-full.md` | Detailed report with diffs, logs, findings (read on demand). |
 
 ## Source vs snapshot rules
 
