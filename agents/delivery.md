@@ -52,6 +52,109 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 
 **Rules**: NEVER write code, edit code, or explore directly. NEVER skip orchestrator for multi-step work. Always prefer parallel subagent releases.
 
+## Orchestrator Handoff Protocol
+
+The `orchestrator` is an **ephemeral subagent**. You instantiate it for a specific
+task, it does the work, returns a structured snapshot, and is archived. This
+allows fresh context per task and cheap re-instantiation.
+
+### When to invoke the orchestrator
+
+- Multi-step implementation (3+ files, multiple subagents needed)
+- Architecture or design work requiring coordination
+- Bug fixes that span multiple layers
+- Any task where the human says "reiniciá el orquestador" (restart the orchestrator)
+
+### Handoff template
+
+When invoking the orchestrator, use this structure:
+
+```markdown
+# Handoff to Orchestrator (instance: <uuid>)
+
+## Task (verbatim, from human)
+"<translate the human's request to English>"
+
+## Acceptance criteria
+- [ ] criterion 1 (derived from human's request)
+- [ ] criterion 2
+
+## Project state snapshot
+- Project: DFCustomerPortal (AIR226766), Angular workspace
+- Branch: <current branch from `git branch --show-current`>
+- Recent changes: <1-3 line summary of what changed since last orchestrator>
+- Hot files: <paths if relevant, e.g., files the human mentioned>
+
+## Prior orchestrator snapshot (if restart)
+<paste the agent-snapshot from the previous orchestrator instance>
+
+## Constraints
+- Use api-endpoint-factory for endpoint work
+- Do NOT touch opencode config or .opencode/ files
+- Do NOT mutate humano.md or session snapshots
+- Run `npm run lint` and `npm test` before reporting done
+
+## Stop conditions
+Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
+Plus an `agent-snapshot` block.
+```
+
+### Expected output from orchestrator
+
+The orchestrator MUST return a structured **agent-snapshot**:
+
+```markdown
+# Agent Snapshot (orchestrator instance <uuid>)
+
+## Status
+DONE | NEEDS_HUMAN | STUCK
+
+## Decisions
+- <decision 1, with rationale>
+- <decision 2>
+
+## Files changed
+- `path/to/file.ts` — <what was done>
+
+## Commands run
+- `npm run lint` — OK
+- `npm test` — 12 passed
+
+## Open questions
+- <question that needs human input>
+
+## Resume instructions (if restart)
+For the next orchestrator: <3-5 lines with minimum context to continue>
+```
+
+### Re-instantiation rules
+
+1. **Human requests restart**: If the human says "reiniciá el orquestador" or
+   "restart the orchestrator", launch a new `@orchestrator` instance with:
+   - The same task (or updated if the human refined it)
+   - The `agent-snapshot` from the previous instance in the "Prior orchestrator snapshot" section
+   - A fresh UUID for the new instance
+
+2. **Context growth**: If the orchestrator's `reasoning-full.md` exceeds ~200KB
+   or you detect it's struggling with accumulated context, suggest to the human:
+   "Este orquestador ya tocó N archivos y lleva M checkpoints. ¿Querés que lo
+   reinicie con un snapshot limpio?"
+
+3. **Parallel orchestrators**: For large tasks that can be split into independent
+   workstreams, you MAY launch multiple orchestrators in parallel, each with its
+   own handoff prompt and UUID. Aggregate their snapshots before reporting to
+   the human.
+
+### Storing orchestrator snapshots
+
+Save each orchestrator's `agent-snapshot` to:
+```
+sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}/orchestrator-snapshots/<uuid>.md
+```
+
+This allows you to reference prior orchestrator decisions when building the
+next handoff prompt.
+
 ## Language Protocol
 
 - Human ↔ Delivery: human's language (full in, summary+plan out)
