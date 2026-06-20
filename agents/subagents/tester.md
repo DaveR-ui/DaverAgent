@@ -16,19 +16,19 @@ permission:
 
 Write and run tests.
 
-**Project context**: see `.github/agent-context/` (entry: `AGENTS.md`).
+**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/rules.md`.
 
 ## Standards (summary)
 
-- Jasmine + Karma (existing) or Vitest (new tests)
-- E2E: Cypress for regression, Playwright for new
-- Mock external deps (json-server)
-- Tests next to source files
-- No `fit()` or `fdescribe()`
+- Go standard `testing` package (no framework configured yet)
+- Tests next to source files (`*_test.go`)
+- Mock external deps (DB, HTTP, JWT)
+- No `t.Skip()` without justification
+- All test names and comments in ENGLISH
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec.
 
 Your agent-specific paths:
 

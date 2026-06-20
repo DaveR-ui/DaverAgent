@@ -32,14 +32,14 @@ Use this skill when:
 ## Input Requirements
 
 1. **Raw prompt** from the user
-2. **Project context** from `.opencode/project.md`
+2. **Project context** from `docs/project.md` (entry point) and relevant `docs/context/*.md` files
 3. **Human context** from `~/.config/opencode/sessions/{humano}/humano.md` (for vocabulary)
 
 ## Analysis Process
 
 ### Step 1: Load Context
 Read:
-- `.opencode/project.md` for project structure (always)
+- `docs/project.md` for project structure (always)
 - `humano.md` for vocabulary and communication preferences
 
 Load from humano.md:
@@ -50,7 +50,7 @@ Load from humano.md:
 For each significant term in the prompt:
 
 1. Check if it exists in the **Translation Dictionary** → resolve meaning
-2. If not found → infer meaning from project context (project.md architecture, module names)
+2. If not found → infer meaning from project context (`docs/project.md` architecture, module names)
 3. Use general development terminology knowledge
 4. Flag ambiguous terms for potential clarification
 
@@ -76,7 +76,7 @@ Assign **confidence level**: high (clear keywords + context), medium (some ambig
 
 ### Step 5: Module Identification
 Map prompt terms to modules:
-- Use project.md module structure + contextual analysis
+- Use `docs/project.md` module structure + contextual analysis
 
 | Module | Confidence | Evidence |
 |--------|------------|----------|
@@ -257,7 +257,7 @@ The output of this skill feeds directly into:
 ## Notes
 
 - The dictionary (`humano.md`) enhances analysis but is NOT required
-- If no dictionary exists, use project.md structure and general heuristics
+- If no dictionary exists, use `docs/project.md` structure and general heuristics
 - Simple inferences save time; complex ambiguities save accuracy by asking
 - Questions are a safety valve - use them, don't guess
 - Always preserve the original prompt verbatim

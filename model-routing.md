@@ -7,7 +7,7 @@ This file is the compatibility entry point for model-selection rules.
 | Scope | Source of Truth |
 | --- | --- |
 | Opencode runtime agents (`opencode.json`, intake, orchestration, delivery flow) | `.opencode/llm-routing.md` |
-| `.github` agent network (`.github/agents`, `.github/agent-workflows`) | `.github/agent-workflows/llm-routing.md` |
+| (legacy) `.github` agent network | not used in this repo — single source: `.opencode/llm-routing.md` |
 
 ## Important Rule
 

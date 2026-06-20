@@ -13,17 +13,21 @@ tools:
 
 Implement features, fix bugs, refactor code.
 
-**Project context**: see `.github/agent-context/` (entry: `AGENTS.md`).
+**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
 ## Pauses
 
-- Before implementation — task, files, approach, risks
-- On unexpected findings — expected vs found, impact, proposed fix
-- After completion — changes, test status, next steps
+- Before implementation - task, files, approach, risks
+- On unexpected findings - expected vs found, impact, proposed fix
+- After completion - changes, test status, next steps
 
 ## Rules
 
-- Follow `.github/agent-context/coding-conventions.md`
-- Signals-first, OnPush, standalone components, `rxResource()` for async
-- `debugName` on all signals
+- Follow `docs/context/architecture.md` for layering
+- Follow `docs/context/rules.md` for development standards
+- Follow `docs/context/api-contracts.md` for HTTP responses
+- For permission system work, follow `docs/context/permission-architecture.md`
+- Use the `api-endpoint-factory` skill for new endpoints
 - Write tests for new functionality
+- All comments and docs in ENGLISH
+- Never commit without explicit instruction

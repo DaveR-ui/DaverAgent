@@ -1,26 +1,42 @@
 # project.md Policy
 
-## Two-Tier Structure
+## Two-Tier Structure (in `~/.config/opencode/`)
 
 | Tier | Location | Content |
-|------|----------|---------|
-| **Source** | `projects/{project_id}/project.md` | Faithful copy of repo's `.opencode/project.md` with review metadata header. Updated when repo changes. |
-| **Sessions copy** | `sessions/{human_id}/{project_id}/project.md` | Condensed version for fast context loading. |
+|---|---|---|
+| **Master source** | `projects/{project_id}/project.md` | Mirror of `docs/project.md` with review metadata header. Updated when the repo changes. |
+| **Session slang snapshot** | `sessions/{human_id}/{project_id}/project.md` | **Project slang / lunfardo del proyecto.** Internal jargon, abbreviations, how this codebase names things. Inferred from codebase with confidence levels. NOT a copy of `docs/project.md`. |
 
-## Sessions Copy Contains
+## Why Two Tiers
 
-1. **Overview** - project name, ID, description
-2. **Technology Stack** - single-line per category
-3. **Architecture** - 3-line summary (pattern, data flow, structure)
-4. **Project Slang** - inferred from codebase with confidence levels (High/Medium/Low)
-5. **Key Skills** - list of available skills
-6. **Additional Notes** - pointers to key documentation files
-7. **Review metadata** - Last Reviewed, Next Review Due, Cadence
+- `docs/project.md` is the **canonical metadata** (stack, commands, domain entities). It is part of the repo, version-controlled, and shared across all humans working on the project.
+- The session slang snapshot is **per-human and per-project**. It captures how THIS human refers to project concepts ("el polvo", "la factura"). Like `humano.md`, it is a translation dictionary, not a doc to be edited for the world.
+
+## Master Source Contains
+
+1. The full content of `docs/project.md` (verbatim)
+2. A header with:
+   - `ROLE: master source file`
+   - `SOURCE REPO: {repo_path}/docs/project.md`
+   - `LAST REVIEWED`, `NEXT REVIEW DUE`, `REVIEW CADENCE: monthly`
+
+## Session Slang Snapshot Contains
+
+1. The header above (sans `SOURCE REPO` link, replaced with `SESSION FOR`)
+2. A short note explaining the difference from `humano.md`
+3. A table: Term | Meaning | Location (code) | Confidence
+4. Optionally: business-specific dictionaries (e.g. for a "metafuegos" project: `polvo`, `matafuego`, `factura` -> English equivalents)
+
+## Sync Direction
+
+- `docs/project.md` -> `projects/{project_id}/project.md`: handled by `sync-project.ps1`.
+- `projects/{project_id}/project.md` -> `docs/project.md`: NEVER automatic. The repo doc is the source of truth; if it needs to change, edit the repo.
+- `projects/{project_id}/project.md` -> `sessions/{human_id}/{project_id}/project.md`: only the human-agnostic project content is mirrored; the slang table is per-human and stays in the session.
 
 ## Review Cadence
 
 - Default: **monthly (~30 days)**
 - Review earlier if:
-  - Repo's `.opencode/project.md` changed materially
+  - `docs/project.md` changed materially
   - Architecture or base technology changed
-  - Current task needs context not covered by the snapshot
+  - The human starts using new project jargon

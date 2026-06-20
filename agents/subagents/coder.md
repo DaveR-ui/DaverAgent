@@ -16,27 +16,28 @@ permission:
 
 Implement features, fix bugs, refactor code.
 
-**Project context**: see `.github/agent-context/` (entry: `AGENTS.md`).
+**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
 ## Standards (summary)
 
-- Angular 21, TypeScript 5.9, standalone, OnPush
-- Signals: `input<T>()`, `output<T>()`, `signal()`, `computed()`, `rxResource()`
-- DI: `inject()`; cleanup: `DestroyRef` + `takeUntilDestroyed()`
-- `debugName` on all signals
+- Go 1.24, layered architecture (`docs/context/architecture.md`)
+- GORM v1.30 with PostgreSQL
+- Gin v1.10 HTTP framework
+- JWT auth via `golang-jwt/jwt/v5`
+- Errors defined as constants in the same file as their model
+- New domain entities must have seed logic and JSON data in `internal/domain/jsons/`
 
 ## Anti-Patterns
 
-- `Promise.then()` in components → use `rxResource` / `toSignal`
-- Manual `.subscribe()` → signals / `async` pipe
-- `UntilDestroy` / `untilDestroyed()` → `DestroyRef`
-- `::ng-deep` → only third-party
-- `any` type → exact interfaces / generics / `unknown`
-- `setTimeout` for UI flow → prohibited
+- Business logic in HTTP handlers (use services)
+- Direct GORM access from transport (use repositories)
+- Hardcoded strings for feature keys (use `service.ValidFeatures`)
+- `any` / `interface{}` when a concrete type is possible
+- Mutating shared state without locking
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec.
 
 Your agent-specific paths:
 

@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Installer Schema",
+  "description": "Data-driven schema for the agent installer. Each phase produces a section of the generated docs/ tree and .opencode/ tree.",
+  "phases": [
+    {
+      "id": "phase1_project_meta",
+      "title": "Phase 1 - Project Metadata",
+      "description": "Generates docs/project.md",
+      "questions": [
+        {
+          "id": "project_name",
+          "prompt": "Project name (kebab-case, used as docs id)",
+          "type": "string",
+          "required": true,
+          "default_from": "repo_dir_name",
+          "validation": "^[a-z0-9-]+$"
+        },
+        {
+          "id": "project_display_name",
+          "prompt": "Project display name (human readable)",
+          "type": "string",
+          "required": true
+        },
+        {
+          "id": "project_description",
+          "prompt": "One-line description of what this project does",
+          "type": "string",
+          "required": true
+        },
+        {
+          "id": "primary_language",
+          "prompt": "Primary language",
+          "type": "choice",
+          "options": ["go", "typescript", "javascript", "python", "rust", "java", "kotlin", "csharp", "other"],
+          "default": "go"
+        },
+        {
+          "id": "framework",
+          "prompt": "Main web framework (or 'none')",
+          "type": "string",
+          "default": "none"
+        },
+        {
+          "id": "database",
+          "prompt": "Database (or 'none')",
+          "type": "string",
+          "default": "none"
+        },
+        {
+          "id": "orm",
+          "prompt": "ORM / query builder (or 'none')",
+          "type": "string",
+          "default": "none"
+        },
+        {
+          "id": "auth",
+          "prompt": "Auth method (jwt, session, oauth, none)",
+          "type": "string",
+          "default": "none"
+        },
+        {
+          "id": "secrets",
+          "prompt": "Secrets source (env, gcp-secret-manager, aws-sm, vault, none)",
+          "type": "string",
+          "default": "env"
+        },
+        {
+          "id": "architecture_pattern",
+          "prompt": "Architecture pattern",
+          "type": "choice",
+          "options": ["layered", "clean", "hexagonal", "mvc", "flat", "other"],
+          "default": "layered"
+        },
+        {
+          "id": "backend_structure",
+          "prompt": "Backend folder structure (one entry per line, e.g. cmd/server/main.go - entry point)",
+          "type": "multiline",
+          "default": "cmd/server/main.go - Application entry point"
+        },
+        {
+          "id": "dev_command",
+          "prompt": "Dev run command (e.g. 'go run cmd/server/main.go')",
+          "type": "string",
+          "default": ""
+        },
+        {
+          "id": "db_command",
+          "prompt": "Database start command (or empty)",
+          "type": "string",
+          "default": ""
+        },
+        {
+          "id": "db_reset_command",
+          "prompt": "Database reset/seed command (or empty)",
+          "type": "string",
+          "default": ""
+        },
+        {
+          "id": "docker_command",
+          "prompt": "Docker compose command (or empty)",
+          "type": "string",
+          "default": "docker compose up --build"
+        },
+        {
+          "id": "domain_entities",
+          "prompt": "Domain entities (comma-separated, kebab-case or snake_case)",
+          "type": "string",
+          "default": ""
+        },
+        {
+          "id": "slices",
+          "prompt": "Project slices - the major 'pizza slices' that the orchestrator should route on. Format per line: slice_id | description | entry paths (comma) | primary agents (comma)",
+          "type": "multiline",
+          "default": "",
+          "examples": [
+            "backend | Core API + business logic | internal/,cmd/ | coder,reviewer",
+            "permissions | Atomic permission system | internal/domain/permission_model.go,internal/service/permission_service.go | coder,reviewer",
+            "docs | Documentation maintenance | docs/ | documenter,coder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase2_context_docs",
+      "title": "Phase 2 - Context Docs",
+      "description": "Generates docs/context/*.md files. Each selected context becomes a stub file with placeholder content; the human fills in the substance later.",
+      "questions": [
+        {
+          "id": "context_selection",
+          "prompt": "Which context docs do you want to enable? (comma-separated ids)",
+          "type": "string",
+          "default": "architecture,api-contracts,rule,naming-registry",
+          "options": [
+            "architecture",
+            "api-contracts",
+            "business-logic",
+            "rules",
+            "naming-registry",
+            "context-chunking-strategy",
+            "docker-strategy",
+            "indexing-strategy",
+            "permission-architecture",
+            "permission-troubleshooting"
+          ]
+        }
+      ],
+      "context_templates": {
+        "architecture": {
+          "filename": "architecture.md",
+          "title": "Architecture",
+          "default_body": "## Layers\n\nDescribe the layers in your architecture (e.g. transport -> service -> repository -> domain).\n\n## Dependency rules\n\nWhat can import what.\n"
+        },
+        "api-contracts": {
+          "filename": "api-contracts.md",
+          "title": "API Contracts",
+          "default_body": "## HTTP status codes\n\nDocument which codes you use and when.\n\n## Response shape\n\nStandard success and error envelopes.\n\n## Pagination\n\nCursor vs offset, page size limits.\n"
+        },
+        "business-logic": {
+          "filename": "business-logic.md",
+          "title": "Business Logic",
+          "default_body": "## Domain rules\n\nList the most important business invariants.\n\n## Workflows\n\nStep-by-step flows that cross multiple modules.\n"
+        },
+        "rules": {
+          "filename": "rules.md",
+          "title": "Development Rules",
+          "default_body": "## Coding standards\n\nLinter, formatter, naming conventions.\n\n## Error handling\n\nHow errors are defined, propagated, and translated to HTTP.\n\n## Security\n\nInput validation, secrets, auth checks.\n"
+        },
+        "naming-registry": {
+          "filename": "naming-registry.md",
+          "title": "Naming Registry",
+          "default_body": "## DB <-> Go <-> JSON mapping\n\nDocument the canonical names per layer.\n"
+        },
+        "context-chunking-strategy": {
+          "filename": "context-chunking-strategy.md",
+          "title": "Context Chunking Strategy",
+          "default_body": "If you use local models with limited context, document the chunking rules here."
+        },
+        "docker-strategy": {
+          "filename": "docker-strategy.md",
+          "title": "Docker Strategy",
+          "default_body": "## Base images\n\nMulti-stage build details.\n\n## Compose profiles\n\ndev, test, prod.\n"
+        },
+        "indexing-strategy": {
+          "filename": "indexing-strategy.md",
+          "title": "Indexing Strategy",
+          "default_body": "How docs are tagged for fast lookup by librarian/explorer agents."
+        },
+        "permission-architecture": {
+          "filename": "permission-architecture.md",
+          "title": "Permission Architecture",
+          "default_body": "## Data structure\n\nHow permissions are represented (bitmask, JSON, etc.).\n\n## Database\n\nTables, TTL, invalidation.\n\n## Service\n\nResolution logic.\n\n## Endpoints\n\nRoutes and middleware.\n"
+        },
+        "permission-troubleshooting": {
+          "filename": "permission-troubleshooting.md",
+          "title": "Permission Troubleshooting",
+          "default_body": "Common issues and fixes for the permission system."
+        }
+      }
+    },
+    {
+      "id": "phase3_slang",
+      "title": "Phase 3 - Project Slang",
+      "description": "Generates the session slang snapshot template with initial entries.",
+      "questions": [
+        {
+          "id": "slang_entries",
+          "prompt": "Project slang (lunfardo del proyecto). Format per line: term | meaning | code location | confidence (high/medium/low). Leave empty to start with a blank dictionary.",
+          "type": "multiline",
+          "default": "",
+          "examples": [
+            "polvo | powder inside a fire extinguisher | internal/domain/powder_model.go | high",
+            "matafuego | fire extinguisher | internal/domain/fire_extinguisher_model.go | high",
+            "factura | invoice | internal/domain/invoice_model.go | high"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase4_agents",
+      "title": "Phase 4 - Agent Selection",
+      "description": "Generates .opencode/agents/*.md and updates opencode.json.",
+      "questions": [
+        {
+          "id": "default_agent",
+          "prompt": "Default agent (primary interface for the human)",
+          "type": "choice",
+          "options": ["delivery", "build", "plan"],
+          "default": "delivery"
+        },
+        {
+          "id": "selected_subagents",
+          "prompt": "Subagents to enable (comma-separated)",
+          "type": "string",
+          "default": "coder,tester,reviewer,architect,explorer,documenter",
+          "options": ["coder", "tester", "reviewer", "architect", "explorer", "documenter", "project-context", "angular-expert", "opencode-expert", "vscode-expert"]
+        },
+        {
+          "id": "doc_language",
+          "prompt": "Language for documentation and comments (BCP-47 or 'en')",
+          "type": "string",
+          "default": "en"
+        },
+        {
+          "id": "enable_sessions_setup",
+          "prompt": "Bootstrap opencode home (humans/, projects/, sessions/)?",
+          "type": "bool",
+          "default": true
+        }
+      ]
+    }
+  ]
+}

@@ -20,7 +20,7 @@ Use this protocol whenever:
 Do NOT use this protocol for:
 
 - A standalone chat (no subagent running, no memory needed).
-- Cross-session recall (use the project-context agent against `.github/agent-context/` instead).
+- Cross-session recall (use the project-context agent against `docs/` instead).
 - Sub-second steering (the file bus has poll latency; for fast edits just edit and re-run).
 
 ## The 4 Artifacts

@@ -14,18 +14,20 @@ permission:
 
 # Reviewer Subagent
 
-Analyze code — never modify it.
+Analyze code - never modify it.
 
-**Project context**: see `.github/agent-context/` (entry: `AGENTS.md`).
+**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
 ## Review Checklist
 
-1. Architecture compliance (`.github/agent-context/architecture.md`)
-2. Coding conventions (`.github/agent-context/coding-conventions.md`)
-3. Security — secrets, auth, input validation
-4. Performance — no manual subs, OnPush, efficient CD
-5. Anti-patterns — no `Promise.then` in components, no `any`, no `::ng-deep`
-6. Testing — coverage, no `fit`/`fdescribe`, proper mocking
+1. Architecture compliance (`docs/context/architecture.md`)
+2. Development standards (`docs/context/rules.md`)
+3. API contracts (`docs/context/api-contracts.md`) for HTTP changes
+4. Permission system (`docs/context/permission-architecture.md`) for auth changes
+5. Security - secrets, auth, input validation
+6. Performance - N+1 queries, missing indexes, unbuffered channels
+7. Anti-patterns - business logic in handlers, raw SQL in services, `any` types
+8. Testing - coverage, proper mocking
 
 ## Output Format
 
@@ -40,7 +42,7 @@ APPROVE / REQUEST_CHANGES / NEEDS_DISCUSSION
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec.
 
 Your agent-specific paths:
 

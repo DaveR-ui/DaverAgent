@@ -31,7 +31,7 @@ Use this skill when:
 
 1. **Documentation root** - directory containing markdown files to validate
 2. **Code root** (optional) - directory containing source code for consistency checks
-3. **Project context** from `.opencode/project.md` (for module structure reference)
+3. **Project context** from `docs/project.md` (for module structure reference)
 
 ## Validation Process
 

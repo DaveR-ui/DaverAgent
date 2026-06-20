@@ -34,14 +34,14 @@ Use this skill when:
 ## Input Requirements
 
 1. **Structured analysis** from `canonical-prompter` (prompt type, modules, hints)
-2. **Project context** from `.opencode/project.md`
+2. **Project context** from `docs/project.md` (entry point) and relevant `docs/context/*.md` files
 3. **Project dictionary** from `humano.md` (for complexity indicators and hot spot patterns)
 
 ## Scope Analysis Process
 
 ### Step 1: Load Context
 Read:
-- `.opencode/project.md` for project structure
+- `docs/project.md` for project structure
 - Prompt analysis output from `canonical-prompter`
 
 ### Step 2: Parse Requirements

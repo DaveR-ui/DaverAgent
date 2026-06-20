@@ -16,7 +16,7 @@ permission:
 
 Design system architecture, define module boundaries, establish patterns.
 
-**Project context**: see `.github/agent-context/` (entry: `AGENTS.md`).
+**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md` + `docs/context/business-logic.md`.
 
 ## Pauses
 
@@ -35,8 +35,8 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 
 ## Principles
 
+- Follow `docs/context/architecture.md` (layered: transport -> service -> repository -> domain)
 - Favor simplicity over complexity
-- Signals-first, local state; minimize NgRx
-- Standalone components mandatory
 - Design for testability and maintainability
 - Document decisions with rationale
+- All documentation in ENGLISH

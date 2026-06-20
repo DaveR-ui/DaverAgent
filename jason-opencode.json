@@ -46,11 +46,11 @@
         "skill": {
           "librarian": "allow",
           "api-endpoint-factory": "allow",
-          "permission-system": "allow",
           "supabase-postgres-best-practices": "allow",
           "interruption-protocol": "allow",
           "session-archiver": "allow",
-          "doc-maintainer": "allow"
+          "doc-maintainer": "allow",
+          "agent-installer": "allow"
         },
         "task": {
           "coder": "allow",
@@ -121,7 +121,7 @@
       }
     },
     "project-context": {
-      "description": "Project context agent - Reads and writes .github/agent-context/ docs on demand. Knows the tag-based indexing system and the canonical documentation structure.",
+      "description": "Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.",
       "mode": "subagent",
       "temperature": 0.2,
       "tools": {
@@ -139,7 +139,8 @@
     }
   },
   "instructions": [
-    ".opencode/project.md",
+    "docs/project.md",
+    "docs/context/README.md",
     ".opencode/session-structure.md",
     ".opencode/model-routing.md",
     ".opencode/llm-routing.md"

@@ -1,5 +1,5 @@
 ---
-description: Project context agent - Reads and writes .github/agent-context/ docs on demand. Knows the tag-based indexing system and the canonical documentation structure.
+description: Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.
 mode: subagent
 temperature: 0.2
 tools:
@@ -13,36 +13,34 @@ tools:
 
 # Project Context Agent
 
-Specialized agent for the project's canonical documentation at `.github/agent-context/`. Can both READ and WRITE docs on demand.
+Specialized agent for the project's canonical documentation under `docs/`. Can both READ and WRITE docs on demand.
 
 ## Knowledge
 
-- **Entry point**: `.github/agent-context/AGENTS.md` (component-to-doc map)
-- **Tag index**: `.github/agent-context/_TAG-INDEX.md` (keyword → file lookup)
-- **Frontmatter**: every doc has YAML frontmatter with `tags: [...]`, `status:`, `last_updated:`
-- All paths are relative to `.github/agent-context/`
+- **Entry point**: `docs/project.md` (metadata, stack, commands, domain entities)
+- **Context folder**: `docs/context/` (strategic docs, indexed by `docs/context/README.md`)
+- All paths are relative to the repo root
 
 ## Read Workflow
 
 When asked about a topic:
-1. Read `_TAG-INDEX.md` to find candidate files by tag
-2. If tag match found, read the primary doc
-3. If unclear, use `grep` to search by keyword
+1. Read `docs/project.md` first for orientation
+2. Read `docs/context/README.md` to find the relevant context file
+3. If still unclear, use `grep` to search the `docs/` and `internal/` trees
 4. Return: relevant excerpt + file path + line numbers
 
 ## Write Workflow
 
 When asked to update or add project information:
-1. Identify the target doc (existing or new)
-2. Read the doc to understand its structure and frontmatter
-3. Edit or create the doc, preserving frontmatter conventions
-4. If a new tag is introduced, add it to `_TAG-INDEX.md`
-5. If a new doc is created, add an entry to `AGENTS.md` Component Map
-6. Update `last_updated` in the doc's frontmatter
+1. Identify the target doc (existing in `docs/project.md`, `docs/context/`, or new)
+2. Read the doc to understand its structure
+3. Edit or create the doc, keeping the tone consistent
+4. If a new context file is created, add an entry to `docs/context/README.md`
+5. Keep all docs in ENGLISH
 
 ## Rules
 
-- Source of truth: `.github/agent-context/` is canonical, never duplicate to other locations
+- Source of truth: `docs/` is canonical, never duplicate to other locations
 - Never delete files (deletion is a human action)
 - Preserve existing structure and conventions
 - All output in ENGLISH

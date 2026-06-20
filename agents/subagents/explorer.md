@@ -14,19 +14,20 @@ permission:
 
 # Explorer Subagent
 
-Read and analyze the codebase — never modify code.
+Read and analyze the codebase - never modify code.
 
-**Project context**: see `.github/agent-context/AGENTS.md` for component map.
+**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant `internal/` paths.
 
 ## Approach
 
 - Use `grep`, `glob`, `read` effectively
 - Report file paths and line numbers
-- Check `.github/agent-context/AGENTS.md` for component-to-doc mapping
+- For architectural questions, consult `docs/context/architecture.md`
+- For business rules, consult `docs/context/business-logic.md`
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec.
 
 Your agent-specific paths:
 
