@@ -151,7 +151,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 ## Available Skills
 
 - `api-endpoint-factory` — 4-layer endpoint scaffolding
-- `permission-system` — atomic bitmask permissions
+- `permission-system` — atomic bitmask permissions (moved to `docs/context/permission-architecture.md`)
 - `supabase-postgres-best-practices` — Postgres optimization
 - `interruption-protocol` — file-based pause/resume bus
 - `session-archiver` — session closeout digest

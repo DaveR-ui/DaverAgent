@@ -57,7 +57,7 @@ npm run lint:agents
 | Skill | Purpose |
 |---|---|
 | `api-endpoint-factory` | Create API endpoints (4-layer) |
-| `permission-system` | Atomic permissions (bitmask) |
+| `permission-system` | Atomic permissions (bitmask) — see `docs/context/permission-architecture.md` |
 | `postgres-best-practices` | Supabase Postgres optimization |
 | `canonical-prompter` | Prompt analysis |
 | `context-reductor` | Scope definition |
