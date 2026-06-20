@@ -2,7 +2,7 @@
 last_updated: 2026-06-20
 description: propuesta de mejora para coordinar MSAL, Datadog, LaunchDarkly, permisos y bootstrap de la app usando una state machine explicita de readiness, eliminando la race condition de re-login y el flash unauthorized.
 tags: [proposal, architecture, auth, msal, launchdarkly, datadog, ngrx, startup, readiness, state-machine, race-condition, guards, app-component, rebar-auth, refactor]
-status: PROPOSAL
+status: APPROVED_FOR_IMPLEMENTATION
 related_docs:
   - auth-relogin-race-condition.md
   - startup-auth-bootstrap-analysis.md
@@ -23,7 +23,7 @@ El problema no es un bug aislado: es la ausencia de un **owner unico de "la app 
 - **Flash de unauthorized**: el shell se monta antes de tiempo, el router evalua la ruta, los guards esperan async state que aun no cargo, y la pagina aparece brevemente antes del redirect a `/unauthorized`.
 - **Doble ownership de config**: `main.ts` hace prefetch + `AppConfigService` re-carga via `APP_INITIALIZER`, con un handshake fragil por `sessionStorage` o un `static preloadedConfig` (segun el patch del 2026-06-17).
 
-**La propuesta**: introducir una **state machine explicita de readiness** (`configReady` → `redirectHandled` → `accountResolved` → `identityReady` → `permissionsReady` → `appReady`), gobernada por un unico `AppStartupOrchestrator` (que ya existe segun el doc `startup-auth-bootstrap-analysis.md`), y hacer que el shell y los guards dependan **exclusivamente** de esa senal. Eliminar `InteractionStatus.None` como contrato de readiness. Eliminar la cascada de dispatches desde `AppComponent`.
+**La propuesta**: mejorar la **state machine explicita de readiness** ya existente (`configReady` → `redirectHandled` → `accountResolved` → `identityReady` → `permissionsReady` → `appReady`), gobernada por el `AppStartupOrchestratorService` existente, y hacer que el shell y los guards dependan **exclusivamente** de esa senal. Eliminar `InteractionStatus.None` como contrato de readiness. Eliminar la cascada de dispatches desde `AppComponent`.
 
 Las fases estan dimensionadas para que cada una entregue un beneficio visible sin bloquear a las siguientes. Las primeras fases son reversibles; las ultimas consolidan.
 
@@ -60,8 +60,8 @@ Segun `startup-auth-bootstrap-analysis.md`, las siguientes slices estan marcadas
 
 **Slice 1 (separar redirect completion de idle state) sigue PENDIENTE**. Es la unica que toca la causa raiz de la race condition de re-login.
 
-> [!WARNING]
-> **Hidden assumption — divergencia docs vs codigo**: este repositorio no contiene los archivos descritos en el doc de analisis (`src/app/app.config.ts`, `src/app/app.component.ts`, `src/app/core/rebarauth/*`, `src/app/core/guards/*`, `src/app/core/services/app-startup-orchestrator.service.ts`). El proyecto actual es una app ASP.NET Zero / ABP con `RootModule`/`RootComponent`/`AppPreBootstrap.ts` y MSAL solo en `src/account/login/login.service.ts`. Los tres documentos describen **una arquitectura objetivo diferente** al codigo presente. La propuesta se escribe sobre **la arquitectura descrita en los documentos** (la que el orquestador y el resto del equipo viene construyendo). Si la implementacion se hace sobre el codigo real, el agente implementador debe **primero** portar la arquitectura ABP al modelo de los docs (o reconciliar los paths). Ver seccion 8.
+> [!NOTE]
+> **Todos los archivos descritos en los docs de analisis existen en este repositorio.** El proyecto es Angular 21.2.7 standalone con NgRx, MSAL, Datadog y LaunchDarkly — exactamente la arquitectura descrita en los documentos. El orquestador (`src/app/core/services/app-startup-orchestrator.service.ts`) y el servicio de readiness (`src/app/core/services/app-startup-readiness.service.ts`) ya estan implementados. Esta propuesta describe **mejoras incrementales** sobre el codigo existente, no la introduccion de servicios nuevos.
 
 ---
 
@@ -173,6 +173,17 @@ Cada fase de la seccion 4 produce: un diff pequeno (idealmente < 200 lineas), te
 ### 3.2 Contratos de las fases
 
 Cada fase es un `Observable<void>` en `AppStartupReadinessService`. La composicion es por `combineLatest` con `take(1)` en quien la consume. Esto permite testing y debugging fase por fase (se puede preguntar al servicio en que fase quedo y por que).
+
+> [!NOTE]
+> La implementacion actual ya usa **Angular 21 signals** en lugar de `ReplaySubject`. El codigo abajo muestra el contrato conceptual; la implementacion real usa signals con `toObservable()` para interoperabilidad con consumers RxJS:
+> ```typescript
+> // Implementacion actual (ya existe):
+> private readonly authResolved = signal(false, { debugName: 'appStartup.authResolved' });
+> private readonly permissionsResolved = signal(false, { debugName: 'appStartup.permissionsResolved' });
+> private readonly launchDarklyResolved = signal(false, { debugName: 'appStartup.launchDarklyResolved' });
+> readonly isStartupReady = signal(false, { debugName: 'appStartup.isStartupReady' });
+> readonly startupReady$ = toObservable(this.isStartupReady, { injector: this.injector });
+> ```
 
 ```typescript
 // src/app/core/services/app-startup-readiness.service.ts
@@ -763,9 +774,9 @@ Alternativa rechazada: agregar un slice `startup` al store con campos `configRea
 
 `ReplaySubject` fuera del store es mas simple, mas testeable, y deja claro que el bootstrap es **one-shot**.
 
-### 6.5 Por que no migrar a standalone components / signals
+### 6.5 Standalone components y signals (ya migrados)
 
-Fuera de scope. La propuesta se implementa sobre la arquitectura actual (NgModules, `@if`/`*ngIf` segun corresponda). Una migracion a standalone + signals es un trabajo separado, mas grande, que se beneficia de tener primero una buena coordinacion de readiness.
+El proyecto **ya esta migrado** a standalone components y Angular 21 signals. El `AppStartupReadinessService` ya usa signals (`signal()`, `toObservable()`) en lugar de `ReplaySubject`. Los snippets de codigo de esta propuesta reflejan esta realidad: los contratos conceptuales muestran `ReplaySubject` para claridad arquitectonica, pero la implementacion real usa signals. No hay migracion pendiente en este frente.
 
 ### 6.6 Por que no abortar el orquestador si el usuario es ASG
 
@@ -833,37 +844,25 @@ Si despues de Fase 4 el tiempo `t1 -> permissionsReady$` no mejoro (o empeoro), 
 
 > Esta seccion es **para la IA que lee este documento y va a implementar**. No la saltes.
 
-### 8.1 Divergencia entre los documentos fuente y el codigo presente
+### 8.1 Estado real del codigo (confirmado 2026-06-20)
 
-Los tres documentos (`auth-relogin-race-condition.md`, `circular-dependency-core-module.md`, `startup-auth-bootstrap-analysis.md`) describen una **arquitectura objetivo** que incluye:
+Los tres documentos fuente (`auth-relogin-race-condition.md`, `circular-dependency-core-module.md`, `startup-auth-bootstrap-analysis.md`) describen la arquitectura **actual** del repositorio. Todos los archivos mencionados existen:
 
-- `src/app/app.config.ts` con `provideAppInitializer`.
-- `src/app/app.component.ts` standalone con `ngOnInit`.
-- `src/app/core/rebarauth/rebar.auth.service.ts` con `authObserver$`.
-- `src/app/core/services/app-startup-orchestrator.service.ts`.
-- `src/app/core/services/app-startup-readiness.service.ts`.
-- `src/app/core/guards/administration.guard.ts`, `data-security.guard.ts`, etc.
-- NgRx (`@ngrx/store`, `@ngrx/effects`) como state management.
-- Datadog, LaunchDarkly como servicios de terceros.
+- `src/app/app.config.ts` — con `provideAppInitializer` y providers de NgRx, MSAL, etc.
+- `src/app/app.component.ts` — standalone component con `ngOnInit`.
+- `src/app/core/rebarauth/rebar.auth.service.ts` — con `authObserver$` y logica de MSAL.
+- `src/app/core/services/app-startup-orchestrator.service.ts` — **ya implementado** (`providedIn: 'root'`, metodo `run()`).
+- `src/app/core/services/app-startup-readiness.service.ts` — **ya implementado** con Angular 21 signals (no `ReplaySubject`).
+- `src/app/core/guards/` — contiene multiples guards (`administration.guard.ts`, `data-security.guard.ts`, etc.) que hacen gate sobre `startupReady$`.
 
-**El codigo presente en este repositorio no tiene ninguno de esos paths**. El proyecto es una aplicacion ASP.NET Zero / ABP con:
-
-- `src/main.ts` que usa `platformBrowserDynamic().bootstrapModule(RootModule)`.
-- `src/root.module.ts` y `src/root.component.ts`.
-- `src/AppPreBootstrap.ts` con la logica de pre-boot.
-- NgModules: `RootModule`, `AppModule`, `AccountModule`, `MainModule`, `AdminModule`.
-- MSAL solo en `src/account/login/login.service.ts` (no en un servicio `RebarAuthService` compartido).
-- Sin NgRx (usa servicios de ABP como `AppSessionService`).
-- Sin Datadog ni LaunchDarkly en `package.json`.
+**El proyecto es Angular 21.2.7 standalone** con NgRx, MSAL (`@azure/msal-angular`), Datadog (`@datadog/browser-rum`), y LaunchDarkly. **No es ASP.NET Zero / ABP.**
 
 **Implicaciones para la implementacion**:
 
-1. Si la implementacion se hace **sobre el codigo real**, los paths de las fases 1-6 deben mapearse al modelo ABP. Ejemplos:
-   - "Orquestador" -> una clase o factory en `src/` (no en `core/services/`).
-   - "Readiness" -> expuesto via `abp.event.on('abp.dynamicScriptsInitialized')` o equivalente (ya existe en `AppPreBootstrap.getUserConfiguration`, linea 295 de `src/AppPreBootstrap.ts`).
-   - "Guards" -> el unico guard del codebase es `AppRouteGuard` en `src/app/shared/common/auth/auth-route-guard.ts`. Refactorizar ese es el equivalente a la Fase 6.
-2. Si la implementacion se hace **sobre la arquitectura descrita en los docs** (e.g. en una rama paralela, en un fork, o despues de una migracion), las fases aplican tal cual.
-3. **Recomendacion**: antes de empezar cualquier fase, confirmar con el humano en cual de los dos contextos se esta trabajando. Sin esa confirmacion, el agente implementador va a perder tiempo buscando archivos que no existen.
+1. Las fases 1-8 de esta propuesta se aplican **directamente** sobre el codigo existente. No hay que mapear paths ni portar arquitectura.
+2. El `AppStartupOrchestratorService` y el `AppStartupReadinessService` ya existen. Las fases describen **mejoras incrementales** (separar redirect de idle, agregar timeout, reemplazar cascada de dispatches, etc.), no creacion de servicios nuevos.
+3. El `AppStartupReadinessService` ya usa Angular 21 signals (`signal()`, `toObservable()`). Los snippets conceptuales de esta propuesta que muestran `ReplaySubject` son para claridad arquitectonica; la implementacion real debe mantener signals.
+4. Antes de empezar cualquier fase, verificar el estado actual de cada archivo con `git log --oneline -5 <archivo>` para entender cambios recientes.
 
 ### 8.2 Asunciones sobre el codebase descrito en los docs
 
@@ -891,11 +890,9 @@ Los docs no cubren explicitamente:
 
 Para evitar scope creep:
 
-- No migra a standalone components.
-- No migra a signals.
 - No introduce tests e2e para los flujos de bootstrap (queda como follow-up si se considera necesario).
 - No toca la logica de inactividad / session-timeout (esa vive en `src/app/shared/common/session-timeout/` y se coordina via flags de LD).
-- No toca la logica de impersonation / linked accounts (esa vive en `AppPreBootstrap.run`, lineas 35-70 de `src/AppPreBootstrap.ts`).
+- No toca la logica de impersonation / linked accounts.
 - No resuelve el bug AADSTS50058 de Firefox (ver `startup-auth-bootstrap-analysis.md` seccion "AADSTS50058 errors"). Ese es un widget externo de Accenture, fuera del control de este repo.
 
 ---
@@ -1019,3 +1016,4 @@ describe('AppStartupOrchestratorService', () => {
 | Fecha | Autor | Cambio |
 | --- | --- | --- |
 | 2026-06-20 | AI Agent (delivery) | Propuesta inicial basada en los 3 docs fuente. |
+| 2026-06-20 | AI Agent (orchestrator) | Corregido: eliminada seccion 8.1 incorrecta (ASP.NET Zero), reframed como mejora incremental, actualizados snippets para Angular 21 signals. |
