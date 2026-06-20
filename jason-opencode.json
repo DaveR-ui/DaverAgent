@@ -1,0 +1,147 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "delivery",
+  "agent": {
+    "delivery": {
+      "description": "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents.",
+      "mode": "primary",
+      "temperature": 0.3,
+      "permission": {
+        "skill": {
+          "canonical-prompter": "allow",
+          "context-reductor": "allow",
+          "sessions-setup": "allow",
+          "customize-opencode": "allow"
+        },
+        "task": {
+          "orchestrator": "allow",
+          "coder": "allow",
+          "tester": "allow",
+          "reviewer": "allow",
+          "architect": "allow",
+          "explorer": "allow",
+          "project-context": "allow",
+          "angular-expert": "allow",
+          "opencode-expert": "allow",
+          "vscode-expert": "allow"
+        },
+        "external_directory": {
+          "~/.config/opencode/**": "allow"
+        }
+      }
+    },
+    "orchestrator": {
+      "description": "Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "skill": true,
+        "task": true
+      },
+      "permission": {
+        "skill": {
+          "librarian": "allow",
+          "api-endpoint-factory": "allow",
+          "permission-system": "allow",
+          "supabase-postgres-best-practices": "allow",
+          "interruption-protocol": "allow",
+          "session-archiver": "allow",
+          "doc-maintainer": "allow"
+        },
+        "task": {
+          "coder": "allow",
+          "tester": "allow",
+          "reviewer": "allow",
+          "architect": "allow",
+          "explorer": "allow",
+          "project-context": "allow",
+          "angular-expert": "allow",
+          "opencode-expert": "allow",
+          "vscode-expert": "allow"
+        }
+      }
+    },
+    "coder": {
+      "description": "Programming, bug fixes, feature implementation, refactoring",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true
+      }
+    },
+    "reviewer": {
+      "description": "Code review, security audit, best practices, performance",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": true,
+        "read": true
+      }
+    },
+    "tester": {
+      "description": "Unit tests, integration tests, test coverage, e2e",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true
+      }
+    },
+    "architect": {
+      "description": "System design, architecture, module boundaries, patterns",
+      "mode": "subagent",
+      "temperature": 0.3,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true
+      }
+    },
+    "explorer": {
+      "description": "Codebase exploration, file search, dependency analysis",
+      "mode": "subagent",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": true,
+        "read": true
+      }
+    },
+    "project-context": {
+      "description": "Project context agent - Reads and writes .github/agent-context/ docs on demand. Knows the tag-based indexing system and the canonical documentation structure.",
+      "mode": "subagent",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "read": true,
+        "glob": true,
+        "grep": true
+      }
+    }
+  },
+  "permission": {
+    "skill": {
+      "*": "allow"
+    }
+  },
+  "instructions": [
+    ".opencode/project.md",
+    ".opencode/session-structure.md",
+    ".opencode/model-routing.md",
+    ".opencode/llm-routing.md"
+  ]
+}
