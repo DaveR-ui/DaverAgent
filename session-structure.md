@@ -90,8 +90,8 @@ Relevant assumption points in this repo:
 - `.opencode/agents/delivery.md`
 - `docs/project.md` (project entry point; mirrored into the opencode home by `sync-project.ps1`)
 - `docs/context/README.md` (strategic docs index)
-- `.opencode/skills/sessions-setup/SKILL.md`
-- policy refs under `.opencode/skills/sessions-setup/references/`
+- `.opencode/protocols/sessions-setup.md` (bootstrap + humano.md / project.md two-tier policies)
+- `.opencode/protocols/README.md` (index of all agent protocols)
 
 In other words: the delivery agent prompt assumes the structure exists unless docs/scripts tell it how to bootstrap it. The repo-level project source of truth is `docs/project.md`. There is no `.opencode/project.md` and no `AGENT.md`.
 

@@ -3,12 +3,7 @@ description: "Delivery Agent - Sole interface between human and agent system. Tr
 mode: primary
 temperature: 0.3
 permission:
-  skill:
-    canonical-prompter: allow
-    context-reductor: allow
-    sessions-setup: allow
-    customize-opencode: allow
-    agent-installer: allow
+  skill: {}
   task:
     orchestrator: allow
     coder: allow
@@ -101,7 +96,7 @@ either ask the human or add a new row.
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use api-endpoint-factory for endpoint work
+- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
 - For permission changes, follow `docs/context/permission-architecture.md`
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
@@ -199,7 +194,7 @@ Required base layout:
 Startup rule:
 - Do NOT assume the base layout already exists.
 - If required directories/files are missing, treat it as a bootstrapable configuration state, not a runtime failure.
-- Use the `sessions-setup` skill and the bootstrap script documented in `.opencode/session-structure.md`.
+- Follow the `sessions-setup` protocol (`.opencode/protocols/sessions-setup.md`) and the bootstrap script documented in `.opencode/session-structure.md`.
 
 Workflow: ensure bootstrap -> load `humano.md` source/snapshot -> load/sync `project.md` source -> build/load the session **slang snapshot** (NOT a copy of docs/) -> decide whether a session is needed -> create session structure only for moderate/complex work -> process attachments -> delegate -> update `humano.md` incrementally.
 
@@ -210,11 +205,11 @@ There are two files with the same name on purpose:
 1. **`projects/{project_id}/project.md`** (master source in opencode home) - mirrors `docs/project.md` with review metadata. Updated by `sync-project.ps1` when `docs/project.md` changes.
 2. **`sessions/{human_id}/{project_id}/project.md`** (per-session snapshot) - **project slang / lunfardo del proyecto**. How this project calls things, internal jargon, abbreviations. Inferred from codebase with confidence levels. Built by the agent and updated incrementally as new terms are seen. It is NOT a copy of `docs/project.md`; it is a dictionary in the spirit of `humano.md` but for the project domain.
 
-See `.opencode/skills/sessions-setup/references/project-md-policy.md` for the full policy.
+See `.opencode/protocols/sessions-setup.md` (project.md policy section) for the full policy.
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
+You operate under the file-based interruption protocol. See the full reference at `.opencode/protocols/interruption.md` for the complete spec (checkpoint schedule, semáforo states, log reading, memory artifacts, return format, on resumption).
 
 Your agent-specific paths:
 
@@ -225,7 +220,7 @@ Your agent-specific paths:
 - Interruption log: `../../interruption-log.md` (session root)
 - Actor tag in log: `[DELIVERY]`
 
-See "Special: Delivery (bootstrap)" in the reference for: session-start artifacts, handling human interrupts during subagent execution, and triggering `session-archiver` on close.
+See "Roles in the bus — Delivery (bootstrap)" in the reference for: session-start artifacts, handling human interrupts during subagent execution, and triggering the `session-archiver` protocol on close.
 
 ## Rules
 

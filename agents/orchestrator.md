@@ -7,17 +7,10 @@ tools:
   edit: true
   bash: true
   read: true
-  skill: true
   task: true
-permission:
-  skill:
-    api-endpoint-factory: allow
-    supabase-postgres-best-practices: allow
-    interruption-protocol: allow
-    session-archiver: allow
-    doc-maintainer: allow
-    agent-installer: allow
-  task:
+  permission:
+    skill: {}
+    task:
     coder: allow
     tester: allow
     reviewer: allow
@@ -106,7 +99,7 @@ You will receive a handoff prompt structured like this:
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use api-endpoint-factory for endpoint work
+- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
 - For permission changes, follow `docs/context/permission-architecture.md`
 - Do NOT touch opencode config
 - Do NOT mutate humano.md
@@ -183,14 +176,29 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 - `opencode-expert` - opencode docs (read-only)
 - `vscode-expert` - VSCode docs (read-only)
 
-## Available Skills
+## Available Protocols and Skills
 
-- `api-endpoint-factory` - 4-layer endpoint scaffolding
-- `supabase-postgres-best-practices` - Postgres optimization
-- `interruption-protocol` - file-based pause/resume bus
-- `session-archiver` - session closeout digest
-- `doc-maintainer` - documentation health check
-- For permission system work, read `docs/context/permission-architecture.md` directly (no skill wrapper).
+**Project protocols** (in `docs/protocols/`):
+- `api-endpoint-factory` — 4-layer endpoint scaffolding
+
+**Agent protocols** (in `.opencode/protocols/`):
+- `canonical-prompter` — Phase 1 of the delivery pipeline
+- `context-reductor` — Phase 2 of the delivery pipeline
+- `interruption` — file-based pause/resume bus
+- `session-archiver` — session closeout digest
+- `doc-maintainer` — documentation health check
+- `sessions-setup` — opencode home bootstrap
+- `agent-installer` — 4-phase agent install/reconfigure
+
+**Built-in skills** (from opencode runtime):
+
+_(none — all skills have been migrated to project protocols, agent protocols, or on-demand `docs/context/` reads.)_
+
+Postgres best practices are **on demand**: when a task involves SQL, GORM queries, migrations, indexes, or schema design, read the relevant `docs/context/*.md` files directly (`architecture.md`, `rules.md`, `permission-architecture.md`). There is no preloaded skill — the orchestrator and subagents must look up the data when they need it.
+
+Permission system work is **on demand** too: read `docs/context/permission-architecture.md` and `docs/context/permission-troubleshooting.md` directly. There is no `permission-system` skill anymore — the full design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version) lives in those files.
+
+For permission system work, read `docs/context/permission-architecture.md` directly (no protocol wrapper).
 
 ## Strategic Pauses
 
@@ -204,7 +212,7 @@ the semáforo state transitions.
 ## Interruption Protocol
 
 You operate under the file-based interruption protocol. See the full
-reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md`
+reference at `.opencode/protocols/interruption.md`
 for the complete spec (checkpoint schedule, semáforo states, log reading,
 memory artifacts, return format, on resumption).
 

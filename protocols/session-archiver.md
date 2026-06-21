@@ -1,21 +1,14 @@
----
-name: session-archiver
-description: Use when a session is closing or the human asks to "archive this session", "distill the session", "summarize what we did". Reads all agents/{name}/reasoning-full.md and produces session-digest.md with decisions, lessons, and links. Marks reasoning-full.md as archived.
----
+# Protocol: Session Archiver
 
-# Session Archiver
+Distillation convention. Closes a session by reading every per-agent reasoning file and producing a single cross-agent digest. This is the second half of the write/distill cycle: the interruption bus produces the inputs, the session archiver consumes them.
 
-Distillation skill. Closes a session by reading every per-agent reasoning file and producing a single cross-agent digest. This is the second half of the write/distill cycle: the interruption-protocol produces the inputs, the session-archiver consumes them.
-
-## When to Use This Skill
-
-Use this skill whenever:
+## When to apply
 
 - The human asks to "archive this session", "close the session", "distill", "summarize what we did".
 - The session has reached a natural close (delivery is about to return the final response to the human and no further work is queued).
 - The human is about to start a new session and explicitly says to "save", "persist", or "freeze" the current state.
 
-Do NOT use this skill:
+Do **not** apply:
 
 - Mid-session, while a subagent is still running. Wait for the subagent to return.
 - For per-agent summaries — that is the subagent's job (`agents/{name}/summary.md`).
@@ -31,7 +24,7 @@ Do NOT use this skill:
 | Interruption log | `interruption-log.md` | Optional but recommended |
 | Session metadata | session directory name (contains date and keywords) | Yes — used in the digest header |
 
-The session root is `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/` by default. The delivery agent or the orchestrator passes the absolute path when invoking this skill.
+The session root is `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/` by default. The delivery agent or the orchestrator passes the absolute path when invoking this protocol.
 
 ## Output
 
@@ -117,7 +110,7 @@ To archive a reasoning file, prepend a single HTML comment line as the very firs
 <!-- archived: 2026-06-17T18:00:00Z -->
 ```
 
-The original content below the comment is preserved unchanged. The next time `session-archiver` runs on the same session, it sees the archive marker, skips the file, and notes in the new digest that the file was already archived.
+The original content below the comment is preserved unchanged. The next time the archiver runs on the same session, it sees the archive marker, skips the file, and notes in the new digest that the file was already archived.
 
 Do NOT:
 
@@ -125,9 +118,9 @@ Do NOT:
 - Modify any line other than the prepended archive marker.
 - Archive `summary.md` files. They are the resume anchors and must stay live.
 
-## Interaction with `interruption-protocol`
+## Interaction with the interruption bus
 
-The interruption-protocol produces `reasoning-full.md` and `summary.md` files as a side effect of subagent work. The session-archiver is the consumer of those files at session close. Together they form a complete cycle:
+The interruption bus produces `reasoning-full.md` and `summary.md` files as a side effect of subagent work. The session archiver is the consumer of those files at session close. Together they form a complete cycle:
 
 ```
 subagent work → reasoning-full.md + summary.md  (write phase)

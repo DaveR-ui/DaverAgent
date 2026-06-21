@@ -1,15 +1,8 @@
----
-name: interruption-protocol
-description: Use when a subagent is running and the human wants to inject a hint, pause the agent, or steer it mid-execution. Also covers the file-based bus (traffic-light.md, interruption-log.md) and per-agent persistent memory (reasoning-full.md, summary.md). Trigger on mentions of "interrupt", "pause subagent", "inject hint", "change course", "session memory", "agent resume", "traffic light".
----
+# Protocol: Interruption Bus
 
-# Interruption Protocol
+File-based bus that lets the human steer subagents mid-execution and lets subagents persist memory across resumptions. Works even when the LM does not print a pause marker, because all signals live on disk.
 
-File-based protocol that lets the human steer subagents mid-execution and lets subagents persist memory across resumptions. Works even when the LM does not print a pause marker, because all signals live on disk.
-
-## When to Use This Protocol
-
-Use this protocol whenever:
+## When this protocol applies
 
 - A subagent is executing and the human sends a new message in the same session.
 - The orchestrator releases a subagent that has prior session memory to load.
@@ -17,21 +10,19 @@ Use this protocol whenever:
 - A subagent returns and the orchestrator needs to aggregate only the summary (not the full chain of thought).
 - The human asks to "pause", "stop", "redirect", "inject hint", or "resume" a subagent.
 
-Do NOT use this protocol for:
+Do **not** use this protocol for:
 
 - A standalone chat (no subagent running, no memory needed).
 - Cross-session recall (use the project-context agent against `docs/` instead).
 - Sub-second steering (the file bus has poll latency; for fast edits just edit and re-run).
 
-## The 4 Artifacts
+## The 4 artifacts
 
-All paths below are relative to the active session root (typically `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/`).
+All paths are relative to the active session root (typically `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/`).
 
 ### 1. `traffic-light.md` — Shared status board
 
 A single table that lists every known agent in the session and its current semáforo color. Subagents read it before any major step; the delivery agent writes to it when a new interruption arrives.
-
-States and their meaning:
 
 | State | Meaning | Subagent action |
 |---|---|---|
@@ -45,8 +36,6 @@ The default safe action when an interruption arrives with no targeted agent is t
 ### 2. `interruption-log.md` — Append-only audit trail
 
 Every human intervention and every agent acknowledgment is appended here with an ISO-8601 timestamp and an actor tag. The log is append-only; entries are never edited or removed. Subagents read it to discover new hints since their last read.
-
-Format:
 
 ```markdown
 # Interruption Log
@@ -90,7 +79,7 @@ A 10-30 line executive summary, written at the END of the subagent's work or whe
 - Open questions / next steps
 - Link to `reasoning-full.md`
 
-## How to Read and Write Each Artifact
+## How to read and write each artifact
 
 ### Writing `traffic-light.md`
 
@@ -118,42 +107,90 @@ A 10-30 line executive summary, written at the END of the subagent's work or whe
 - Track which entries you have already incorporated (by timestamp).
 - If there are new entries since your last read, incorporate them before continuing.
 
-## How the Orchestrator Coordinates Resumption
+## Checkpoint schedule (all agents)
 
-The orchestrator's role in the interruption protocol:
+Before EACH of the following, READ both `traffic-light.md` and `interruption-log.md` (paths are relative to your `agents/{name}/` directory, i.e. the session root):
 
-1. **On release** — When calling a subagent via `task`, the orchestrator passes in the prompt:
-   - The path to the subagent's previous `agents/{name}/summary.md` (if it exists) as resume context.
-   - The path to `agents/{name}/reasoning-full.md` (if it exists) as deeper history.
-   - The current `traffic-light.md` and `interruption-log.md` paths so the subagent knows where to read and write.
-2. **On return** — The orchestrator expects TWO things from the subagent:
-   - A short summary message in the chat reply.
-   - The path to its updated `summary.md` (and confirmation that `reasoning-full.md` was written).
-3. **On aggregation** — The orchestrator reads each `summary.md` and synthesizes them into one response to delivery. It does NOT inline `reasoning-full.md`; that file stays on disk for the session-archiver and future sessions.
-4. **On re-release** — If a subagent must be called again, the orchestrator passes the freshly written `summary.md` path as resume context. This gives the subagent the latest state without re-running past work.
+- Before any `write` tool call
+- Before any `edit` tool call
+- After every 3-5 tool calls (whichever comes first)
+- At the end of any atomic step that modifies a file
 
-The orchestrator should also remind each subagent (in the release prompt) to read `traffic-light.md` and `interruption-log.md` between every tool call, and to write `reasoning-full.md` incrementally and `summary.md` at completion.
+If either file is missing, log the anomaly to your `reasoning-full.md` and assume 🟢 GREEN.
 
-## How `session-archiver` Consumes the Memory Files
+## How to act on `traffic-light.md`
 
-The `session-archiver` skill is the distillation partner of this protocol. When a session closes:
+Read your own row in the table (the row with your agent name):
 
-1. The session-archiver reads every `agents/{name}/reasoning-full.md` in the session.
-2. It synthesizes a `session-digest.md` at the session root with:
-   - Decisions made (cross-agent)
-   - Lessons learned (cross-agent)
-   - Open questions
-   - Links to each `summary.md` (so the per-agent executive view is reachable)
-3. It marks each `reasoning-full.md` as archived (prepend a `<!-- archived: {timestamp} -->` comment) so future sessions do not re-read stale chains of thought.
-4. It preserves `summary.md` files as the resume anchors for the next session.
+| State | Action |
+|---|---|
+| 🟢 **GREEN** | Continue with the next planned step. |
+| 🟡 **YELLOW** | Finish the current atomic step (one file write or one command), then stop. Write a short note to `summary.md` saying you paused at this step. Return to the orchestrator with: "Paused (YELLOW). Summary: agents/{name}/summary.md". |
+| 🔴 **RED** | STOP immediately. Do not start new work. Write a short note to `summary.md` describing what you were doing and the reason. Return to the orchestrator with: "Paused (RED). Summary: agents/{name}/summary.md". |
+| ⚪ **IDLE** | N/A — only the orchestrator transitions an agent out of IDLE. |
 
-The interruption protocol and the session-archiver together form a complete write/distill cycle: subagents write `reasoning-full.md` and `summary.md` during work, and the archiver distills the reasoning files into a single digest at session close.
+If your row is missing, assume 🟢 GREEN and log the anomaly.
 
-## Quick Reference
+## How to act on `interruption-log.md`
+
+- Track which entries you have already incorporated (by timestamp).
+- If there are new entries with `[HUMAN]` since your last read, incorporate the hint before continuing. Log an acknowledgment entry with `[{NAME_UPPER}]` prefix on the same file.
+- A `[HUMAN]` entry may also flip your semáforo to 🟡 YELLOW or 🔴 RED — re-read `traffic-light.md` after reading the log.
+
+## End-of-work return format
+
+After writing your memory files, return to the orchestrator with exactly this format:
+
+- Write-capable: `"Work complete. Summary: agents/{name}/summary.md | Full reasoning: agents/{name}/reasoning-full.md"`
+- Read-only: `"Work complete. Summary: agents/{name}/summary.md"`
+
+## On resumption
+
+If the orchestrator releases you with a previous `summary.md` path, READ it first to understand the state. Treat it as your starting point; do not redo work that is already summarized as complete.
+
+## Roles in the bus
+
+### Delivery (bootstrap)
+
+On session start, before delegating, the delivery agent MUST create in the session root:
+
+- `traffic-light.md` (all known agents ⚪ IDLE)
+- `interruption-log.md` (with one `[SYSTEM] Session started` entry)
+- `agents/` directory (with `.gitkeep`)
+- `agents/{name}/` subdirs after first subagent release
+
+When a human message arrives while a subagent is running, delivery:
+
+1. Translates the human's message to English
+2. Appends to `interruption-log.md` with `[HUMAN]` prefix
+3. Updates `traffic-light.md` (targeted → 🔴 RED, or all active → 🟡 YELLOW as default safe)
+4. Does NOT abort the running subagent
+5. Acknowledges to the human in their language
+
+On session close, if `humano.md` has `Distillation on session close: enabled`, delivery invokes the session-archiver protocol.
+
+### Orchestrator (coordination)
+
+On subagent release (via `task` tool), the orchestrator includes in the prompt:
+
+- Path to the subagent's previous `summary.md` (if exists) — resume context
+- Path to previous `reasoning-full.md` (if exists) — deeper history
+- Paths to `traffic-light.md` and `interruption-log.md`
+- Updates `traffic-light.md` to 🟢 GREEN for the released agent
+
+On subagent return, the orchestrator:
+
+- Aggregates ONLY the contents of `summary.md` from each subagent
+- Does NOT inline `reasoning-full.md` (stays on disk for archiver and future sessions)
+- Updates `traffic-light.md` to ⚪ IDLE for the returning agent
+
+On re-release of the same subagent, the orchestrator passes the freshly written `summary.md` path as resume context.
+
+## Quick reference
 
 | You are the... | Read | Write |
 |---|---|---|
-| Delivery (interruption arrives) | `interruption-log.md` (append row reference) | `traffic-light.md`, `interruption-log.md` |
+| Delivery (interrupt) | `interruption-log.md` (append row reference) | `traffic-light.md`, `interruption-log.md` |
 | Orchestrator (releasing subagent) | previous `summary.md` if present | new rows in `traffic-light.md` |
 | Orchestrator (aggregating) | every `summary.md` | nothing (read-only aggregation) |
 | Subagent (before major step) | `traffic-light.md`, `interruption-log.md` | `agents/{name}/reasoning-full.md` (incremental) |

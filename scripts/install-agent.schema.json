@@ -123,12 +123,12 @@
     },
     {
       "id": "phase2_context_docs",
-      "title": "Phase 2 - Context Docs",
-      "description": "Generates docs/context/*.md files. Each selected context becomes a stub file with placeholder content; the human fills in the substance later.",
+      "title": "Phase 2 - Context Docs and Protocols",
+      "description": "Generates docs/context/*.md (strategic docs), docs/protocols/*.md (project protocols), and .opencode/protocols/*.md (agent protocols). Each selected item becomes a stub file with placeholder content; the human fills in the substance later. Use the protocol_templates section as the index.",
       "questions": [
         {
           "id": "context_selection",
-          "prompt": "Which context docs do you want to enable? (comma-separated ids)",
+          "prompt": "Which context docs do you want to enable? (comma-separated ids; lives in docs/context/)",
           "type": "string",
           "default": "architecture,api-contracts,rule,naming-registry",
           "options": [
@@ -141,7 +141,8 @@
             "docker-strategy",
             "indexing-strategy",
             "permission-architecture",
-            "permission-troubleshooting"
+            "permission-troubleshooting",
+            "postgres-strategy"
           ]
         }
       ],
@@ -184,7 +185,7 @@
         "indexing-strategy": {
           "filename": "indexing-strategy.md",
           "title": "Indexing Strategy",
-          "default_body": "How docs are tagged for fast lookup by librarian/explorer agents."
+          "default_body": "How docs are tagged for fast lookup by documentation-search tools and the explorer agent."
         },
         "permission-architecture": {
           "filename": "permission-architecture.md",
@@ -195,8 +196,100 @@
           "filename": "permission-troubleshooting.md",
           "title": "Permission Troubleshooting",
           "default_body": "Common issues and fixes for the permission system."
+        },
+        "postgres-strategy": {
+          "filename": "postgres-strategy.md",
+          "title": "PostgreSQL Strategy",
+          "default_body": "Single source of truth for how this project uses PostgreSQL through GORM. Document GORM conventions (context propagation, soft deletes, no raw SQL), naming & types (DB <-> Go <-> JSON), migration workflow, indexes, the UNLOGGED cache pattern, performance considerations, security, and common pitfalls. Cross-references architecture.md, rules.md, permission-architecture.md, and naming-registry.md."
         }
-      }
+      },
+      "protocol_templates": {
+        "_meta": {
+          "description": "Project protocols (docs/protocols/) and agent protocols (.opencode/protocols/). Each enabled protocol is copied as a stub with a placeholder body. The human fills in the substance. Protocol ids are kebab-case and match the file basename (without .md).",
+          "scopes": {
+            "project": "Lives under docs/protocols/<id>.md and describes how THIS project works (stack, layers, naming, conventions).",
+            "agent": "Lives under .opencode/protocols/<id>.md and describes how the agent system coordinates (canonicalization, scope reduction, interruption bus, etc.)."
+          }
+        },
+        "project": {
+          "api-endpoint-factory": {
+            "filename": "api-endpoint-factory.md",
+            "title": "API Endpoint Factory",
+            "scope": "project",
+            "default_body": "Reusable template for creating CRUD endpoints in this project. Document the mandatory layering (domain -> repository -> service -> handler -> router -> DI), file locations, and code templates."
+          }
+        },
+        "agent": {
+          "canonical-prompter": {
+            "filename": "canonical-prompter.md",
+            "title": "Canonical Prompter",
+            "scope": "agent",
+            "default_body": "Phase 1 of the delivery pipeline. Document term resolution, classification (bug/task/feature-design/update), module identification, hint extraction, acceptance criteria, edge cases, and clarification rules."
+          },
+          "context-reductor": {
+            "filename": "context-reductor.md",
+            "title": "Context Reductor",
+            "scope": "agent",
+            "default_body": "Phase 2 of the delivery pipeline. Document scope boundaries, complexity levels (Baja->Muy Alta), hot spot types, hidden assumption detection, and verification path."
+          },
+          "interruption": {
+            "filename": "interruption.md",
+            "title": "Interruption Bus",
+            "scope": "agent",
+            "default_body": "File-based pause/resume bus. Document traffic-light.md (semaforo), interruption-log.md (append-only audit trail), and per-agent memory (reasoning-full.md + summary.md)."
+          },
+          "session-archiver": {
+            "filename": "session-archiver.md",
+            "title": "Session Archiver",
+            "scope": "agent",
+            "default_body": "Session closeout distillation. Reads per-agent reasoning-full.md and produces session-digest.md with decisions, lessons, open questions, and links."
+          },
+          "sessions-setup": {
+            "filename": "sessions-setup.md",
+            "title": "Sessions Setup",
+            "scope": "agent",
+            "default_body": "Opencode home bootstrap conventions (~/.config/opencode/). Includes the two-tier humano.md and project.md policies."
+          },
+          "doc-maintainer": {
+            "filename": "doc-maintainer.md",
+            "title": "Documentation Maintenance",
+            "scope": "agent",
+            "default_body": "Documentation health checks: broken links, code-doc consistency, duplicate content, content placement, dead references. Phase 1 is automated (link scripts); Phase 2 is LLM-driven."
+          },
+          "agent-installer": {
+            "filename": "agent-installer.md",
+            "title": "Agent Installer",
+            "scope": "agent",
+            "default_body": "Install and reconfigure the agent system in a repo via the 4-phase installer. The conversational wrapper around install-agent.ps1."
+          }
+        }
+      },
+      "questions_protocols": [
+        {
+          "id": "project_protocols",
+          "prompt": "Which project protocols do you want to enable? (comma-separated ids; lives in docs/protocols/)",
+          "type": "string",
+          "default": "api-endpoint-factory",
+          "options": [
+            "api-endpoint-factory"
+          ]
+        },
+        {
+          "id": "agent_protocols",
+          "prompt": "Which agent protocols do you want to enable? (comma-separated ids; lives in .opencode/protocols/)",
+          "type": "string",
+          "default": "canonical-prompter,context-reductor,interruption,session-archiver,sessions-setup,doc-maintainer,agent-installer",
+          "options": [
+            "canonical-prompter",
+            "context-reductor",
+            "interruption",
+            "session-archiver",
+            "sessions-setup",
+            "doc-maintainer",
+            "agent-installer"
+          ]
+        }
+      ]
     },
     {
       "id": "phase3_slang",

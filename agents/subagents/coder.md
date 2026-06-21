@@ -37,7 +37,7 @@ Implement features, fix bugs, refactor code.
 
 ## Interruption Protocol
 
-You operate under the file-based interruption protocol. See the full reference at `.opencode/skills/interruption-protocol/references/agent-protocol.md` for the complete spec.
+You operate under the file-based interruption protocol. See the full reference at `.opencode/protocols/interruption.md` for the complete spec.
 
 Your agent-specific paths:
 

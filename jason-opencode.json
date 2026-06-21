@@ -7,12 +7,7 @@
       "mode": "primary",
       "temperature": 0.3,
       "permission": {
-        "skill": {
-          "canonical-prompter": "allow",
-          "context-reductor": "allow",
-          "sessions-setup": "allow",
-          "customize-opencode": "allow"
-        },
+        "skill": {},
         "task": {
           "orchestrator": "allow",
           "coder": "allow",
@@ -39,19 +34,10 @@
         "edit": true,
         "bash": true,
         "read": true,
-        "skill": true,
         "task": true
       },
       "permission": {
-        "skill": {
-          "librarian": "allow",
-          "api-endpoint-factory": "allow",
-          "supabase-postgres-best-practices": "allow",
-          "interruption-protocol": "allow",
-          "session-archiver": "allow",
-          "doc-maintainer": "allow",
-          "agent-installer": "allow"
-        },
+        "skill": {},
         "task": {
           "coder": "allow",
           "tester": "allow",
@@ -141,7 +127,9 @@
   "instructions": [
     "docs/project.md",
     "docs/context/README.md",
+    "docs/protocols/README.md",
     ".opencode/session-structure.md",
+    ".opencode/protocols/README.md",
     ".opencode/model-routing.md",
     ".opencode/llm-routing.md"
   ]
