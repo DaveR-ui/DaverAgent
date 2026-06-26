@@ -3,7 +3,7 @@ description: Explorer subagent - Codebase exploration, file search, dependency a
 mode: subagent
 temperature: 0.1
 tools:
-  write: true
+  write: false
   edit: false
   bash: true
   read: true

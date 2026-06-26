@@ -7,10 +7,9 @@ tools:
   edit: true
   bash: true
   read: true
-  task: true
-  permission:
-    skill: {}
-    task:
+permission:
+  skill: {}
+  task:
     coder: allow
     tester: allow
     reviewer: allow

@@ -3,7 +3,7 @@ description: Reviewer subagent - Code review, security audit, best practices, pe
 mode: subagent
 temperature: 0.1
 tools:
-  write: true
+  write: false
   edit: false
   bash: true
   read: true
