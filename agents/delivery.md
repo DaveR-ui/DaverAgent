@@ -6,6 +6,7 @@ permission:
   skill: {}
   task:
     orchestrator: allow
+    session-manager: allow
     coder: allow
     tester: allow
     reviewer: allow
@@ -179,26 +180,68 @@ next handoff prompt.
 
 ## Sessions
 
-`OPENCODE_HOME = ~/.config/opencode/`
+On startup, delegate session management to the `session-manager` subagent.
 
-Required base layout:
-- `README.md` - explains the top-level purpose of the opencode home
-- `humans/{human_id}/humano.md` - master human profile source (vocabulary + how the human talks)
-- `projects/{project_id}/project.md` - master project source copied from `docs/project.md` (review metadata header)
-- `sessions/_scripts/` - bootstrap and sync helpers
-- `sessions/_templates/` - templates for session artifacts
-- `sessions/{human_id}/humano.md` - session snapshot copy
-- `sessions/{human_id}/{project_id}/project.md` - **project slang snapshot** (lunfardo del proyecto, NO copia de docs/)
-- `sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}/` - work session with `general-context.md`, `enhanced-prompt.md`, `scope.md`, `assets/`
+### Parallel startup flow
 
-Startup rule:
-- Do NOT assume the base layout already exists.
-- If required directories/files are missing, treat it as a bootstrapable configuration state, not a runtime failure.
-- Follow the `sessions-setup` protocol (`.opencode/protocols/sessions-setup.md`) and the bootstrap script documented in `.opencode/session-structure.md`.
+```
+Human prompt arrives
+    │
+    ├──→ [session-manager] ──────→ bootstrap + sync + create session
+    │       (workflow: session-bootstrap.md)      │
+    │       returns: {session_path, contexts}      │
+    │                                               │
+    ├──→ [Delivery: prompt analysis] ─────────────→ canonical-prompter
+    │       (classify, modules, complexity)          │
+    │       returns: {analysis, scope, complexity}   │
+    │                                               │
+    └──→ [JOIN] ←─────────────────────────────────┘
+              │
+              Combine:
+              - session_path + contexts (from session-manager)
+              - analysis + scope + complexity (from prompt analysis)
+              │
+              ▼
+         Routing decision:
+         - Baja → direct subagent (no session needed)
+         - Media+ → orchestrator with session_path
+```
 
-Workflow: ensure bootstrap -> load `humano.md` source/snapshot -> load/sync `project.md` source -> build/load the session **slang snapshot** (NOT a copy of docs/) -> decide whether a session is needed -> create session structure only for moderate/complex work -> process attachments -> delegate -> update `humano.md` incrementally.
+### Session manager handoff
 
-## Two-Tier Project Context
+```markdown
+# Session Manager Handoff
+
+## Task
+Prepare session infrastructure for task execution.
+
+## Parameters
+- Human ID: {human_id}
+- Project ID: {project_id}
+- Prompt summary: {brief_description}
+- Complexity estimate: {Baja|Media|Media-Alta|Alta|Muy Alta}
+```
+
+- **Model**: Gemini 3.5 Flash (I/O-bound, cheap and fast)
+- **Workflow**: `.opencode/workflows/session-bootstrap.md`
+- **Agent definition**: `.opencode/agents/session-manager.md`
+- **Output**: Session Bootstrap Report with session path, contexts, files created
+
+### After session-manager returns OK
+
+1. Extract `session_path` from the report
+2. Use it in the orchestrator handoff template (field: `Session path`)
+3. Attach analysis results (from canonical-prompter + context-reductor)
+4. Proceed with routing decision based on complexity level
+
+### If session-manager returns PARTIAL or FAILED
+
+- Report the issue to the human
+- If bootstrap failed: suggest running the bootstrap script manually
+- If sync failed: proceed with available contexts, flag the gap
+- If session creation failed: ask the human for an alternative session name
+
+### Two-tier project context
 
 There are two files with the same name on purpose:
 

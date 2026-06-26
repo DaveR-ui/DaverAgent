@@ -28,6 +28,22 @@ Conventions for opencode home bootstrap and session-structure maintenance. Defin
 & ".\.opencode\scripts\bootstrap-opencode-structure.ps1"
 ```
 
+## Session Bootstrap Workflow
+
+The session startup process is defined in `.opencode/workflows/session-bootstrap.md` and executed by the `session-manager` subagent (`.opencode/agents/session-manager.md`).
+
+The delivery agent launches the session-manager in parallel with prompt analysis:
+
+1. **session-manager** runs the 4-phase bootstrap workflow (check → sync → decide → create)
+2. **delivery** runs canonical-prompter + context-reductor on the prompt
+3. When both complete, delivery combines results and makes the routing decision
+
+The session-manager returns a structured **Session Bootstrap Report** with:
+- Session path (for orchestrator handoff)
+- Context status (human slang count, project slang count)
+- Files created
+- Warnings (if any)
+
 ## Rules
 
 - Treat delivery/session startup checks as prompt/documentation behavior unless there is explicit runtime code.
