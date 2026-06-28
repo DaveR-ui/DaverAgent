@@ -16,14 +16,14 @@ permission:
 
 Read and analyze the codebase - never modify code.
 
-**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant `internal/` paths.
+**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant source paths.
 
 ## Approach
 
 - Use `grep`, `glob`, `read` effectively
 - Report file paths and line numbers
-- For architectural questions, consult `docs/context/architecture.md`
-- For business rules, consult `docs/context/business-logic.md`
+- For architectural questions, consult the architecture doc in `docs/context/`
+- For business rules, consult the business-logic doc in `docs/context/`
 
 ## Interruption Protocol
 

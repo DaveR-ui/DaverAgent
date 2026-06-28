@@ -16,17 +16,17 @@ permission:
 
 Analyze code - never modify it.
 
-**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
+**Project context**: read `docs/project.md` (entry point) and `docs/context/README.md` to find relevant context docs.
 
 ## Review Checklist
 
-1. Architecture compliance (`docs/context/architecture.md`)
-2. Development standards (`docs/context/rules.md`)
-3. API contracts (`docs/context/api-contracts.md`) for HTTP changes
-4. Permission system (`docs/context/permission-architecture.md`) for auth changes
+1. Architecture compliance (see architecture doc in `docs/context/`)
+2. Development standards (see rules/standards doc in `docs/context/`)
+3. API contracts (see API contracts doc in `docs/context/`) for HTTP changes
+4. Subsystem conventions (see relevant subsystem doc in `docs/context/`) for auth/permissions changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 queries, missing indexes, unbuffered channels
-7. Anti-patterns - business logic in handlers, raw SQL in services, `any` types
+7. Anti-patterns - business logic in handlers, raw queries in services, `any` types
 8. Testing - coverage, proper mocking
 
 ## Output Format

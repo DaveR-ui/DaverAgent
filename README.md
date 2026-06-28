@@ -1,6 +1,6 @@
 # Instalación del Agente Opencode
 
-Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) que trabaja sobre el repo `goland-api`.
+Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) que trabaja sobre este repo.
 
 El archivo `jason-opencode.json` dentro de esta carpeta es la **fuente de verdad** de la configuración. Para que opencode la cargue al iniciar, hay que copiarla un nivel arriba con el nombre estándar `opencode.json`.
 
@@ -77,9 +77,9 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 │   └── agent-installer.md      # 4 fases del installer
 │
 ├── workflows/                  # Instrucciones de razonamiento (cómo piensa el agente)
-│   └── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
+│   ├── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
+│   └── session-bootstrap.md   # Workflow de gestión de sesión (ejecutado por session-manager)
 │
-├── context/                    # Docs estratégicas del propio opencode (raro tocarlas)
 ├── docs/                       # Referencia para los subagents *-expert
 │   ├── opencode/
 │   ├── angular/
@@ -121,7 +121,7 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 
 ## Permisos de los agentes
 
-Los agentes NO tienen skills externos habilitados. Toda la info (Postgres, permission system, librerías, etc.) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
+Los agentes NO tienen skills externos habilitados. Toda la info del proyecto (stack, reglas, arquitectura, subsystemas) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
 
 - `delivery` es el único agente con permiso `external_directory: ~/.config/opencode/**` (necesario para escribir en el opencode home).
 - `orchestrator` y subagentes no tienen skills precargados.
@@ -130,8 +130,8 @@ Los agentes NO tienen skills externos habilitados. Toda la info (Postgres, permi
 
 | Carpeta | Qué vive ahí | Cuándo lo lee el agente |
 |---|---|---|
-| `docs/context/` | **Info del proyecto** (stack, reglas, arquitectura, postgres, permission system) | Cuando la tarea toca ese tema (on demand) |
-| `docs/protocols/` | **Plantillas del proyecto** (ej. `api-endpoint-factory` con el template Go 4-layer) | Cuando la tarea es crear un endpoint |
+| `docs/context/` | **Info del proyecto** (stack, reglas, arquitectura, convenciones) | Cuando la tarea toca ese tema (on demand) |
+| `docs/protocols/` | **Plantillas del proyecto** (ej. scaffold de endpoints, patrones de creación) | Cuando la tarea usa ese patrón |
 | `.opencode/protocols/` | **Convenciones del agente** (cómo analiza prompts, cómo pausa subagents, cómo cierra sesiones) | Siempre que el agente actúa |
 | `.opencode/workflows/` | **Reglas de razonamiento** (qué pensar antes de actuar) | Al planificar una tarea |
 | `.opencode/agents/` | **System prompts** de cada agente (identidad + permisos) | Al instanciar el agente |

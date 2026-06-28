@@ -24,8 +24,8 @@ _(none — all opencode runtime skills have been replaced by project protocols, 
 
 Some topics are **not codified as protocols or skills** — they live as scattered info in `docs/context/` and the agent reads them on demand when the task requires it:
 
-- **Postgres / SQL best practices** — GORM conventions, indexes, soft deletes, error mapping, BIGINT bitmask for permissions. The relevant files are `docs/context/architecture.md`, `docs/context/rules.md`, and `docs/context/permission-architecture.md`. The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill for this; the data is in the repo, not in a runtime tool.
-- **Permission system** — atomic permissions design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version, RequirePermission middleware). The full design lives in `docs/context/permission-architecture.md` and common fixes in `docs/context/permission-troubleshooting.md`. The agent reads them on demand when the task involves permissions. There is no preloaded skill; the data is in the repo.
+- **Database / ORM conventions** — query patterns, indexes, migrations, error mapping. The relevant files are in `docs/context/` (architecture, rules, etc.). The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill for this; the data is in the repo, not in a runtime tool.
+- **Subsystem-specific architecture** — e.g., permission system, billing, auth. The full design lives in `docs/context/` files. The agent reads them on demand when the task involves that subsystem. There is no preloaded skill; the data is in the repo.
 
 ## How protocols relate to the rest of `.opencode/`
 

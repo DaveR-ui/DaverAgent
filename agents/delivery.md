@@ -79,7 +79,7 @@ When invoking the orchestrator, use this structure:
 - [ ] criterion 2
 
 ## Project state snapshot
-- Project: goland-api
+- Project: {{project_id}}
 - Branch: <current branch from `git branch --show-current`>
 - Recent changes: <1-3 line summary of what changed since last orchestrator>
 - Hot files: <paths if relevant, e.g., files the human mentioned>
@@ -87,7 +87,7 @@ When invoking the orchestrator, use this structure:
 
 ## Slice (if pre-matched)
 - Slice: <slice_id from `docs/project.md` Slices table, or "unmatched">
-- Rationale: <why this slice was chosen, e.g. "task mentions 'permiso de crear factura' which is permissions slice">
+- Rationale: <why this slice was chosen, e.g. "task mentions 'create invoice' which is billing slice">
 - Entry points: <the entry points column from the Slices row>
 
 If you cannot match a slice, write "Slice: unmatched" and the orchestrator will
@@ -97,11 +97,11 @@ either ask the human or add a new row.
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
+- For subsystem changes, follow the relevant `docs/context/*.md` architecture doc
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
-- Run `go build` and `go test` before reporting done
+- Run the project's build and test commands before reporting done
 - Initialize manifest at {session_path}/agents/manifest.md before releasing subagents
 
 ## Stop conditions
@@ -133,8 +133,8 @@ DONE | NEEDS_HUMAN | STUCK
 - <other agents as applicable>
 
 ## Commands run
-- `go build` - OK
-- `go test` - 12 passed
+- Build: OK
+- Tests: N passed
 
 ## Open questions
 - <question that needs human input>

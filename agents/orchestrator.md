@@ -88,7 +88,7 @@ You will receive a handoff prompt structured like this:
 - [ ] criterion 2
 
 ## Project state snapshot
-- Project: goland-api
+- Project: {{project_id}}
 - Branch: <current branch>
 - Recent changes: <1-3 line summary>
 - Hot files: <paths if relevant>
@@ -98,11 +98,11 @@ You will receive a handoff prompt structured like this:
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
+- For subsystem changes, follow the relevant `docs/context/*.md` architecture doc
 - Do NOT touch opencode config
 - Do NOT mutate humano.md
-- Run `go build` and `go test` before reporting done
+- Run the project's build and test commands before reporting done
 
 ## Stop conditions
 Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
@@ -143,8 +143,8 @@ DONE | NEEDS_HUMAN | STUCK
 - <other agents as applicable>
 
 ## Commands run
-- `go build` - OK
-- `go test` - 12 passed
+- Build: OK
+- Tests: N passed
 
 ## Open questions
 - <question that needs human input>
@@ -178,7 +178,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 ## Available Protocols and Skills
 
 **Project protocols** (in `docs/protocols/`):
-- `api-endpoint-factory` — 4-layer endpoint scaffolding
+- Scaffold templates for the project (e.g., endpoint factory, if defined)
 
 **Agent protocols** (in `.opencode/protocols/`):
 - `canonical-prompter` — Phase 1 of the delivery pipeline
@@ -193,11 +193,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 
 _(none — all skills have been migrated to project protocols, agent protocols, or on-demand `docs/context/` reads.)_
 
-Postgres best practices are **on demand**: when a task involves SQL, GORM queries, migrations, indexes, or schema design, read the relevant `docs/context/*.md` files directly (`architecture.md`, `rules.md`, `permission-architecture.md`). There is no preloaded skill — the orchestrator and subagents must look up the data when they need it.
-
-Permission system work is **on demand** too: read `docs/context/permission-architecture.md` and `docs/context/permission-troubleshooting.md` directly. There is no `permission-system` skill anymore — the full design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version) lives in those files.
-
-For permission system work, read `docs/context/permission-architecture.md` directly (no protocol wrapper).
+Project-specific knowledge (database conventions, subsystem architecture, etc.) lives in `docs/context/` and is read **on demand** by subagents when the task requires it. There are no preloaded skills for project-specific topics — agents discover what they need by reading `docs/context/README.md` (the index).
 
 ## Strategic Pauses
 

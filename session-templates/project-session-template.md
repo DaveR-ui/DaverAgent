@@ -30,10 +30,10 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 
 ## How to Populate This File
 
-1. **Infer from the codebase**: read `internal/domain/*_model.go` and `cmd/db/seeds.go` for canonical entity names.
-2. **Listen to the human**: when the human says "el polvo" or "la factura", check if it matches a domain entity.
+1. **Infer from the codebase**: read the domain model files and seed data for canonical entity names.
+2. **Listen to the human**: when the human uses a colloquial term, check if it matches a domain entity.
 3. **Confidence levels**:
-   - **High** - found in both `internal/domain/` and used by the human consistently
+   - **High** - found in both domain models and used by the human consistently
    - **Medium** - found in code only, or used by the human once
    - **Low** - inferred from context, not yet confirmed
 4. **Update incrementally** as new terms are observed.
@@ -49,7 +49,4 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 
 | Term | Meaning | Location | Confidence |
 |---|---|---|---|
-| polvo | powder inside a fire extinguisher | `internal/domain/powder_model.go` | High |
-| matafuego | fire extinguisher | `internal/domain/fire_extinguisher_model.go` | High |
-| factura | invoice | `internal/domain/invoice_model.go` | High |
-| credencial | credential | `internal/domain/credentials_model.go` | High |
+| _example term_ | _what it means in this project_ | _path to model file_ | _High/Medium/Low_ |

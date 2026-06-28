@@ -26,7 +26,7 @@ Specialized agent for the project's canonical documentation under `docs/`. Can b
 When asked about a topic:
 1. Read `docs/project.md` first for orientation
 2. Read `docs/context/README.md` to find the relevant context file
-3. If still unclear, use `grep` to search the `docs/` and `internal/` trees
+3. If still unclear, use `grep` to search the `docs/` and source code trees
 4. Return: relevant excerpt + file path + line numbers
 
 ## Write Workflow

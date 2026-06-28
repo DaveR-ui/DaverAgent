@@ -94,7 +94,7 @@ The dictionary has TWO sections:
 ### Why two tiers
 
 - `docs/project.md` is the **canonical metadata** (stack, commands, domain entities). It is part of the repo, version-controlled, and shared across all humans working on the project.
-- The session slang snapshot is **per-human and per-project**. It captures how THIS human refers to project concepts ("el polvo", "la factura"). Like `humano.md`, it is a translation dictionary, not a doc to be edited for the world.
+- The session slang snapshot is **per-human and per-project**. It captures how THIS human refers to project concepts. Like `humano.md`, it is a translation dictionary, not a doc to be edited for the world.
 
 ### Master source contains
 
@@ -109,7 +109,7 @@ The dictionary has TWO sections:
 1. The header above (sans `SOURCE REPO` link, replaced with `SESSION FOR`)
 2. A short note explaining the difference from `humano.md`
 3. A table: Term | Meaning | Location (code) | Confidence
-4. Optionally: business-specific dictionaries (e.g. for a "metafuegos" project: `polvo`, `matafuego`, `factura` → English equivalents)
+4. Optionally: business-specific dictionaries (e.g., domain-specific jargon → English equivalents)
 
 ### Sync direction
 

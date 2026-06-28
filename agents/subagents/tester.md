@@ -16,13 +16,13 @@ permission:
 
 Write and run tests.
 
-**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/rules.md`.
+**Project context**: read `docs/project.md` (entry point). For test conventions see the rules/standards doc in `docs/context/`.
 
 ## Standards (summary)
 
-- Go standard `testing` package (no framework configured yet)
-- Tests next to source files (`*_test.go`)
-- Mock external deps (DB, HTTP, JWT)
+- Use the project's standard testing framework (see `docs/project.md`)
+- Tests next to source files
+- Mock external deps (DB, HTTP, auth)
 - No `t.Skip()` without justification
 - All test names and comments in ENGLISH
 
