@@ -67,7 +67,7 @@ The delivery agent launches this workflow in parallel with prompt analysis, then
    ```powershell
    & ".\.opencode\scripts\sync-project.ps1"
    ```
-   - Source: `docs/project.md` (repo)
+    - Source: project entry point in the repo (see `.opencode/conventions.md`)
    - Target: `projects/{project_id}/project.md` (opencode home)
 
 3. **Verify session slang snapshot**:
@@ -237,4 +237,4 @@ The delivery agent:
 - Use Gemini 3.5 Flash (cheap, fast) for the session-manager subagent
 - All scripts are idempotent and non-destructive by default
 - Session naming should be descriptive but concise (2-4 keywords max)
-- The session slang snapshot is NOT a copy of docs/project.md; it's a per-human dictionary of project jargon
+- The session slang snapshot is NOT a copy of the project entry point; it's a per-human dictionary of project jargon

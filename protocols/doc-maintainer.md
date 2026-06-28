@@ -6,19 +6,19 @@ Conventions for validating and maintaining documentation health. Checks broken l
 
 1. **Documentation root** — directory containing markdown files to validate
 2. **Code root** (optional) — directory containing source code for consistency checks
-3. **Project context** from `docs/project.md` (for module structure reference)
+3. **Project context** from the project entry point (see `.opencode/conventions.md` for module structure reference)
 
 ## Validation phases
 
 ### Phase 1: Structural validation (automated)
 
-Run link validation scripts:
+Run link validation to check documentation health:
 
-1. **Internal link scan** — `node .opencode/utils/validate-links.mjs` to find all broken internal links.
-2. **Auto-repair** — `node .opencode/utils/repair-links.mjs` to fix unambiguous broken links.
-3. **Report ambiguous** — list links that could not be auto-repaired (multiple candidates).
+1. **Internal link scan** — scan all `.md` files for broken internal links (relative paths that do not resolve).
+2. **Auto-repair** — fix unambiguous broken links where the target filename matches exactly one candidate.
+3. **Report ambiguous** — list links that could not be auto-repaired (multiple candidates or no match).
 
-Scripts location: `.opencode/utils/validate-links.mjs` and `.opencode/utils/repair-links.mjs`.
+Note: dedicated link-validation scripts (e.g., `validate-links.mjs`, `repair-links.mjs`) are not yet provided. This phase can be performed manually or with a custom script until tooling is added.
 
 ### Phase 2: Semantic validation (LLM-driven)
 
@@ -133,34 +133,18 @@ For each documentation file:
 
 ## Script integration
 
-```bash
-node .opencode/utils/validate-links.mjs
-```
+Phase 1 (structural validation) is designed to be automated with link-validation scripts. Until dedicated scripts are provided, this phase can be performed manually by scanning `.md` files for broken relative links.
 
-- Scans all `.md` files in the target directory.
-- Excludes: `node_modules`, `.git`, `cache-session`.
-- Outputs broken links with file:line references.
-- Exit code 0 = all good, 1 = broken links found.
-
-```bash
-node .opencode/utils/repair-links.mjs
-```
-
-- Same scanning as validate-links.
-- Auto-repairs links where filename matches exactly one candidate.
-- Reports ambiguous cases (multiple files with same name).
-- Processes in reverse order to preserve line numbers.
-
-### Adapting scripts for this project
-
-Copy scripts from `Agente angular separado v2/.agents/utils/` to `.opencode/utils/`:
-
-- Update the `agentsRoot` variable to point to the correct documentation root.
-- Ensure exclusion list matches project conventions.
+When scripts are available, they should:
+- Scan all `.md` files in the target directory.
+- Exclude: `node_modules`, `.git`, cache directories.
+- Output broken links with file:line references.
+- Auto-repair links where the filename matches exactly one candidate.
+- Report ambiguous cases (multiple files with same name).
 
 ## Usage patterns
 
-- **Quick check (links only)**: Run validate-links.mjs and report results.
+- **Quick check (links only)**: Run Phase 1 (structural validation) and report results.
 - **Full validation**: Run structural + semantic phases. Include code-doc consistency check against the code directory.
 - **After code changes**: Validate documentation after changes to a module/feature. Focus on code-doc consistency for the changed areas.
 - **Maintenance mode**: Run full validation including external URL checks. Generate a complete health report.

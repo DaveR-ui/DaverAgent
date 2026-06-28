@@ -16,12 +16,12 @@ permission:
 
 Implement features, fix bugs, refactor code.
 
-**Project context**: read `docs/project.md` (entry point) for the tech stack, and `docs/context/README.md` to find relevant context docs.
+**Project context**: read the project entry point (see `.opencode/conventions.md`) for the tech stack, and the context index to find relevant context docs.
 
 ## Standards
 
-- Read `docs/project.md` for the tech stack and conventions
-- Read `docs/context/README.md` to discover architecture, rules, and subsystem docs
+- Read the project entry point (see `.opencode/conventions.md`) for the tech stack and conventions
+- Read the context index (see `.opencode/conventions.md`) to discover architecture, rules, and subsystem docs
 - Follow existing patterns in the codebase
 - Errors defined as constants per project conventions
 

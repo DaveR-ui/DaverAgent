@@ -18,14 +18,14 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 
 ## Built-in protocols (from opencode runtime)
 
-_(none — all opencode runtime skills have been replaced by project protocols, agent protocols, or on-demand `docs/context/` reads. The "customize-opencode" skill is also being migrated to a different mechanism.)_
+_(none — all opencode runtime skills have been replaced by project protocols, agent protocols, or on-demand context doc reads (see `.opencode/conventions.md`). The "customize-opencode" skill is also being migrated to a different mechanism.)_
 
 ## On-demand context (not a protocol)
 
-Some topics are **not codified as protocols or skills** — they live as scattered info in `docs/context/` and the agent reads them on demand when the task requires it:
+Some topics are **not codified as protocols or skills** — they live as scattered info in the context docs (see `.opencode/conventions.md`) and the agent reads them on demand when the task requires it:
 
-- **Database / ORM conventions** — query patterns, indexes, migrations, error mapping. The relevant files are in `docs/context/` (architecture, rules, etc.). The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill for this; the data is in the repo, not in a runtime tool.
-- **Subsystem-specific architecture** — e.g., permission system, billing, auth. The full design lives in `docs/context/` files. The agent reads them on demand when the task involves that subsystem. There is no preloaded skill; the data is in the repo.
+- **Database / ORM conventions** — query patterns, indexes, migrations, error mapping. The relevant files are in the context docs (architecture, rules, etc.). The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill for this; the data is in the repo, not in a runtime tool.
+- **Subsystem-specific architecture** — e.g., permission system, billing, auth. The full design lives in context doc files. The agent reads them on demand when the task involves that subsystem. There is no preloaded skill; the data is in the repo.
 
 ## How protocols relate to the rest of `.opencode/`
 
@@ -47,4 +47,4 @@ Some topics are **not codified as protocols or skills** — they live as scatter
 
 - The information is about the **project's stack, layers, or naming** → use `docs/protocols/`.
 - The information tells the agent **how to think before acting** → use `.opencode/workflows/`.
-- The information is one-time reference (HTTP status codes, error catalog) → use `docs/context/`.
+- The information is one-time reference (HTTP status codes, error catalog) → use the context docs (see `.opencode/conventions.md`).

@@ -16,14 +16,14 @@ permission:
 
 Analyze code - never modify it.
 
-**Project context**: read `docs/project.md` (entry point) and `docs/context/README.md` to find relevant context docs.
+**Project context**: read the project entry point (see `.opencode/conventions.md`) and the context index to find relevant context docs.
 
 ## Review Checklist
 
-1. Architecture compliance (see architecture doc in `docs/context/`)
-2. Development standards (see rules/standards doc in `docs/context/`)
-3. API contracts (see API contracts doc in `docs/context/`) for HTTP changes
-4. Subsystem conventions (see relevant subsystem doc in `docs/context/`) for auth/permissions changes
+1. Architecture compliance (see architecture doc in context docs, paths in `.opencode/conventions.md`)
+2. Development standards (see rules/standards doc in context docs)
+3. API contracts (see API contracts doc in context docs) for HTTP changes
+4. Subsystem conventions (see relevant subsystem doc in context docs) for auth/permissions changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 queries, missing indexes, unbuffered channels
 7. Anti-patterns - business logic in handlers, raw queries in services, `any` types

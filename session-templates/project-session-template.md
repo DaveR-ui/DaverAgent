@@ -1,11 +1,11 @@
 # Project Slang Snapshot
 
 > **ROLE**: per-session project slang dictionary (lunfardo del proyecto).
-> This is the ONLY per-session project document. It is NOT a copy of `docs/project.md`.
-> The source-of-truth project info lives in `docs/project.md` and `docs/context/`.
+> This is the ONLY per-session project document. It is NOT a copy of the project entry point (see `.opencode/conventions.md`).
+> The source-of-truth project info lives in the project entry point and context docs (see `.opencode/conventions.md`).
 > This snapshot is a dictionary in the same spirit as `humano.md`, but for the project domain: internal jargon, abbreviations, and how this codebase names things.
 
-> **SOURCE PROJECT DOC**: `docs/project.md`
+> **SOURCE PROJECT DOC**: see `.opencode/conventions.md` for the project entry point path
 > **SESSION FOR**: `{human_id}/{project_id}/{session_id-keywords}`
 > **LAST REVIEWED**: {{LAST_REVIEWED}}
 > **NEXT REVIEW DUE**: {{NEXT_REVIEW_DUE}}
@@ -41,8 +41,8 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 ## Rules
 
 - This file is per-session, but persists across sessions under `{human_id}/{project_id}/`.
-- Do NOT copy `docs/project.md` here. The dictionary is for jargon, not metadata.
-- If `docs/project.md` changes materially, refresh the **master** `projects/{project_id}/project.md`, not this snapshot.
+- Do NOT copy the project entry point here. The dictionary is for jargon, not metadata.
+- If the project entry point (see `.opencode/conventions.md`) changes materially, refresh the **master** `projects/{project_id}/project.md`, not this snapshot.
 - Keep the table compact: prune entries that the human no longer uses.
 
 ## Example (illustrative, to be cleared on first real use)

@@ -16,11 +16,11 @@ permission:
 
 Write and run tests.
 
-**Project context**: read `docs/project.md` (entry point). For test conventions see the rules/standards doc in `docs/context/`.
+**Project context**: read the project entry point (see `.opencode/conventions.md`). For test conventions see the rules/standards doc in the context docs.
 
 ## Standards (summary)
 
-- Use the project's standard testing framework (see `docs/project.md`)
+- Use the project's standard testing framework (see the project entry point in `.opencode/conventions.md`)
 - Tests next to source files
 - Mock external deps (DB, HTTP, auth)
 - No `t.Skip()` without justification

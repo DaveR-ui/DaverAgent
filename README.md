@@ -95,9 +95,9 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 | Script | Propósito |
 |---|---|
 | `bootstrap-opencode-structure.ps1` | Crea la estructura base de `~/.config/opencode/` (humans/, projects/, sessions/) |
-| `install-agent.ps1` | 4 fases: regenera `docs/project.md`, context docs, slang snapshot, subagents y `opencode.json` |
+| `install-agent.ps1` | 4 phases: regenerates the project entry point (see `.opencode/conventions.md`), context docs, slang snapshot, subagents and `opencode.json` |
 | `install-agent.schema.json` | Schema data-driven que `install-agent.ps1` consulta |
-| `sync-project.ps1` | Sincroniza `docs/project.md` → `projects/{project_id}/project.md` |
+| `sync-project.ps1` | Sincronizes the project entry point (see `.opencode/conventions.md`) → `projects/{project_id}/project.md` |
 | `sync-humano.ps1` | Sincroniza `humans/{human_id}/humano.md` → `sessions/{human_id}/humano.md` |
 | `new-session.ps1` | Crea el directorio de una sesión nueva (`{DDMMYYYY-keywords}/`) |
 | `init-sessions.ps1` | Wrapper legacy de bootstrap (deprecado, usar `bootstrap-opencode-structure.ps1`) |
@@ -121,7 +121,7 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 
 ## Permisos de los agentes
 
-Los agentes NO tienen skills externos habilitados. Toda la info del proyecto (stack, reglas, arquitectura, subsystemas) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
+Los agentes NO tienen skills externos habilitados. Toda la info del proyecto (stack, reglas, arquitectura, subsystemas) vive en the context docs (see `.opencode/conventions.md`) y se lee **on demand** cuando la tarea lo requiere.
 
 - `delivery` es el único agente con permiso `external_directory: ~/.config/opencode/**` (necesario para escribir en el opencode home).
 - `orchestrator` y subagentes no tienen skills precargados.
@@ -130,7 +130,7 @@ Los agentes NO tienen skills externos habilitados. Toda la info del proyecto (st
 
 | Carpeta | Qué vive ahí | Cuándo lo lee el agente |
 |---|---|---|
-| `docs/context/` | **Info del proyecto** (stack, reglas, arquitectura, convenciones) | Cuando la tarea toca ese tema (on demand) |
+| `docs/context/` (see `.opencode/conventions.md`) | **Info del proyecto** (stack, reglas, arquitectura, convenciones) | Cuando la tarea toca ese tema (on demand) |
 | `docs/protocols/` | **Plantillas del proyecto** (ej. scaffold de endpoints, patrones de creación) | Cuando la tarea usa ese patrón |
 | `.opencode/protocols/` | **Convenciones del agente** (cómo analiza prompts, cómo pausa subagents, cómo cierra sesiones) | Siempre que el agente actúa |
 | `.opencode/workflows/` | **Reglas de razonamiento** (qué pensar antes de actuar) | Al planificar una tarea |

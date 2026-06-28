@@ -29,15 +29,15 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 | Layer | Location | Role |
 |---|---|---|
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
-| **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities |
-| **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
+| **Project entry point** | See `.opencode/conventions.md` | Project metadata, stack, commands, domain entities |
+| **Context (strategic docs)** | See `.opencode/conventions.md` | Architecture, rules, business logic, strategies |
 | **Opencode documentation** | `.opencode/docs/{angular,opencode,vscode}/` | Reference docs for the three expert subagents |
 | **Agents** | `.opencode/agents/` | Reference docs, do not duplicate |
 
 **Routing**:
 - "Update project info" -> edit `docs/` directly (it is in the repo and version-controlled)
 - "Improve opencode" -> edit `.opencode/agents/` or `.opencode/docs/`
-- "Need project context" -> read `docs/project.md` + `docs/context/`
+- "Need project context" -> read the project entry point and context docs (see `.opencode/conventions.md`)
 - "Question about Angular / Opencode / VSCode" -> delegate to `angular-expert` / `opencode-expert` / `vscode-expert`
 
 ## Delegation
@@ -86,7 +86,7 @@ When invoking the orchestrator, use this structure:
 - Session path: ~/.config/opencode/sessions/{human_id}/{project_id}/{session_id}
 
 ## Slice (if pre-matched)
-- Slice: <slice_id from `docs/project.md` Slices table, or "unmatched">
+- Slice: <slice_id from the Slices table in the project entry point (see `.opencode/conventions.md`), or "unmatched">
 - Rationale: <why this slice was chosen, e.g. "task mentions 'create invoice' which is billing slice">
 - Entry points: <the entry points column from the Slices row>
 
@@ -98,7 +98,7 @@ either ask the human or add a new row.
 
 ## Constraints
 - Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
-- For subsystem changes, follow the relevant `docs/context/*.md` architecture doc
+- For subsystem changes, follow the relevant architecture doc (see `.opencode/conventions.md` for paths)
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
 - Run the project's build and test commands before reporting done
@@ -245,8 +245,8 @@ Prepare session infrastructure for task execution.
 
 There are two files with the same name on purpose:
 
-1. **`projects/{project_id}/project.md`** (master source in opencode home) - mirrors `docs/project.md` with review metadata. Updated by `sync-project.ps1` when `docs/project.md` changes.
-2. **`sessions/{human_id}/{project_id}/project.md`** (per-session snapshot) - **project slang / lunfardo del proyecto**. How this project calls things, internal jargon, abbreviations. Inferred from codebase with confidence levels. Built by the agent and updated incrementally as new terms are seen. It is NOT a copy of `docs/project.md`; it is a dictionary in the spirit of `humano.md` but for the project domain.
+1. **`projects/{project_id}/project.md`** (master source in opencode home) - mirrors the project entry point (see `.opencode/conventions.md`) with review metadata. Updated by `sync-project.ps1` when the project entry point changes.
+2. **`sessions/{human_id}/{project_id}/project.md`** (per-session snapshot) - **project slang / lunfardo del proyecto**. How this project calls things, internal jargon, abbreviations. Inferred from codebase with confidence levels. Built by the agent and updated incrementally as new terms are seen. It is NOT a copy of the project entry point; it is a dictionary in the spirit of `humano.md` but for the project domain.
 
 See `.opencode/protocols/sessions-setup.md` (project.md policy section) for the full policy.
 
@@ -268,7 +268,7 @@ See "Roles in the bus — Delivery (bootstrap)" in the reference for: session-st
 ## Rules
 
 - Load `humano.md` before speaking with human
-- Read `docs/project.md` for project metadata, then `docs/context/` for strategic docs
+- Read the project entry point and context docs (see `.opencode/conventions.md` for paths)
 - Build the session slang snapshot before creating sessions
 - Update `humano.md` incrementally, keep it compact
 - Build project slang incrementally from codebase observation

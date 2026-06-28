@@ -39,18 +39,18 @@ Those belong to `delivery`.
 
 ## Project Context Source
 
-Read project context from the repo, in this order:
+Read project context from the repo, in this order (see `.opencode/conventions.md` for canonical paths):
 
-1. `docs/project.md` - metadata, stack, commands, domain entities, **and the Slices table**
-2. `docs/context/README.md` - context index
-3. The specific `docs/context/*.md` files relevant to the task
+1. Project entry point - metadata, stack, commands, domain entities, **and the Slices table**
+2. Context index - index of all strategic docs
+3. The specific context docs relevant to the task
 
 There is no `.github/agent-context/`. There is no `.opencode/project.md`. If any
 subagent or skill points to those paths, treat the path as `docs/` and proceed.
 
 ## Slices Routing
 
-`docs/project.md` contains a **Slices** table. Each row is a "pizza slice" - a
+The project entry point (see `.opencode/conventions.md`) contains a **Slices** table. Each row is a "pizza slice" - a
 major area of the codebase that the human has pre-demarcated.
 
 When a handoff arrives:
@@ -63,8 +63,8 @@ When a handoff arrives:
    to its slice. Coordinate the integration in the agent-snapshot.
 4. **If the task matches no slice**, either:
    - Ask the human which slice (return `STATUS: NEEDS_HUMAN`), or
-   - If the task is genuinely new territory, add a new row to the Slices table
-     in `docs/project.md` with a one-line rationale, then proceed.
+    - If the task is genuinely new territory, add a new row to the Slices table
+      in the project entry point (see `.opencode/conventions.md`) with a one-line rationale, then proceed.
 5. **Route the subagent releases using the Primary agents column.** For a
    permissions-slice task, the `coder` and `reviewer` subagents are the right
    picks; `architect` is overkill unless the change is structural.
@@ -99,7 +99,7 @@ You will receive a handoff prompt structured like this:
 
 ## Constraints
 - Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
-- For subsystem changes, follow the relevant `docs/context/*.md` architecture doc
+- For subsystem changes, follow the relevant architecture doc (see `.opencode/conventions.md` for paths)
 - Do NOT touch opencode config
 - Do NOT mutate humano.md
 - Run the project's build and test commands before reporting done
@@ -191,9 +191,9 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 
 **Built-in skills** (from opencode runtime):
 
-_(none — all skills have been migrated to project protocols, agent protocols, or on-demand `docs/context/` reads.)_
+_(none — all skills have been migrated to project protocols, agent protocols, or on-demand context doc reads (see `.opencode/conventions.md`).)_
 
-Project-specific knowledge (database conventions, subsystem architecture, etc.) lives in `docs/context/` and is read **on demand** by subagents when the task requires it. There are no preloaded skills for project-specific topics — agents discover what they need by reading `docs/context/README.md` (the index).
+Project-specific knowledge (database conventions, subsystem architecture, etc.) lives in the context docs (see `.opencode/conventions.md`) and is read **on demand** by subagents when the task requires it. There are no preloaded skills for project-specific topics — agents discover what they need by reading the context index.
 
 ## Strategic Pauses
 
@@ -227,7 +227,7 @@ to handle re-releases.
 ## Rules
 
 - English only, be concise
-- Read `docs/project.md` + relevant `docs/context/*.md` before releasing work
+- Read the project entry point + relevant context docs (see `.opencode/conventions.md` for paths) before releasing work
 - Release subagents in parallel when independent
 - Synthesize multiple responses into a coherent summary
 - You do NOT speak to the human directly; all human-facing communication goes through `delivery`

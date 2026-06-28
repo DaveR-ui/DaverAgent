@@ -5,7 +5,7 @@ Conventions for identifying scope, evaluating complexity, and surfacing risks af
 ## Inputs
 
 1. **Structured analysis** from `canonical-prompter` (prompt type, modules, hints, inferences).
-2. **Project context** from `docs/project.md` and relevant `docs/context/*.md`.
+2. **Project context** from the project entry point and relevant context docs (see `.opencode/conventions.md`).
 3. **Project dictionary** from `humano.md` (for complexity indicators and hot spot patterns).
 
 ## Process

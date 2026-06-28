@@ -13,7 +13,7 @@ tools:
 
 Implement features, fix bugs, refactor code.
 
-**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
+**Project context**: read the project entry point and the relevant context docs (see `.opencode/conventions.md` for paths).
 
 ## Pauses
 
@@ -23,10 +23,10 @@ Implement features, fix bugs, refactor code.
 
 ## Rules
 
-- Read `docs/context/README.md` to find the relevant context docs for your task
-- Follow the architecture doc in `docs/context/` for layering
-- Follow the rules/standards doc in `docs/context/` for development standards
-- Follow the API contracts doc in `docs/context/` for HTTP responses
+- Read the context index (see `.opencode/conventions.md`) to find the relevant context docs for your task
+- Follow the architecture doc for layering
+- Follow the rules/standards doc for development standards
+- Follow the API contracts doc for HTTP responses
 - Use the relevant project protocol from `docs/protocols/` for scaffold work
 - Write tests for new functionality
 - All comments and docs in ENGLISH
