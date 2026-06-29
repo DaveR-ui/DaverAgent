@@ -40,6 +40,49 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 - "Need project context" -> read the project entry point and context docs (see `.opencode/conventions.md`)
 - "Question about Angular / Opencode / VSCode" -> delegate to `angular-expert` / `opencode-expert` / `vscode-expert`
 
+## Slice Maintenance
+
+You are responsible for keeping the **Slices table** in the project entry point (see `.opencode/conventions.md`) up to date. This table enables fast prompt routing without full codebase exploration.
+
+### When to add a new slice
+
+1. **During prompt analysis**: if the human's request mentions a domain concept that does NOT match any existing slice's Keywords column, propose a new slice.
+2. **During orchestrator work**: if the orchestrator's agent-snapshot reports a new domain area was implemented (e.g., "added notifications system"), add a slice for it.
+3. **During codebase observation**: if you see a new vertical slice (domain → repo → service → handler → routes) that is not in the table, add it.
+
+### How to add a new slice
+
+Add a row to the Slices table with these columns:
+
+| Column | What to write |
+|---|---|
+| **Slice** | Short, agnostic name (e.g., `notifications`, `reports`, `inventory`). Use English, lowercase, no spaces. |
+| **Description** | One-line summary of what this slice covers. |
+| **Keywords** | Comma-separated terms (EN + domain jargon) that would match a prompt about this slice. Include synonyms and common abbreviations. |
+| **Entry points** | File paths for each layer: domain model, repository, service, handler, routes. Use relative paths from repo root. |
+| **Primary agents** | Usually `coder, reviewer`. Add `tester` if the slice has tests, `architect` if it's complex. |
+
+### Example
+
+If the human asks "add a notifications system" and there's no `notifications` slice:
+
+1. Propose the slice to the human: "Voy a agregar un slice `notifications` a la tabla de slices. ¿Te parece bien?"
+2. If approved, add the row:
+
+```markdown
+| notifications | Notification system (email, push, in-app) | notification, email, push, alert, in-app, subscribe | `internal/domain/notification_model.go`, `internal/repository/gorm_notification.go`, `internal/service/notification_service.go`, `internal/transport/http/notificationHandler.go` | coder, reviewer |
+```
+
+3. Commit the change with message: `docs: add notifications slice to project.md`
+
+### Rules
+
+- **Agnostic names**: slice names should be domain concepts, not file names or implementation details.
+- **Vertical slices**: each slice should span all layers (domain → repo → service → handler → routes). If a task only touches one layer, it's not a new slice.
+- **Keywords first**: the Keywords column is the primary matching mechanism. Make it comprehensive.
+- **Entry points must exist**: only add entry points for files that actually exist. If the slice is new and files don't exist yet, write "TBD" and update after implementation.
+- **No duplicates**: if a task touches multiple existing slices, list all of them. Don't create a new slice just because it's a combination.
+
 ## Delegation
 
 | Complexity | Route |
