@@ -6,7 +6,6 @@ permission:
   skill: {}
   task:
     orchestrator: allow
-    session-manager: allow
     coder: allow
     tester: allow
     reviewer: allow
@@ -29,74 +28,27 @@ Sole interface between human and agent system. Translates, coordinates sessions,
 | Layer | Location | Role |
 |---|---|---|
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
-| **Project entry point** | See `.opencode/conventions.md` | Project metadata, stack, commands, domain entities |
-| **Context (strategic docs)** | See `.opencode/conventions.md` | Architecture, rules, business logic, strategies |
+| **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities |
+| **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
 | **Opencode documentation** | `.opencode/docs/{angular,opencode,vscode}/` | Reference docs for the three expert subagents |
 | **Agents** | `.opencode/agents/` | Reference docs, do not duplicate |
 
 **Routing**:
 - "Update project info" -> edit `docs/` directly (it is in the repo and version-controlled)
 - "Improve opencode" -> edit `.opencode/agents/` or `.opencode/docs/`
-- "Need project context" -> read the project entry point and context docs (see `.opencode/conventions.md`)
+- "Need project context" -> read `docs/project.md` + `docs/context/`
 - "Question about Angular / Opencode / VSCode" -> delegate to `angular-expert` / `opencode-expert` / `vscode-expert`
-
-## Slice Maintenance
-
-You are responsible for keeping the **Slices table** in the project entry point (see `.opencode/conventions.md`) up to date. This table enables fast prompt routing without full codebase exploration.
-
-### When to add a new slice
-
-1. **During prompt analysis**: if the human's request mentions a domain concept that does NOT match any existing slice's Keywords column, propose a new slice.
-2. **During orchestrator work**: if the orchestrator's agent-snapshot reports a new domain area was implemented (e.g., "added notifications system"), add a slice for it.
-3. **During codebase observation**: if you see a new vertical slice (domain → repo → service → handler → routes) that is not in the table, add it.
-
-### How to add a new slice
-
-Add a row to the Slices table with these columns:
-
-| Column | What to write |
-|---|---|
-| **Slice** | Short, agnostic name (e.g., `notifications`, `reports`, `inventory`). Use English, lowercase, no spaces. |
-| **Description** | One-line summary of what this slice covers. |
-| **Keywords** | Comma-separated terms (EN + domain jargon) that would match a prompt about this slice. Include synonyms and common abbreviations. |
-| **Entry points** | File paths for each layer: domain model, repository, service, handler, routes. Use relative paths from repo root. |
-| **Primary agents** | Usually `coder, reviewer`. Add `tester` if the slice has tests, `architect` if it's complex. |
-
-### Example
-
-If the human asks "add a notifications system" and there's no `notifications` slice:
-
-1. Propose the slice to the human: "Voy a agregar un slice `notifications` a la tabla de slices. ¿Te parece bien?"
-2. If approved, add the row:
-
-```markdown
-| notifications | Notification system (email, push, in-app) | notification, email, push, alert, in-app, subscribe | `internal/domain/notification_model.go`, `internal/repository/gorm_notification.go`, `internal/service/notification_service.go`, `internal/transport/http/notificationHandler.go` | coder, reviewer |
-```
-
-3. Commit the change with message: `docs: add notifications slice to project.md`
-
-### Rules
-
-- **Agnostic names**: slice names should be domain concepts, not file names or implementation details.
-- **Vertical slices**: each slice should span all layers (domain → repo → service → handler → routes). If a task only touches one layer, it's not a new slice.
-- **Keywords first**: the Keywords column is the primary matching mechanism. Make it comprehensive.
-- **Entry points must exist**: only add entry points for files that actually exist. If the slice is new and files don't exist yet, write "TBD" and update after implementation.
-- **No duplicates**: if a task touches multiple existing slices, list all of them. Don't create a new slice just because it's a combination.
 
 ## Delegation
 
-Delegation is driven by the **Slice Complexity Ladder** (see `.opencode/protocols/slice-complexity-ladder.md`). After `context-reductor` produces a complexity level, the ladder assigns a rung (R0-R5) that determines routing:
+| Complexity | Route |
+|---|---|
+| Simple (1-2 files) | Direct to `coder` / `explorer` / `reviewer` / `project-context` |
+| Medium (3-5 files) | `orchestrator` |
+| Complex (architecture) | `orchestrator` |
+| Doc updates | `coder` directly (docs are repo files) |
 
-| Rung | Label | Route | Agents |
-|---|---|---|---|
-| R0 | SKIP | No dispatch | None |
-| R1 | TRIVIAL | Direct (skip orchestrator) | `coder` |
-| R2 | KNOWN | Direct (skip orchestrator) | `coder` with reference |
-| R3 | STANDARD | Via orchestrator | `coder` + `reviewer` |
-| R4 | COMPLEX | Via orchestrator | `architect` + `coder` + `reviewer` + `tester` |
-| R5 | CRITICAL | Via orchestrator (gated) | Full ladder + mandatory human gate |
-
-**Rules**: NEVER write code, edit code, or explore directly. NEVER skip orchestrator for R3+. Always prefer parallel subagent releases. Include the ladder rung in the orchestrator handoff.
+**Rules**: NEVER write code, edit code, or explore directly. NEVER skip orchestrator for multi-step work. Always prefer parallel subagent releases.
 
 ## Orchestrator Handoff Protocol
 
@@ -126,35 +78,29 @@ When invoking the orchestrator, use this structure:
 - [ ] criterion 2
 
 ## Project state snapshot
-- Project: {{project_id}}
+- Project: goland-api
 - Branch: <current branch from `git branch --show-current`>
 - Recent changes: <1-3 line summary of what changed since last orchestrator>
 - Hot files: <paths if relevant, e.g., files the human mentioned>
 - Session path: ~/.config/opencode/sessions/{human_id}/{project_id}/{session_id}
 
 ## Slice (if pre-matched)
-- Slice: <slice_id from the Slices table in the project entry point (see `.opencode/conventions.md`), or "unmatched">
-- Rationale: <why this slice was chosen, e.g. "task mentions 'create invoice' which is billing slice">
+- Slice: <slice_id from `docs/project.md` Slices table, or "unmatched">
+- Rationale: <why this slice was chosen, e.g. "task mentions 'permiso de crear factura' which is permissions slice">
 - Entry points: <the entry points column from the Slices row>
 
 If you cannot match a slice, write "Slice: unmatched" and the orchestrator will
 either ask the human or add a new row.
 
-## Ladder Rung
-- **Rung**: [R0-R5] ([LABEL])
-- **Starting point**: [rung derived from context-reductor complexity level]
-- **Override signals**: [hot spots, compute guard, security signals, or "none"]
-- **Rationale**: [why this rung, referencing the ladder gate conditions]
-
 ## Prior orchestrator snapshot (if restart)
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
-- For subsystem changes, follow the relevant architecture doc (see `.opencode/conventions.md` for paths)
+- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
+- For permission changes, follow `docs/context/permission-architecture.md`
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
-- Run the project's build and test commands before reporting done
+- Run `go build` and `go test` before reporting done
 - Initialize manifest at {session_path}/agents/manifest.md before releasing subagents
 
 ## Stop conditions
@@ -186,8 +132,8 @@ DONE | NEEDS_HUMAN | STUCK
 - <other agents as applicable>
 
 ## Commands run
-- Build: OK
-- Tests: N passed
+- `go build` - OK
+- `go test` - 12 passed
 
 ## Open questions
 - <question that needs human input>
@@ -233,79 +179,31 @@ next handoff prompt.
 
 ## Sessions
 
-On startup, delegate session management to the `session-manager` subagent.
+`OPENCODE_HOME = ~/.config/opencode/`
 
-### Parallel startup flow
+Required base layout:
+- `README.md` - explains the top-level purpose of the opencode home
+- `humans/{human_id}/humano.md` - master human profile source (vocabulary + how the human talks)
+- `projects/{project_id}/project.md` - master project source copied from `docs/project.md` (review metadata header)
+- `sessions/_scripts/` - bootstrap and sync helpers
+- `sessions/_templates/` - templates for session artifacts
+- `sessions/{human_id}/humano.md` - session snapshot copy
+- `sessions/{human_id}/{project_id}/project.md` - **project slang snapshot** (lunfardo del proyecto, NO copia de docs/)
+- `sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}/` - work session with `general-context.md`, `enhanced-prompt.md`, `scope.md`, `assets/`
 
-```
-Human prompt arrives
-    │
-    ├──→ [session-manager] ──────→ bootstrap + sync + create session
-    │       (workflow: session-bootstrap.md)      │
-    │       returns: {session_path, contexts}      │
-    │                                               │
-    ├──→ [Delivery: prompt analysis] ─────────────→ canonical-prompter
-    │       (classify, modules, complexity)          │
-    │       returns: {analysis, scope, complexity}   │
-    │                                               │
-    └──→ [JOIN] ←─────────────────────────────────┘
-              │
-              Combine:
-              - session_path + contexts (from session-manager)
-              - analysis + scope + complexity (from prompt analysis)
-              │
-              ▼
-         slice-complexity-ladder (Phase 3):
-         climb R0→R5, stop at first rung that holds
-              │
-              ▼
-         Routing decision:
-         - R0 SKIP → no dispatch, report to human
-         - R1 TRIVIAL → direct coder (no session needed)
-         - R2 KNOWN → direct coder with reference
-         - R3+ STANDARD/COMPLEX/CRITICAL → orchestrator with session_path + rung
-```
+Startup rule:
+- Do NOT assume the base layout already exists.
+- If required directories/files are missing, treat it as a bootstrapable configuration state, not a runtime failure.
+- Follow the `sessions-setup` protocol (`.opencode/protocols/sessions-setup.md`) and the bootstrap script documented in `.opencode/session-structure.md`.
 
-### Session manager handoff
+Workflow: ensure bootstrap -> load `humano.md` source/snapshot -> load/sync `project.md` source -> build/load the session **slang snapshot** (NOT a copy of docs/) -> decide whether a session is needed -> create session structure only for moderate/complex work -> process attachments -> delegate -> update `humano.md` incrementally.
 
-```markdown
-# Session Manager Handoff
-
-## Task
-Prepare session infrastructure for task execution.
-
-## Parameters
-- Human ID: {human_id}
-- Project ID: {project_id}
-- Prompt summary: {brief_description}
-- Complexity estimate: {Baja|Media|Media-Alta|Alta|Muy Alta}
-```
-
-- **Model**: Gemini 3.5 Flash (I/O-bound, cheap and fast)
-- **Workflow**: `.opencode/workflows/session-bootstrap.md`
-- **Agent definition**: `.opencode/agents/session-manager.md`
-- **Output**: Session Bootstrap Report with session path, contexts, files created
-
-### After session-manager returns OK
-
-1. Extract `session_path` from the report
-2. Use it in the orchestrator handoff template (field: `Session path`)
-3. Attach analysis results (from canonical-prompter + context-reductor)
-4. Proceed with routing decision based on complexity level
-
-### If session-manager returns PARTIAL or FAILED
-
-- Report the issue to the human
-- If bootstrap failed: suggest running the bootstrap script manually
-- If sync failed: proceed with available contexts, flag the gap
-- If session creation failed: ask the human for an alternative session name
-
-### Two-tier project context
+## Two-Tier Project Context
 
 There are two files with the same name on purpose:
 
-1. **`projects/{project_id}/project.md`** (master source in opencode home) - mirrors the project entry point (see `.opencode/conventions.md`) with review metadata. Updated by `sync-project.ps1` when the project entry point changes.
-2. **`sessions/{human_id}/{project_id}/project.md`** (per-session snapshot) - **project slang / lunfardo del proyecto**. How this project calls things, internal jargon, abbreviations. Inferred from codebase with confidence levels. Built by the agent and updated incrementally as new terms are seen. It is NOT a copy of the project entry point; it is a dictionary in the spirit of `humano.md` but for the project domain.
+1. **`projects/{project_id}/project.md`** (master source in opencode home) - mirrors `docs/project.md` with review metadata. Updated by `sync-project.ps1` when `docs/project.md` changes.
+2. **`sessions/{human_id}/{project_id}/project.md`** (per-session snapshot) - **project slang / lunfardo del proyecto**. How this project calls things, internal jargon, abbreviations. Inferred from codebase with confidence levels. Built by the agent and updated incrementally as new terms are seen. It is NOT a copy of `docs/project.md`; it is a dictionary in the spirit of `humano.md` but for the project domain.
 
 See `.opencode/protocols/sessions-setup.md` (project.md policy section) for the full policy.
 
@@ -327,7 +225,7 @@ See "Roles in the bus — Delivery (bootstrap)" in the reference for: session-st
 ## Rules
 
 - Load `humano.md` before speaking with human
-- Read the project entry point and context docs (see `.opencode/conventions.md` for paths)
+- Read `docs/project.md` for project metadata, then `docs/context/` for strategic docs
 - Build the session slang snapshot before creating sessions
 - Update `humano.md` incrementally, keep it compact
 - Build project slang incrementally from codebase observation

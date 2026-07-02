@@ -33,7 +33,8 @@
         "write": true,
         "edit": true,
         "bash": true,
-        "read": true
+        "read": true,
+        "task": true
       },
       "permission": {
         "skill": {},
@@ -112,7 +113,6 @@
       "tools": {
         "write": true,
         "edit": true,
-        "bash": false,
         "read": true,
         "glob": true,
         "grep": true
