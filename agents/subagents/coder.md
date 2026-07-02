@@ -16,22 +16,20 @@ permission:
 
 Implement features, fix bugs, refactor code.
 
-**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
+**Project context**: read the project entry point (see `.opencode/conventions.md`) for the tech stack, and the context index to find relevant context docs.
 
-## Standards (summary)
+## Standards
 
-- Go 1.24, layered architecture (`docs/context/architecture.md`)
-- GORM v1.30 with PostgreSQL
-- Gin v1.10 HTTP framework
-- JWT auth via `golang-jwt/jwt/v5`
-- Errors defined as constants in the same file as their model
-- New domain entities must have seed logic and JSON data in `internal/domain/jsons/`
+- Read the project entry point (see `.opencode/conventions.md`) for the tech stack and conventions
+- Read the context index (see `.opencode/conventions.md`) to discover architecture, rules, and subsystem docs
+- Follow existing patterns in the codebase
+- Errors defined as constants per project conventions
 
 ## Anti-Patterns
 
 - Business logic in HTTP handlers (use services)
-- Direct GORM access from transport (use repositories)
-- Hardcoded strings for feature keys (use `service.ValidFeatures`)
+- Direct data access from transport layer (use repositories)
+- Hardcoded strings for feature keys (use constants)
 - `any` / `interface{}` when a concrete type is possible
 - Mutating shared state without locking
 
