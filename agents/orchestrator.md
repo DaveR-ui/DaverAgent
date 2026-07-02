@@ -2,6 +2,7 @@
 description: Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.
 mode: subagent
 temperature: 0.3
+<<<<<<< HEAD
 tools:
   write: true
   edit: true
@@ -20,6 +21,8 @@ tools:
     angular-expert: allow
     opencode-expert: allow
     vscode-expert: allow
+=======
+>>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
 ---
 
 # Orchestrator Agent (Ephemeral Subagent)

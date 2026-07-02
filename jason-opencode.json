@@ -35,6 +35,7 @@
         "bash": true,
         "read": true,
         "task": true
+<<<<<<< HEAD
       },
       "permission": {
         "skill": {},
@@ -49,6 +50,8 @@
           "opencode-expert": "allow",
           "vscode-expert": "allow"
         }
+=======
+>>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
       }
     },
     "coder": {

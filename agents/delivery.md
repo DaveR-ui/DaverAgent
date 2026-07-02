@@ -2,6 +2,7 @@
 description: "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents."
 mode: primary
 temperature: 0.3
+<<<<<<< HEAD
 permission:
   skill: {}
   task:
@@ -17,6 +18,8 @@ permission:
     vscode-expert: allow
   external_directory:
     "~/.config/opencode/**": "allow"
+=======
+>>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
 ---
 
 # Delivery Agent
