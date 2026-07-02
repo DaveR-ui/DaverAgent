@@ -15,6 +15,7 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 | [`sessions-setup.md`](./sessions-setup.md) | Opencode home bootstrap (`~/.config/opencode/`) and session-structure conventions. Includes `humano.md` and `project.md` two-tier policies. | `delivery`, `project-context` |
 | [`doc-maintainer.md`](./doc-maintainer.md) | Documentation health checks: broken links, code-doc consistency, duplicate content, content placement, dead references. | `project-context`, `documenter` |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
+| [`slice-complexity-ladder.md`](./slice-complexity-ladder.md) | Phase 3 of the delivery pipeline. Climbs a 6-rung ladder (R0 SKIP → R5 CRITICAL) to assign complexity level per slice and determine agent routing, model selection, and human gates. Consumes `context-reductor` output. | `delivery`, `orchestrator` |
 
 ## Built-in protocols (from opencode runtime)
 

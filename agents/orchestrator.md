@@ -63,13 +63,14 @@ When a handoff arrives:
    to its slice. Coordinate the integration in the agent-snapshot.
 4. **If the task matches no slice**, either:
    - Ask the human which slice (return `STATUS: NEEDS_HUMAN`), or
-    - If the task is genuinely new territory, add a new row to the Slices table
-      in the project entry point (see `.opencode/conventions.md`) with a one-line rationale, then proceed.
+   - If the task is genuinely new territory, add a new row to the Slices table
+     in the project entry point (see `.opencode/conventions.md`) with a one-line rationale, then proceed.
 5. **Route the subagent releases using the Primary agents column.** For a
    permissions-slice task, the `coder` and `reviewer` subagents are the right
    picks; `architect` is overkill unless the change is structural.
 6. **Pass slice context to each subagent**: when releasing a subagent, include
    the matched slice row in its handoff so it knows where to start reading.
+7. **Validate the rung using the Slice Complexity Ladder.** Read `.opencode/protocols/slice-complexity-ladder.md` and validate the rung assigned in the handoff. If codebase reading reveals the rung should be different, adjust it and document the reason in the agent-snapshot under `Decisions`.
 
 ## Handoff Protocol
 
@@ -96,6 +97,12 @@ You will receive a handoff prompt structured like this:
 
 ## Prior orchestrator snapshot (if restart)
 <paste the agent-snapshot from the previous orchestrator instance>
+
+## Ladder Rung
+- **Rung**: [R0-R5] ([LABEL])
+- **Starting point**: [rung from context-reductor complexity]
+- **Override signals**: [signals or "none"]
+- **Rationale**: [why this rung]
 
 ## Constraints
 - Use the relevant project protocol from `docs/protocols/` for scaffold work (e.g., endpoint factory)
@@ -183,6 +190,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 **Agent protocols** (in `.opencode/protocols/`):
 - `canonical-prompter` — Phase 1 of the delivery pipeline
 - `context-reductor` — Phase 2 of the delivery pipeline
+- `slice-complexity-ladder` — Phase 3: rung selection and agent routing per slice
 - `interruption` — file-based pause/resume bus
 - `session-archiver` — session closeout digest
 - `doc-maintainer` — documentation health check

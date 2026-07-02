@@ -85,14 +85,18 @@ If the human asks "add a notifications system" and there's no `notifications` sl
 
 ## Delegation
 
-| Complexity | Route |
-|---|---|
-| Simple (1-2 files) | Direct to `coder` / `explorer` / `reviewer` / `project-context` |
-| Medium (3-5 files) | `orchestrator` |
-| Complex (architecture) | `orchestrator` |
-| Doc updates | `coder` directly (docs are repo files) |
+Delegation is driven by the **Slice Complexity Ladder** (see `.opencode/protocols/slice-complexity-ladder.md`). After `context-reductor` produces a complexity level, the ladder assigns a rung (R0-R5) that determines routing:
 
-**Rules**: NEVER write code, edit code, or explore directly. NEVER skip orchestrator for multi-step work. Always prefer parallel subagent releases.
+| Rung | Label | Route | Agents |
+|---|---|---|---|
+| R0 | SKIP | No dispatch | None |
+| R1 | TRIVIAL | Direct (skip orchestrator) | `coder` |
+| R2 | KNOWN | Direct (skip orchestrator) | `coder` with reference |
+| R3 | STANDARD | Via orchestrator | `coder` + `reviewer` |
+| R4 | COMPLEX | Via orchestrator | `architect` + `coder` + `reviewer` + `tester` |
+| R5 | CRITICAL | Via orchestrator (gated) | Full ladder + mandatory human gate |
+
+**Rules**: NEVER write code, edit code, or explore directly. NEVER skip orchestrator for R3+. Always prefer parallel subagent releases. Include the ladder rung in the orchestrator handoff.
 
 ## Orchestrator Handoff Protocol
 
@@ -135,6 +139,12 @@ When invoking the orchestrator, use this structure:
 
 If you cannot match a slice, write "Slice: unmatched" and the orchestrator will
 either ask the human or add a new row.
+
+## Ladder Rung
+- **Rung**: [R0-R5] ([LABEL])
+- **Starting point**: [rung derived from context-reductor complexity level]
+- **Override signals**: [hot spots, compute guard, security signals, or "none"]
+- **Rationale**: [why this rung, referencing the ladder gate conditions]
 
 ## Prior orchestrator snapshot (if restart)
 <paste the agent-snapshot from the previous orchestrator instance>
@@ -245,9 +255,15 @@ Human prompt arrives
               - analysis + scope + complexity (from prompt analysis)
               │
               ▼
+         slice-complexity-ladder (Phase 3):
+         climb R0→R5, stop at first rung that holds
+              │
+              ▼
          Routing decision:
-         - Baja → direct subagent (no session needed)
-         - Media+ → orchestrator with session_path
+         - R0 SKIP → no dispatch, report to human
+         - R1 TRIVIAL → direct coder (no session needed)
+         - R2 KNOWN → direct coder with reference
+         - R3+ STANDARD/COMPLEX/CRITICAL → orchestrator with session_path + rung
 ```
 
 ### Session manager handoff

@@ -176,13 +176,13 @@ If no hot spots detected:
 Phase 2 of the Delivery Agent workflow:
 
 ```
-Raw Prompt → canonical-prompter → Structured Analysis → context-reductor → Scope + Complexity + Hot Spots + Hidden Assumption → Resolution
+Raw Prompt → canonical-prompter → Structured Analysis → context-reductor → Scope + Complexity + Hot Spots + Hidden Assumption → slice-complexity-ladder → Rung + Routing → Resolution
 ```
 
 The output provides the Delivery Agent with:
 
-- **Complexity level** → determines which subagent/model to use
-- **Hot spots** → triggers mandatory user questions before dispatch
+- **Complexity level** → starting point for the Slice Complexity Ladder (see `.opencode/protocols/slice-complexity-ladder.md`)
+- **Hot spots** → override signals for the ladder (bump rung up)
 - **Hidden assumption** → surfaces invisible risk
 - **Scope definition** → boundaries for the implementation
 - **Key files** → specific files to read/modify
