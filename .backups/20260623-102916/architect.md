@@ -2,14 +2,6 @@
 description: System design, architecture, module boundaries, patterns
 mode: subagent
 temperature: 0.3
-tools:
-  write: true
-  edit: true
-  bash: true
-  read: true
-permission:
-  external_directory:
-    "~/.config/opencode/sessions/**": allow
 ---
 
 # Architect Agent
