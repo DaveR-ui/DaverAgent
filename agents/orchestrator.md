@@ -3,6 +3,9 @@ description: Orchestrator Agent - Ephemeral coordinator. Receives handoff from d
 mode: subagent
 temperature: 0.3
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of a3e743c (fix test)
 tools:
   write: true
   edit: true
@@ -21,8 +24,11 @@ tools:
     angular-expert: allow
     opencode-expert: allow
     vscode-expert: allow
+<<<<<<< HEAD
 =======
 >>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
+=======
+>>>>>>> parent of a3e743c (fix test)
 ---
 
 # Orchestrator Agent (Ephemeral Subagent)

@@ -36,6 +36,9 @@
         "read": true,
         "task": true
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of a3e743c (fix test)
       },
       "permission": {
         "skill": {},
@@ -50,8 +53,11 @@
           "opencode-expert": "allow",
           "vscode-expert": "allow"
         }
+<<<<<<< HEAD
 =======
 >>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
+=======
+>>>>>>> parent of a3e743c (fix test)
       }
     },
     "coder": {

@@ -3,6 +3,9 @@ description: "Delivery Agent - Sole interface between human and agent system. Tr
 mode: primary
 temperature: 0.3
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of a3e743c (fix test)
 permission:
   skill: {}
   task:
@@ -18,8 +21,11 @@ permission:
     vscode-expert: allow
   external_directory:
     "~/.config/opencode/**": "allow"
+<<<<<<< HEAD
 =======
 >>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
+=======
+>>>>>>> parent of a3e743c (fix test)
 ---
 
 # Delivery Agent
