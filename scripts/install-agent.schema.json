@@ -6,7 +6,7 @@
     {
       "id": "phase1_project_meta",
       "title": "Phase 1 - Project Metadata",
-      "description": "Generates docs/project.md",
+      "description": "Generates the project entry point (see .opencode/conventions.md)",
       "questions": [
         {
           "id": "project_name",
@@ -124,11 +124,11 @@
     {
       "id": "phase2_context_docs",
       "title": "Phase 2 - Context Docs and Protocols",
-      "description": "Generates docs/context/*.md (strategic docs), docs/protocols/*.md (project protocols), and .opencode/protocols/*.md (agent protocols). Each selected item becomes a stub file with placeholder content; the human fills in the substance later. Use the protocol_templates section as the index.",
+      "description": "Generates context docs (see .opencode/conventions.md for paths), project protocols, and agent protocols. Each selected item becomes a stub file with placeholder content; the human fills in the substance later. Use the protocol_templates section as the index.",
       "questions": [
         {
           "id": "context_selection",
-          "prompt": "Which context docs do you want to enable? (comma-separated ids; lives in docs/context/)",
+          "prompt": "Which context docs do you want to enable? (comma-separated ids; paths defined in .opencode/conventions.md)",
           "type": "string",
           "default": "architecture,api-contracts,rule,naming-registry",
           "options": [
@@ -302,9 +302,9 @@
           "type": "multiline",
           "default": "",
           "examples": [
-            "polvo | powder inside a fire extinguisher | internal/domain/powder_model.go | high",
-            "matafuego | fire extinguisher | internal/domain/fire_extinguisher_model.go | high",
-            "factura | invoice | internal/domain/invoice_model.go | high"
+            "widget | the core product unit | src/domain/widget_model.go | high",
+            "customer | external client entity | src/domain/customer_model.go | high",
+            "order | purchase transaction | src/domain/order_model.go | high"
           ]
         }
       ]

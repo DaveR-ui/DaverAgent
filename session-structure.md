@@ -88,12 +88,12 @@ The current startup logic is instruction-driven, not a separate runtime service.
 
 Relevant assumption points in this repo:
 - `.opencode/agents/delivery.md`
-- `docs/project.md` (project entry point; mirrored into the opencode home by `sync-project.ps1`)
-- `docs/context/README.md` (strategic docs index)
+- Project entry point (see `.opencode/conventions.md`; mirrored into the opencode home by `sync-project.ps1`)
+- Context index (see `.opencode/conventions.md`)
 - `.opencode/protocols/sessions-setup.md` (bootstrap + humano.md / project.md two-tier policies)
 - `.opencode/protocols/README.md` (index of all agent protocols)
 
-In other words: the delivery agent prompt assumes the structure exists unless docs/scripts tell it how to bootstrap it. The repo-level project source of truth is `docs/project.md`. There is no `.opencode/project.md` and no `AGENT.md`.
+In other words: the delivery agent prompt assumes the structure exists unless docs/scripts tell it how to bootstrap it. The repo-level project source of truth is defined in `.opencode/conventions.md`. There is no `.opencode/project.md` and no `AGENT.md`.
 
 ## Bootstrap flow
 

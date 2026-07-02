@@ -8,7 +8,7 @@ temperature: 0.3
 
 Design system architecture, define module boundaries, establish patterns.
 
-**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md` + `docs/context/business-logic.md`.
+**Project context**: read the project entry point (see `.opencode/conventions.md`) and the architecture and business-logic docs in the context docs.
 
 ## Pauses
 
@@ -27,7 +27,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 
 ## Principles
 
-- Follow `docs/context/architecture.md` (layered: transport -> service -> repository -> domain)
+- Follow the architecture doc (see `.opencode/conventions.md` for paths; layered: transport -> service -> repository -> domain)
 - Favor simplicity over complexity
 - Design for testability and maintainability
 - Document decisions with rationale

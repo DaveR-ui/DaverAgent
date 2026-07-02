@@ -1,11 +1,11 @@
 # Project Slang Snapshot
 
 > **ROLE**: per-session project slang dictionary (lunfardo del proyecto).
-> This is the ONLY per-session project document. It is NOT a copy of `docs/project.md`.
-> The source-of-truth project info lives in `docs/project.md` and `docs/context/`.
+> This is the ONLY per-session project document. It is NOT a copy of the project entry point (see `.opencode/conventions.md`).
+> The source-of-truth project info lives in the project entry point and context docs (see `.opencode/conventions.md`).
 > This snapshot is a dictionary in the same spirit as `humano.md`, but for the project domain: internal jargon, abbreviations, and how this codebase names things.
 
-> **SOURCE PROJECT DOC**: `docs/project.md`
+> **SOURCE PROJECT DOC**: see `.opencode/conventions.md` for the project entry point path
 > **SESSION FOR**: `{human_id}/{project_id}/{session_id-keywords}`
 > **LAST REVIEWED**: {{LAST_REVIEWED}}
 > **NEXT REVIEW DUE**: {{NEXT_REVIEW_DUE}}
@@ -30,10 +30,10 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 
 ## How to Populate This File
 
-1. **Infer from the codebase**: read `internal/domain/*_model.go` and `cmd/db/seeds.go` for canonical entity names.
-2. **Listen to the human**: when the human says "el polvo" or "la factura", check if it matches a domain entity.
+1. **Infer from the codebase**: read the domain model files and seed data for canonical entity names.
+2. **Listen to the human**: when the human uses a colloquial term, check if it matches a domain entity.
 3. **Confidence levels**:
-   - **High** - found in both `internal/domain/` and used by the human consistently
+   - **High** - found in both domain models and used by the human consistently
    - **Medium** - found in code only, or used by the human once
    - **Low** - inferred from context, not yet confirmed
 4. **Update incrementally** as new terms are observed.
@@ -41,15 +41,12 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 ## Rules
 
 - This file is per-session, but persists across sessions under `{human_id}/{project_id}/`.
-- Do NOT copy `docs/project.md` here. The dictionary is for jargon, not metadata.
-- If `docs/project.md` changes materially, refresh the **master** `projects/{project_id}/project.md`, not this snapshot.
+- Do NOT copy the project entry point here. The dictionary is for jargon, not metadata.
+- If the project entry point (see `.opencode/conventions.md`) changes materially, refresh the **master** `projects/{project_id}/project.md`, not this snapshot.
 - Keep the table compact: prune entries that the human no longer uses.
 
 ## Example (illustrative, to be cleared on first real use)
 
 | Term | Meaning | Location | Confidence |
 |---|---|---|---|
-| polvo | powder inside a fire extinguisher | `internal/domain/powder_model.go` | High |
-| matafuego | fire extinguisher | `internal/domain/fire_extinguisher_model.go` | High |
-| factura | invoice | `internal/domain/invoice_model.go` | High |
-| credencial | credential | `internal/domain/credentials_model.go` | High |
+| _example term_ | _what it means in this project_ | _path to model file_ | _High/Medium/Low_ |
