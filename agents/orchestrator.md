@@ -2,24 +2,6 @@
 description: Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.
 mode: subagent
 temperature: 0.3
-tools:
-  write: true
-  edit: true
-  bash: true
-  read: true
-  task: true
-  permission:
-    skill: {}
-    task:
-    coder: allow
-    tester: allow
-    reviewer: allow
-    architect: allow
-    explorer: allow
-    project-context: allow
-    angular-expert: allow
-    opencode-expert: allow
-    vscode-expert: allow
 ---
 
 # Orchestrator Agent (Ephemeral Subagent)

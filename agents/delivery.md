@@ -2,21 +2,6 @@
 description: "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents."
 mode: primary
 temperature: 0.3
-permission:
-  skill: {}
-  task:
-    orchestrator: allow
-    coder: allow
-    tester: allow
-    reviewer: allow
-    architect: allow
-    explorer: allow
-    project-context: allow
-    angular-expert: allow
-    opencode-expert: allow
-    vscode-expert: allow
-  external_directory:
-    "~/.config/opencode/**": "allow"
 ---
 
 # Delivery Agent
