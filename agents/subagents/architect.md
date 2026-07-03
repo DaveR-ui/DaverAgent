@@ -13,11 +13,11 @@ tools:
 
 Design system architecture, define module boundaries, establish patterns.
 
-**Project context**: read the project entry point (see `.opencode/conventions.md`) and the context index to find architecture and business-logic docs.
+**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md` + `docs/context/business-logic.md`.
 
 ## Principles
 
-- Read the context docs (see `.opencode/conventions.md` for paths) for the project's architecture patterns and follow them
+- Follow `docs/context/architecture.md` (layered: transport -> service -> repository -> domain)
 - Favor simplicity
 - Design for testability and maintainability
 - Document decisions with rationale
@@ -38,5 +38,5 @@ Your agent-specific paths:
 
 ## Rules
 
-- Follow existing patterns from the context docs (see `.opencode/conventions.md`)
+- Follow existing patterns from `docs/context/`
 - All documentation in ENGLISH

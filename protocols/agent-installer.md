@@ -6,15 +6,15 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 
 - **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer
 - **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list
-- **Question reference**: see context docs (`.opencode/conventions.md`) for agent-installer-questions
-- **Update protocol**: see context docs (`.opencode/conventions.md`) for agent-update-protocol
+- **Question reference**: `docs/context/agent-installer-questions.md` — what each question means
+- **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten
 
 ## The 4 phases
 
 | Phase | Generates | Questions |
 |---|---|---|
-| 1 — Project Metadata | project entry point (see `.opencode/conventions.md`) | name, stack, architecture, **slices** |
-| 2 — Context Docs | context docs (see `.opencode/conventions.md`) | which context docs to enable |
+| 1 — Project Metadata | `docs/project.md` | name, stack, architecture, **slices** |
+| 2 — Context Docs | `docs/context/*.md` | which context docs to enable |
 | 3 — Project Slang | session slang template | initial slang entries |
 | 4 — Agent Selection | subagent files + `opencode.json` | which subagents, default agent, doc language |
 
@@ -24,7 +24,7 @@ The human wants to:
 
 - **Install** the agent for the first time in a fresh repo
 - **Update** the agent after a stack change, new context doc, or new subagent
-- **Add a slice** to the routing table in the project entry point (see `.opencode/conventions.md`)
+- **Add a slice** to the routing table in `docs/project.md`
 - **Add or remove a subagent** from the roster
 - **Refresh the slang dictionary** with new terms
 - **Audit** what the installer would change (run with `-VerifyOnly`)
@@ -41,8 +41,8 @@ Do NOT use this for:
 
 1. Run `install-agent.ps1 -VerifyOnly` to see the planned output (zero writes).
 2. Run `install-agent.ps1` interactively. The human answers 4 phases of questions. Defaults are offered for every prompt.
-3. The script writes the project entry point, the selected context docs, the subagent files, and `opencode.json`.
-4. The human is responsible for filling in the substance of each generated context doc stub.
+3. The script writes `docs/project.md`, the selected context docs, the subagent files, and `opencode.json`.
+4. The human is responsible for filling in the substance of each generated `docs/context/*.md` stub.
 
 ### Update (existing install)
 
@@ -53,7 +53,7 @@ Do NOT use this for:
 
 ### Add a slice
 
-1. Read the current Slices table in the project entry point (see `.opencode/conventions.md`).
+1. Read the current Slices table in `docs/project.md`.
 2. Ask the human: slice id, description, entry points, primary agents.
 3. Add a new row to the Slices table. Do NOT touch the script.
 4. The orchestrator picks it up automatically on the next handoff.
@@ -91,11 +91,11 @@ You: Run the installer in interactive mode. The 4 phases walk through everything
 
 **Human**: "I added a new context doc called `cache-strategy.md`."
 
-You: Edit `install-agent.schema.json` to add the new entry under `context_templates`. Re-run `install-agent.ps1 -Update` so the new file generates and the context index gets the new row.
+You: Edit `install-agent.schema.json` to add the new entry under `context_templates`. Re-run `install-agent.ps1 -Update` so the new file generates and `docs/context/README.md` gets the new row.
 
 **Human**: "Update the slices table to include a new 'reports' slice."
 
-You: Ask for the four fields. Edit the project entry point directly (see `.opencode/conventions.md`). Confirm by reading the file back.
+You: Ask for the four fields. Edit `docs/project.md` directly. Confirm by reading the file back.
 
 **Human**: "What would the installer change if I ran it now?"
 
@@ -104,6 +104,6 @@ You: Run `install-agent.ps1 -VerifyOnly`. Report the diff.
 ## Rules
 
 - Always offer the human a chance to back up before any overwrite.
-- Never edit context doc substance in this protocol — that is the `project-context` subagent's job. This protocol only generates stubs.
+- Never edit `docs/context/*.md` substance in this protocol — that is the `project-context` subagent's job. This protocol only generates stubs.
 - Never edit `opencode.json` directly — always go through the installer so the schema-driven generation stays consistent.
 - After any update, run `-VerifyOnly` once to confirm the state matches expectations.

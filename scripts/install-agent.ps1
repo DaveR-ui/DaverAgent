@@ -208,7 +208,7 @@ function Build-ProjectMd {
     [void]$sb.AppendLine("# $($A.project_display_name)")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("> **Single source of truth for project info, conventions, and architecture.**")
-    [void]$sb.AppendLine("> The opencode agent system reads from the project entry point and context docs (see `.opencode/conventions.md`) directly.")
+    [void]$sb.AppendLine("> The opencode agent system reads from `docs/project.md` and `docs/context/` directly.")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("## Overview")
     [void]$sb.AppendLine("")
@@ -266,7 +266,7 @@ function Build-ProjectMd {
     [void]$sb.AppendLine("## Key Conventions")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("- All documentation and comments in **$($A.doc_language)**")
-    [void]$sb.AppendLine("- See `.opencode/conventions.md` for context doc paths")
+    [void]$sb.AppendLine("- See `docs/context/` for strategic docs")
 
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("## Domain Entities")
@@ -280,7 +280,7 @@ function Build-ProjectMd {
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("## Context Index")
     [void]$sb.AppendLine("")
-    [void]$sb.AppendLine("See `.opencode/conventions.md` for the context index path.")
+    [void]$sb.AppendLine("See `docs/context/README.md` for the full index of strategic docs.")
 
     return $sb.ToString()
 }
@@ -342,7 +342,7 @@ function Build-SlangTemplate {
 # Project Slang Snapshot
 
 > **ROLE**: per-session project slang dictionary (lunfardo del proyecto).
-> NOT a copy of the project entry point (see `.opencode/conventions.md`). The source-of-truth project info lives in the project entry point and context docs (see `.opencode/conventions.md`).
+> NOT a copy of `docs/project.md`. The source-of-truth project info lives in `docs/project.md` and `docs/context/`.
 > This snapshot is a dictionary in the same spirit as `humano.md`, but for the project domain: internal jargon, abbreviations, how this codebase names things.
 
 ## How This File Differs From `humano.md`
@@ -370,14 +370,14 @@ $rows
 
 function Get-AgentBody {
     param([string]$Id)
-    $coderBody = "# Coder Subagent`n`nImplement features, fix bugs, refactor code.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`) for the tech stack, and the context index to find relevant context docs.`n`n## Rules`n`n- Read the context index (see `.opencode/conventions.md`) to find the relevant context docs for your task`n- Follow the architecture doc for layering`n- Follow the rules/standards doc for development standards`n- All comments and docs in ENGLISH`n- Never commit without explicit instruction"
-    $testerBody = "# Tester Subagent`n`nWrite and run tests.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`). For test conventions see the rules/standards doc in the context docs.`n`n## Rules`n`n- Tests next to source files`n- Mock external deps`n- All test names and comments in ENGLISH"
-    $reviewerBody = "# Reviewer Subagent`n`nAnalyze code - never modify it.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`) and the context index to find relevant context docs.`n`n## Checklist`n`n1. Architecture compliance (see architecture doc in context docs)`n2. Development standards (see rules/standards doc in context docs)`n3. Security`n4. Performance`n5. Anti-patterns`n6. Testing`n`n## Output`n`nSee `.opencode/docs/agent-output-protocol.md` for the full format."
-    $architectBody = "# Architect Subagent`n`nDesign system architecture, define module boundaries, establish patterns.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`) and the context index to find architecture and business-logic docs.`n`n## Principles`n`n- Read the context docs (see `.opencode/conventions.md`) for the project's architecture patterns and follow them`n- Favor simplicity`n- Design for testability and maintainability`n- Document decisions with rationale`n- All documentation in ENGLISH"
-    $explorerBody = "# Explorer Subagent`n`nRead and analyze the codebase - never modify code.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`) for module layout, then drill into the relevant source paths.`n`n## Approach`n`n- Use grep/glob/read effectively`n`n- Report file paths and line numbers`n`n- For architectural questions, consult the architecture doc (see `.opencode/conventions.md`)"
-    $documenterBody = "# Documenter Subagent`n`nWrite and maintain documentation.`n`n**Project context**: read the project entry point and context index (see `.opencode/conventions.md`) to find relevant context docs.`n`n## Rules`n`n- One topic per file`n- Reference, do not duplicate`n- All documentation in ENGLISH"
-    $projectContextBody = "# Project Context Subagent`n`nReads and writes project docs on demand.`n`n## Read Workflow`n`n1. Read the project entry point (see `.opencode/conventions.md`) for orientation`n2. Read the context index to find the relevant context file`n3. If unclear, use grep/glob to search the docs and the codebase`n4. Return: relevant excerpt + file path + line numbers`n`n## Write Workflow`n`n1. Identify the target doc (see `.opencode/conventions.md` for paths)`n2. Read the doc to understand its structure`n3. Edit or create the doc, keeping the tone consistent`n4. If a new context file is created, add an entry to the context index"
-    $defaultBody = "# $Id Subagent`n`nGenerated by install-agent.ps1. Fill in the agent's responsibilities here.`n`n**Project context**: read the project entry point (see `.opencode/conventions.md`)."
+    $coderBody = "# Coder Subagent`n`nImplement features, fix bugs, refactor code.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Rules`n`n- Follow `docs/context/architecture.md` for layering`n- Follow `docs/context/rules.md` for development standards`n- All comments and docs in ENGLISH`n- Never commit without explicit instruction"
+    $testerBody = "# Tester Subagent`n`nWrite and run tests.`n`n**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/rules.md`.`n`n## Rules`n`n- Tests next to source files`n- Mock external deps`n- All test names and comments in ENGLISH"
+    $reviewerBody = "# Reviewer Subagent`n`nAnalyze code - never modify it.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Checklist`n`n1. Architecture compliance (see `docs/context/architecture.md`)`n2. Development standards (see `docs/context/rules.md`)`n3. Security`n4. Performance`n5. Anti-patterns`n6. Testing`n`n## Output`n`nSee `.opencode/docs/agent-output-protocol.md` for the full format."
+    $architectBody = "# Architect Subagent`n`nDesign system architecture, define module boundaries, establish patterns.`n`n**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md`.`n`n## Principles`n`n- Favor simplicity`n- Design for testability and maintainability`n- Document decisions with rationale`n- All documentation in ENGLISH"
+    $explorerBody = "# Explorer Subagent`n`nRead and analyze the codebase - never modify code.`n`n**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant source paths.`n`n## Approach`n`n- Use grep/glob/read effectively`n- Report file paths and line numbers`n- For architectural questions, consult `docs/context/architecture.md`"
+    $documenterBody = "# Documenter Subagent`n`nWrite and maintain documentation.`n`n**Project context**: read `docs/project.md` and the relevant files in `docs/context/`.`n`n## Rules`n`n- One topic per file`n- Reference, do not duplicate`n- All documentation in ENGLISH"
+    $projectContextBody = "# Project Context Subagent`n`nReads and writes `docs/` on demand.`n`n## Read Workflow`n`n1. Read `docs/project.md` for orientation`n2. Read `docs/context/README.md` to find the relevant context file`n3. If unclear, use grep/glob to search `docs/` and the codebase`n4. Return: relevant excerpt + file path + line numbers`n`n## Write Workflow`n`n1. Identify the target doc (existing in `docs/project.md`, `docs/context/`, or new)`n2. Read the doc to understand its structure`n3. Edit or create the doc, keeping the tone consistent`n4. If a new context file is created, add an entry to `docs/context/README.md`"
+    $defaultBody = "# $Id Subagent`n`nGenerated by install-agent.ps1. Fill in the agent's responsibilities here.`n`n**Project context**: read `docs/project.md` (entry point)."
     if ($Id -eq "coder") { return $coderBody }
     if ($Id -eq "tester") { return $testerBody }
     if ($Id -eq "reviewer") { return $reviewerBody }

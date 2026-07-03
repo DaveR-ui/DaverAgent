@@ -5,7 +5,7 @@ Conventions for analyzing a raw prompt before scope definition. Operates on a ra
 ## Inputs
 
 1. **Raw prompt** from the user (verbatim).
-2. **Project context** from the project entry point and relevant context docs (see `.opencode/conventions.md`).
+2. **Project context** from `docs/project.md` and relevant `docs/context/*.md`.
 3. **Human context** from `humano.md` (vocabulary, communication preferences).
 
 ## Process
@@ -15,7 +15,7 @@ Conventions for analyzing a raw prompt before scope definition. Operates on a ra
 For each significant term:
 
 1. Check the **Translation Dictionary** in `humano.md` → resolve meaning.
-2. If not found → infer from the project entry point architecture and module names (see `.opencode/conventions.md`).
+2. If not found → infer from `docs/project.md` architecture and module names.
 3. Use general development terminology.
 4. Flag ambiguous terms for potential clarification.
 
@@ -42,7 +42,7 @@ Assign **confidence level**: high (clear keywords + context), medium (some ambig
 
 ### 4. Module Identification
 
-Map prompt terms to modules using the project entry point (see `.opencode/conventions.md`) + contextual analysis.
+Map prompt terms to modules using `docs/project.md` + contextual analysis.
 
 | Module | Confidence | Evidence |
 |--------|------------|----------|
@@ -202,7 +202,7 @@ The output feeds into:
 ## Notes
 
 - The dictionary (`humano.md`) enhances analysis but is NOT required.
-- If no dictionary exists, use the project entry point structure and general heuristics (see `.opencode/conventions.md`).
+- If no dictionary exists, use `docs/project.md` structure and general heuristics.
 - Simple inferences save time; complex ambiguities save accuracy by asking.
 - Questions are a safety valve — use them, don't guess.
 - Always preserve the original prompt verbatim.
