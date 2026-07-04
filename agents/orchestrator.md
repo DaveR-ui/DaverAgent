@@ -1,20 +1,17 @@
 ---
 description: Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.
 mode: subagent
+model: opencode/qwen3.7-max
 temperature: 0.3
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a3e743c (fix test)
 tools:
   write: true
   edit: true
   bash: true
   read: true
   task: true
-  permission:
-    skill: {}
-    task:
+permission:
+  skill: {}
+  task:
     coder: allow
     tester: allow
     reviewer: allow
@@ -24,11 +21,7 @@ tools:
     angular-expert: allow
     opencode-expert: allow
     vscode-expert: allow
-<<<<<<< HEAD
-=======
->>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
-=======
->>>>>>> parent of a3e743c (fix test)
+    vision-relay: allow
 ---
 
 # Orchestrator Agent (Ephemeral Subagent)
@@ -39,7 +32,7 @@ session. Your lifecycle is:
 
 1. Receive a handoff prompt from `delivery` (task + acceptance criteria + state snapshot).
 2. Decompose the task into subagent work units.
-3. Release subagents (`coder`, `tester`, `reviewer`, `architect`, `explorer`, etc.) in parallel when independent.
+3. Release subagents (`coder`, `tester`, `reviewer`, `architect`, `explorer`, `vision-relay`, etc.) in parallel when independent.
 4. Aggregate their responses.
 5. Produce a structured **agent-snapshot** and return it to `delivery`.
 6. You are then archived or discarded.

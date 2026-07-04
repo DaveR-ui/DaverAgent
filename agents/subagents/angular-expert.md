@@ -1,6 +1,7 @@
 ---
 description: Angular + AG Grid expert — consults `.opencode/docs/angular/` and uses Angular CLI / AG Grid MCP tools. Read-only subagent.
 mode: subagent
+model: opencode/minimax-m3
 temperature: 0.1
 tools:
   write: false

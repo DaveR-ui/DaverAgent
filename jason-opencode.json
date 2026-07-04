@@ -5,6 +5,7 @@
     "delivery": {
       "description": "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents.",
       "mode": "primary",
+      "model": "opencode/minimax-m3",
       "temperature": 0.3,
       "permission": {
         "skill": {},
@@ -18,7 +19,8 @@
           "project-context": "allow",
           "angular-expert": "allow",
           "opencode-expert": "allow",
-          "vscode-expert": "allow"
+          "vscode-expert": "allow",
+          "vision-relay": "allow"
         },
         "external_directory": {
           "~/.config/opencode/**": "allow"
@@ -28,6 +30,7 @@
     "orchestrator": {
       "description": "Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.",
       "mode": "subagent",
+      "model": "opencode/qwen3.7-max",
       "temperature": 0.3,
       "tools": {
         "write": true,
@@ -35,10 +38,6 @@
         "bash": true,
         "read": true,
         "task": true
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a3e743c (fix test)
       },
       "permission": {
         "skill": {},
@@ -51,18 +50,15 @@
           "project-context": "allow",
           "angular-expert": "allow",
           "opencode-expert": "allow",
-          "vscode-expert": "allow"
+          "vscode-expert": "allow",
+          "vision-relay": "allow"
         }
-<<<<<<< HEAD
-=======
->>>>>>> parent of c3eb25f (Merge branch 'master' of https://github.com/DaveR-ui/DaverAgent)
-=======
->>>>>>> parent of a3e743c (fix test)
       }
     },
     "coder": {
       "description": "Programming, bug fixes, feature implementation, refactoring",
       "mode": "subagent",
+      "model": "opencode/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -74,6 +70,7 @@
     "reviewer": {
       "description": "Code review, security audit, best practices, performance",
       "mode": "subagent",
+      "model": "opencode/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -85,6 +82,7 @@
     "tester": {
       "description": "Unit tests, integration tests, test coverage, e2e",
       "mode": "subagent",
+      "model": "opencode/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -96,6 +94,7 @@
     "architect": {
       "description": "System design, architecture, module boundaries, patterns",
       "mode": "subagent",
+      "model": "opencode/glm-5.2",
       "temperature": 0.3,
       "tools": {
         "write": true,
@@ -107,6 +106,7 @@
     "explorer": {
       "description": "Codebase exploration, file search, dependency analysis",
       "mode": "subagent",
+      "model": "opencode/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -118,6 +118,7 @@
     "project-context": {
       "description": "Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.",
       "mode": "subagent",
+      "model": "opencode/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -125,6 +126,18 @@
         "read": true,
         "glob": true,
         "grep": true
+      }
+    },
+    "vision-relay": {
+      "description": "Vision Relay - Cheap image inspection for non-vision models. Receives one image plus one focused question, returns a compact textual answer. Does NOT explore, does NOT chain of thought, does NOT touch files.",
+      "mode": "subagent",
+      "model": "opencode/gemini-3-flash",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "read": true
       }
     }
   },

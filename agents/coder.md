@@ -1,6 +1,7 @@
 ---
 description: Programming, bug fixes, feature implementation, refactoring
 mode: subagent
+model: opencode/minimax-m3
 temperature: 0.2
 tools:
   write: true

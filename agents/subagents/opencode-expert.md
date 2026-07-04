@@ -1,6 +1,7 @@
 ---
 description: Opencode expert — read-only documentation lookup against `.opencode/docs/opencode/`. Use when the user asks about opencode.json, agents, skills, MCP, permissions, commands, etc.
 mode: subagent
+model: opencode/minimax-m3
 temperature: 0.1
 tools:
   write: false
