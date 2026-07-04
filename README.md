@@ -14,6 +14,8 @@ Copy-Item -LiteralPath ".\.opencode\jason-opencode.json" -Destination ".\opencod
 
 Listo. Opencode ya levanta con la config de este repo.
 
+> **Para instalar el sistema completo en un proyecto nuevo** (instalador + bootstrap del opencode home + sync de docs + smoke test), seguí [`INSTALL.md`](./INSTALL.md). Esa guía incluye la lista ordenada y copy-paste de los pasos.
+
 **Importante**: si ya tenías un `opencode.json` propio, hacé un backup antes:
 
 ```powershell

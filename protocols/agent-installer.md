@@ -39,9 +39,11 @@ Do NOT use this for:
 
 ### Install (first time)
 
-1. Run `install-agent.ps1 -VerifyOnly` to see the planned output (zero writes).
-2. Run `install-agent.ps1` interactively. The human answers 4 phases of questions. Defaults are offered for every prompt.
-3. The script writes `docs/project.md`, the selected context docs, the subagent files, and `opencode.json`.
+> For the human-facing, copy-paste checklist that drives the full per-project install (clone, .gitignore, verify, apply, bootstrap, sync, smoke test), see [`INSTALL.md`](../INSTALL.md). The protocol below describes the same flow from the agent's point of view.
+
+1. Run `install-agent.ps1 -NonInteractive -VerifyOnly` to see the planned output (zero writes).
+2. Run `install-agent.ps1 -NonInteractive` to apply. With `-NonInteractive` the script takes defaults for every question. To drive the install interactively instead, omit the flag and answer the 4 phases of questions; defaults are offered for every prompt.
+3. The script writes `docs/project.md`, the selected context docs, the subagent files, and (unless a curated `opencode.json` already exists) a generated `opencode.json`.
 4. The human is responsible for filling in the substance of each generated `docs/context/*.md` stub.
 
 ### Update (existing install)

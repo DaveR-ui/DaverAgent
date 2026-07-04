@@ -130,7 +130,7 @@
           "id": "context_selection",
           "prompt": "Which context docs do you want to enable? (comma-separated ids; lives in docs/context/)",
           "type": "string",
-          "default": "architecture,api-contracts,rule,naming-registry",
+          "default": "architecture,api-contracts,rules,naming-registry",
           "options": [
             "architecture",
             "api-contracts",
