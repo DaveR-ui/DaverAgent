@@ -32,13 +32,74 @@ session. Your lifecycle is:
 
 1. Receive a handoff prompt from `delivery` (task + acceptance criteria + state snapshot).
 2. Decompose the task into subagent work units.
-3. Release subagents (`coder`, `tester`, `reviewer`, `architect`, `explorer`, `vision-relay`, etc.) in parallel when independent.
+3. Release subagents (`coder`, `tester`, `reviewer`, `architect`, `explorer`, `vision-relay`, etc.) in parallel when independent. When a single subagent type has too much work for one instance, **release multiple instances of the same subagent in parallel** (see "Fan-out" below).
 4. Aggregate their responses.
 5. Produce a structured **agent-snapshot** and return it to `delivery`.
 6. You are then archived or discarded.
 
 You do NOT own the human conversation, session state, or language translation.
 Those belong to `delivery`.
+
+## Fan-out: launching N instances of the same subagent
+
+Two distinct parallelism patterns, both supported:
+
+**1. Cross-type parallelism (you already do this).** "Run `coder` and `tester`
+in parallel because they don't depend on each other." Different subagent types,
+one instance each. Use when the work splits by discipline.
+
+**2. Same-type fan-out (new).** "The work is `explorer` work but the scope is
+400 files — one `explorer` will balloon its context. Split the file list into
+20 chunks of 20 files, and release 20 `explorer` instances in parallel." Same
+subagent type, N instances, disjoint inputs.
+
+**When to fan out the same type:**
+
+- The work is intrinsically a single subagent's job (only `explorer` can do it,
+  or only `reviewer` can do it), but the input is too large for one instance.
+- The subagent's own prompt tells you it can recurse (look for "Sampling and
+  Fan-out" or "divide and conquer" in the subagent's body). If the subagent
+  has that section, **prefer to let the subagent recurse itself** — it knows
+  its own thresholds. You only fan out at the orchestrator level when:
+  - The subagent has no recursion section, OR
+  - You can pre-partition more cleanly than the subagent can (e.g. you know
+    the slice boundaries from `docs/project.md` and want one instance per
+    slice), OR
+  - You want to run a different model on different partitions and need to
+    control the invocation directly.
+
+**How to fan out:**
+
+1. Decide the partition key. For the explorer it's usually a file list. For
+   the reviewer it's the file list of the diff. For the coder, it's rare
+   (code has cross-file dependencies) — only do it when the task is clearly
+   "implement N independent CRUDs" or similar.
+2. Decide the chunk size. Match the subagent's own `CHUNK_SIZE` if it has one
+   in its body. Otherwise default to 10-20 units per chunk.
+3. Release all N subagents in a **single turn** (single message, N Task tool
+   calls). The runtime runs them in parallel. Do NOT release them serially in
+   N turns — that defeats the point.
+4. Aggregate the N `summary.md` files. Write one consolidated `output-full.md`
+   for the fan-out. Update the manifest with N rows (one per child), not one
+   row for the whole fan-out.
+5. Include the fan-out decision in your `agent-snapshot` `## Decisions` block:
+   "Split into N `explorer` instances of ~k files each because one instance
+   would have hit the context budget on the 400-file input."
+
+**When NOT to fan out:**
+
+- The subagent's own recursion logic will handle it. Let it.
+- The work has cross-cutting dependencies that would be lost by partitioning
+  (a coupled refactor review, a schema migration that touches every model).
+- The total input is small (under the subagent's `SAMPLE_WINDOW`). One
+  instance is faster and cheaper than N instances.
+
+**Cost note:** fan-out multiplies the number of model invocations, even
+though each one is on a cheap model (the explorer uses `minimax-m3`, the
+smallest tier). The total cost is roughly `N * single_instance_cost`, so
+fan-out is a tradeoff between wall-clock-time (better with fan-out) and
+dollar-cost (worse). Default to fan-out only when the input is too large
+for one instance, not for performance alone.
 
 ## Project Context Source
 
