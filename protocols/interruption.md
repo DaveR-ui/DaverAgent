@@ -1,5 +1,16 @@
 # Protocol: Interruption Bus
 
+## Deprecation
+
+> Este protocolo está **deprecado** desde la Etapa 2 del `agent-improvement-plan`.
+>
+> **Reemplazo nativo**:
+> - Cancelación: `POST /session/:id/abort` → `SessionRunState.cancel(sessionID)`.
+> - Observabilidad: eventos `Subagent.Interrupted` en el bus EventV2, y `Step.Failed` con `metadata.interrupted = true`.
+> - Memoria: el `reasoning-full.md` se reemplaza por compactación nativa (Etapa 4).
+>
+> Las secciones marcadas como **legacy** se conservan solo como referencia histórica. No usar en código nuevo.
+
 File-based bus that lets the human steer subagents mid-execution and lets subagents persist memory across resumptions. Works even when the LM does not print a pause marker, because all signals live on disk.
 
 ## When this protocol applies
@@ -20,7 +31,7 @@ Do **not** use this protocol for:
 
 All paths are relative to the active session root (typically `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/`).
 
-### 1. `traffic-light.md` — Shared status board
+### 1. `traffic-light.md` — Shared status board [Legacy]
 
 A single table that lists every known agent in the session and its current semáforo color. Subagents read it before any major step; the delivery agent writes to it when a new interruption arrives.
 
@@ -33,7 +44,7 @@ A single table that lists every known agent in the session and its current semá
 
 The default safe action when an interruption arrives with no targeted agent is to set ALL active agents to 🟡 YELLOW. This lets each agent finish its current atomic step before pausing.
 
-### 2. `interruption-log.md` — Append-only audit trail
+### 2. `interruption-log.md` — Append-only audit trail [Legacy]
 
 Every human intervention and every agent acknowledgment is appended here with an ISO-8601 timestamp and an actor tag. The log is append-only; entries are never edited or removed. Subagents read it to discover new hints since their last read.
 
@@ -53,7 +64,12 @@ Append-only log of human interventions and agent acknowledgments. Most recent at
 
 The delivery agent is responsible for translating the human's message to English before appending. The orchestrator and subagents always log in English.
 
-### 3. `agents/{name}/reasoning-full.md` — Per-agent long-form memory
+### 3. `agents/{name}/reasoning-full.md` — Per-agent long-form memory [Legacy]
+
+> Deprecado desde la Etapa 4. El reemplazo es la compactación nativa (SessionCompaction).
+> Los subagentes write-capable (`coder`, `tester`, `architect`) ya no necesitan escribir
+> `reasoning-full.md` a disco. Los subagentes read-only (`explorer`, `reviewer`) nunca lo
+> escribieron.
 
 Free-form chain of thought for one agent in one session. Subagents write to it incrementally (after every 3-5 tool calls) and on completion. The orchestrator does NOT inline this into its final response; it is kept for the session-archiver and for future resumptions.
 

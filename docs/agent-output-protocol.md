@@ -1,5 +1,13 @@
 # Agent Output Protocol
 
+## Deprecation
+
+> Este protocolo está **deprecado** desde la Etapa 3 del `agent-improvement-plan`.
+>
+> **Reemplazo nativo**: `GET /session/:id/children` devuelve `ChildInfo[]` con `status`, `summary`, `createdAt`, `durationMs` y `agentType` por cada subagent run.
+>
+> El cuerpo del archivo se conserva solo como referencia histórica del formato viejo.
+
 This document defines how subagents write their outputs to disk to avoid overloading the orchestrator's context.
 
 ## Why this exists
