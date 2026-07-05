@@ -1,7 +1,7 @@
 ---
 description: Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.
 mode: subagent
-model: opencode/qwen3.7-max
+model: opencode-go/qwen3.7-max
 temperature: 0.3
 tools:
   write: true

@@ -1,7 +1,7 @@
 ---
 description: "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents."
 mode: primary
-model: opencode/minimax-m3
+model: opencode-go/minimax-m3
 temperature: 0.3
 permission:
   skill: {}

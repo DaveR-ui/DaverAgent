@@ -20,10 +20,12 @@ This file is the compatibility entry point for model-selection rules.
 
 For opencode runtime delegation, `.opencode/llm-routing.md` now defines the canonical user-requested policy:
 
-- **MiniMax M3** (`opencode/minimax-m3`) — default for everything "average": docs, exploration, and important execution work
-- **Qwen 3.7 Max** (`opencode/qwen3.7-max`) — used only by `orchestrator` for advanced multi-step reasoning
-- **GLM 5.2** (`opencode/glm-5.2`) — used only by `architect` for design-quality work
-- **Gemini 3 Flash** (`opencode/gemini-3-flash`) — used only by `vision-relay` for cheap image inspection
+- **MiniMax M3** (`opencode-go/minimax-m3`) — default for everything "average": docs, exploration, intake, and image inspection (via `vision-relay`)
+- **Kimi K2.7 Code** (`opencode-go/kimi-k2.7-code`) — code-specialized; used by `coder` and `tester`
+- **Qwen 3.7 Plus** (`opencode-go/qwen3.7-plus`) — middle tier; used by `reviewer` for a different perspective from the coder
+- **GLM 5.2** (`opencode-go/glm-5.2`) — used only by `architect` for design-quality work
+- **Qwen 3.7 Max** (`opencode-go/qwen3.7-max`) — used only by `orchestrator` for advanced multi-step reasoning
+- **Gemini 3 Flash** (`opencode/gemini-3-flash`) — retained as runtime fallback for `vision-relay` if `minimax-m3` is unavailable
 
 Cost discipline:
 
