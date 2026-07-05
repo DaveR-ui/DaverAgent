@@ -1,7 +1,7 @@
 ---
 description: System design, architecture, module boundaries, patterns
 mode: subagent
-model: opencode/glm-5.2
+model: opencode-go/glm-5.2
 temperature: 0.3
 tools:
   write: true

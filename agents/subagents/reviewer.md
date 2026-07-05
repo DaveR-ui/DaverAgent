@@ -1,6 +1,7 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance
 mode: subagent
+model: opencode-go/qwen3.7-plus
 temperature: 0.1
 tools:
   write: true
@@ -15,6 +16,8 @@ permission:
 # Reviewer Subagent
 
 Analyze code - never modify it.
+
+**Model note**: `qwen3.7-plus` is the middle tier between `minimax-m3` (cheap default) and `qwen3.7-max` (orchestration). It is intentionally a **different model family** from the coder (`kimi-k2.7-code`) so the review brings a genuinely different perspective — not just a re-reading by the same model that wrote the code.
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

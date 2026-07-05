@@ -1,7 +1,7 @@
 ---
 description: Vision Relay - Cheap image inspection for non-vision models. Receives one image plus one focused question, returns a compact textual answer.
 mode: subagent
-model: opencode/gemini-3-flash
+model: opencode-go/minimax-m3
 temperature: 0.1
 permission:
   read: allow
@@ -26,8 +26,8 @@ Single-purpose image inspection relay. Used by other subagents (or the orchestra
 
 ## Model
 
-- Primary: `opencode/gemini-3-flash` (cheapest vision-capable model in the catalog).
-- Fallback: `opencode/gpt-5.4-nano` if Gemini 3 Flash is unavailable.
+- Primary: `opencode-go/minimax-m3` (cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash`).
+- Fallback: `opencode/gemini-3-flash` (previous primary) or `opencode/gpt-5.4-nano` if MiniMax M3 is unavailable.
 - Do not escalate further on your own.
 
 ## When to use

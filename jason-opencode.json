@@ -5,7 +5,7 @@
     "delivery": {
       "description": "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents.",
       "mode": "primary",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.3,
       "permission": {
         "skill": {},
@@ -30,7 +30,7 @@
     "orchestrator": {
       "description": "Orchestrator Agent - Ephemeral coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, returns structured snapshot. Works exclusively in English.",
       "mode": "subagent",
-      "model": "opencode/qwen3.7-max",
+      "model": "opencode-go/qwen3.7-max",
       "temperature": 0.3,
       "tools": {
         "write": true,
@@ -58,7 +58,7 @@
     "coder": {
       "description": "Programming, bug fixes, feature implementation, refactoring",
       "mode": "subagent",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -70,7 +70,7 @@
     "reviewer": {
       "description": "Code review, security audit, best practices, performance",
       "mode": "subagent",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -82,7 +82,7 @@
     "tester": {
       "description": "Unit tests, integration tests, test coverage, e2e",
       "mode": "subagent",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -94,7 +94,7 @@
     "architect": {
       "description": "System design, architecture, module boundaries, patterns",
       "mode": "subagent",
-      "model": "opencode/glm-5.2",
+      "model": "opencode-go/glm-5.2",
       "temperature": 0.3,
       "tools": {
         "write": true,
@@ -106,7 +106,7 @@
     "explorer": {
       "description": "Codebase exploration, file search, dependency analysis",
       "mode": "subagent",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -118,7 +118,7 @@
     "project-context": {
       "description": "Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.",
       "mode": "subagent",
-      "model": "opencode/minimax-m3",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,

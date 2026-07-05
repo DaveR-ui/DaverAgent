@@ -1,7 +1,7 @@
 ---
 description: VSCode expert — read-only documentation lookup against `.opencode/docs/vscode/`. Use when the user asks about VSCode editor features, settings, extensions, debug, Copilot, dev containers, etc.
 mode: subagent
-model: opencode/minimax-m3
+model: opencode-go/minimax-m3
 temperature: 0.1
 tools:
   write: false
