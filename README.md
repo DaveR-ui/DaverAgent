@@ -121,10 +121,12 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 
 ## Permisos de los agentes
 
-Los agentes NO tienen skills externos habilitados. Toda la info (Postgres, permission system, librerías, etc.) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
+Los agentes NO tienen skills externos habilitados. El directorio `.opencode/skills/` **no existe** y no debe crearse. Todos los antiguos skills repo-local fueron migrados a protocolos (ver [`.opencode/protocols/README.md`](./protocols/README.md#skill-migration-redirect)).
+
+Toda la info (Postgres, permission system, librerías, etc.) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
 
 - `delivery` es el único agente con permiso `external_directory: ~/.config/opencode/**` (necesario para escribir en el opencode home).
-- `orchestrator` y subagentes no tienen skills precargados.
+- `orchestrator` y subagentes no tienen skills precargados. El único skill legítimo es `customize-opencode` (built-in del runtime opencode, no es repo-local).
 
 ## Protocolos vs workflows vs context — la diferencia
 

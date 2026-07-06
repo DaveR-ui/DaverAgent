@@ -17,7 +17,7 @@ permission:
 
 Design system architecture, define module boundaries, establish patterns.
 
-**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md` + `docs/context/business-logic.md`.
+**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture/architecture.md`.
 
 ## Pauses
 
@@ -36,7 +36,7 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 
 ## Principles
 
-- Follow `docs/context/architecture.md` (layered: transport -> service -> repository -> domain)
+- Follow `docs/context/architecture/architecture.md` (layered: transport -> service -> repository -> domain)
 - Favor simplicity over complexity
 - Design for testability and maintainability
 - Document decisions with rationale

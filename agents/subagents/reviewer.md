@@ -25,10 +25,9 @@ Analyze code - never modify it.
 
 ## Review Checklist
 
-1. Architecture compliance (`docs/context/architecture.md`)
-2. Development standards (`docs/context/rules.md`)
-3. API contracts (`docs/context/api-contracts.md`) for HTTP changes
-4. Permission system (`docs/context/permission-architecture.md`) for auth changes
+1. Architecture compliance (`docs/context/architecture/architecture.md`)
+2. Development standards (`docs/context/conventions/project-rules.md`)
+3. Permission system (`docs/context/auth-identity/security-permissions.md`) for auth changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 queries, missing indexes, unbuffered channels
 7. Anti-patterns - business logic in handlers, raw SQL in services, `any` types

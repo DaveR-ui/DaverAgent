@@ -6,8 +6,8 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 
 - **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer
 - **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list
-- **Question reference**: `docs/context/agent-installer-questions.md` — what each question means
-- **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten
+- **Question reference**: `docs/context/agent-installer-questions.md` — what each question means (currently does not exist; create if needed or remove this reference)
+- **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten (currently does not exist; create if needed or remove this reference)
 
 ## The 4 phases
 
@@ -78,7 +78,7 @@ If the human is unsure, these defaults cover the most common cases:
 |---|---|
 | Architecture pattern | layered |
 | Primary language | go |
-| Context docs | architecture, api-contracts, rules, naming-registry |
+| Context docs | architecture, project-rules |
 | Default agent | delivery |
 | Subagents | coder, tester, reviewer, architect, explorer, documenter |
 | Doc language | en |

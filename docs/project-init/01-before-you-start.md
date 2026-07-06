@@ -11,8 +11,8 @@
 - `project_entry_point` → `docs/project.md`
 - `context_dir` → `docs/context/`
 - `context_index` → `docs/context/README.md`
-- `rules_file` → `docs/context/rules.md`
-- `architecture_file` → `docs/context/architecture.md`
+- `rules_file` → `docs/context/conventions/project-rules.md`
+- `architecture_file` → `docs/context/architecture/architecture.md`
 
 All agents reference `conventions.md` instead of hardcoding paths. If paths change, update `conventions.md` — not individual agents.
 

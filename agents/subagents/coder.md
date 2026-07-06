@@ -22,7 +22,7 @@ Implement features, fix bugs, refactor code.
 
 ## Standards (summary)
 
-- Go 1.24, layered architecture (`docs/context/architecture.md`)
+- Go 1.24, layered architecture (`docs/context/architecture/architecture.md`)
 - GORM v1.30 with PostgreSQL
 - Gin v1.10 HTTP framework
 - JWT auth via `golang-jwt/jwt/v5`

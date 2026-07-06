@@ -13,11 +13,11 @@ tools:
 
 Design system architecture, define module boundaries, establish patterns.
 
-**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md` + `docs/context/business-logic.md`.
+**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture/architecture.md`.
 
 ## Principles
 
-- Follow `docs/context/architecture.md` (layered: transport -> service -> repository -> domain)
+- Follow `docs/context/architecture/architecture.md` (layered: transport -> service -> repository -> domain)
 - Favor simplicity
 - Design for testability and maintainability
 - Document decisions with rationale

@@ -24,8 +24,7 @@ Read and analyze the codebase - never modify code.
 
 - Use `grep`, `glob`, `read` effectively
 - Report file paths and line numbers
-- For architectural questions, consult `docs/context/architecture.md`
-- For business rules, consult `docs/context/business-logic.md`
+- For architectural questions, consult `docs/context/architecture/architecture.md`
 
 ## Sampling and Fan-out (divide and conquer)
 

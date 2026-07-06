@@ -4,6 +4,22 @@ Reusable conventions that govern **how the agent system operates**. These are no
 
 If a document mixes agent behavior with project facts, split it: agent behavior lives here, project facts live in `docs/protocols/`.
 
+## Skill Migration Redirect
+
+All former repo-local skills have been migrated to agent protocols. The `.opencode/skills/` directory does not exist and should not be created. If the opencode runtime lists skills in `available_skills` pointing to `.opencode/skills/*/SKILL.md`, those are phantom entries from a previous installation.
+
+| Former Skill | Canonical Protocol |
+|---|---|
+| `canonical-prompter` | [`.opencode/protocols/canonical-prompter.md`](./canonical-prompter.md) |
+| `context-reductor` | [`.opencode/protocols/context-reductor.md`](./context-reductor.md) |
+| `doc-maintainer` | [`.opencode/protocols/doc-maintainer.md`](./doc-maintainer.md) |
+| `interruption-protocol` | [`.opencode/protocols/interruption.md`](./interruption.md) |
+| `session-archiver` | [`.opencode/protocols/session-archiver.md`](./session-archiver.md) |
+| `sessions-setup` | [`.opencode/protocols/sessions-setup.md`](./sessions-setup.md) |
+| `api-endpoint-factory` | [`docs/protocols/api-endpoint-factory.md`](../../docs/protocols/api-endpoint-factory.md) (project protocol) |
+| `supabase-postgres-best-practices` | On-demand read from `docs/context/` — no preloaded skill or protocol |
+| `customize-opencode` | Built-in opencode runtime skill (not repo-local) |
+
 ## Index
 
 | Protocol | Purpose | Who reads it |
@@ -24,8 +40,8 @@ _(none — all opencode runtime skills have been replaced by project protocols, 
 
 Some topics are **not codified as protocols or skills** — they live as scattered info in `docs/context/` and the agent reads them on demand when the task requires it:
 
-- **Postgres / SQL best practices** — GORM conventions, indexes, soft deletes, error mapping, BIGINT bitmask for permissions. The relevant files are `docs/context/architecture.md`, `docs/context/rules.md`, and `docs/context/permission-architecture.md`. The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill for this; the data is in the repo, not in a runtime tool.
-- **Permission system** — atomic permissions design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version, RequirePermission middleware). The full design lives in `docs/context/permission-architecture.md` and common fixes in `docs/context/permission-troubleshooting.md`. The agent reads them on demand when the task involves permissions. There is no preloaded skill; the data is in the repo.
+- **Postgres / SQL best practices** — GORM conventions, indexes, soft deletes, error mapping, BIGINT bitmask for permissions. The relevant files are `docs/context/architecture/architecture.md` and `docs/context/conventions/project-rules.md`. The agent reads them when working on queries, migrations, or schema design. There is no preloaded skill or protocol for this; the data is in the repo, not in a runtime tool.
+- **Permission system** — atomic permissions design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version, RequirePermission middleware). The full design lives in `docs/context/auth-identity/security-permissions.md`. The agent reads it on demand when the task involves permissions. There is no preloaded skill or protocol; the data is in the repo.
 
 ## How protocols relate to the rest of `.opencode/`
 

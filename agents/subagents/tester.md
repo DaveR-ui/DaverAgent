@@ -18,7 +18,7 @@ Write and run tests.
 
 **Model note**: `kimi-k2.7-code` is a code-specialized model with 262k context = 262k output. It does **not** support `temperature` customization (the field is ignored by the API), so no `temperature` is set in the frontmatter — the model uses its own default. Tests are code, so the same model as the coder is appropriate.
 
-**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/rules.md`.
+**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/conventions/project-rules.md`.
 
 ## Standards (summary)
 

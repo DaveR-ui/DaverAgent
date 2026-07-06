@@ -163,7 +163,7 @@ You will receive a handoff prompt structured like this:
 
 ## Constraints
 - Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config
 - Do NOT mutate humano.md
 - Run `go build` and `go test` before reporting done
@@ -239,29 +239,20 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 - `opencode-expert` - opencode docs (read-only)
 - `vscode-expert` - VSCode docs (read-only)
 
-## Available Protocols and Skills
+## Available Skills
+
+All former repo-local skills have been migrated to protocols. See [`.opencode/protocols/README.md`](../protocols/README.md#skill-migration-redirect) for the full redirect table.
 
 **Project protocols** (in `docs/protocols/`):
-- `api-endpoint-factory` — 4-layer endpoint scaffolding
+- Scaffold templates for the project (e.g., endpoint factory, if defined)
 
 **Agent protocols** (in `.opencode/protocols/`):
 - `canonical-prompter` — Phase 1 of the delivery pipeline
 - `context-reductor` — Phase 2 of the delivery pipeline
+- `slice-complexity-ladder` — Phase 3: rung selection and agent routing per slice
 - `interruption` — file-based pause/resume bus
 - `session-archiver` — session closeout digest
 - `doc-maintainer` — documentation health check
-- `sessions-setup` — opencode home bootstrap
-- `agent-installer` — 4-phase agent install/reconfigure
-
-**Built-in skills** (from opencode runtime):
-
-_(none — all skills have been migrated to project protocols, agent protocols, or on-demand `docs/context/` reads.)_
-
-Postgres best practices are **on demand**: when a task involves SQL, GORM queries, migrations, indexes, or schema design, read the relevant `docs/context/*.md` files directly (`architecture.md`, `rules.md`, `permission-architecture.md`). There is no preloaded skill — the orchestrator and subagents must look up the data when they need it.
-
-Permission system work is **on demand** too: read `docs/context/permission-architecture.md` and `docs/context/permission-troubleshooting.md` directly. There is no `permission-system` skill anymore — the full design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version) lives in those files.
-
-For permission system work, read `docs/context/permission-architecture.md` directly (no protocol wrapper).
 
 ## Strategic Pauses
 

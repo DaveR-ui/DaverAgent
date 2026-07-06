@@ -101,7 +101,7 @@ either ask the human or add a new row.
 
 ## Constraints
 - Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
 - Run `go build` and `go test` before reporting done
