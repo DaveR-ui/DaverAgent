@@ -1,5 +1,5 @@
 ---
-description: Coder subagent - Programming, bug fixes, feature implementation, refactoring
+description: Coder subagent - Programming, bug fixes, feature implementation, refactoring. Returns structured CoderOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k2.7-code
 tools:
@@ -37,27 +37,24 @@ Implement features, fix bugs, refactor code.
 - `any` / `interface{}` when a concrete type is possible
 - Mutating shared state without locking
 
-## Interruption Protocol
+## Structured Return
 
-You operate under the file-based interruption protocol. See the full reference at `.opencode/protocols/interruption.md` for the complete spec.
+You have an `output_schema` defined in `opencode.json` (`coder` -> `CoderOutput` in `packages/opencode/src/agent/output-schemas/coder.ts`).
 
-Your agent-specific paths:
+On completion, return your final answer as JSON that matches the schema:
 
-- Memory dir: `agents/coder/`
-- Summary: `agents/coder/summary.md`
-- Reasoning (if write-capable): `agents/coder/reasoning-full.md`
-- Traffic light: `../../traffic-light.md` (session root)
-- Interruption log: `../../interruption-log.md` (session root)
-- Actor tag in log: `[CODER]`
+```json
+{
+  "files_changed": ["path/to/file.ts", "..."],
+  "tests_run": true,
+  "tests_passed": true,
+  "summary": "one-line description of what you did"
+}
+```
 
-## Output Protocol
+The task tool validates your return against `CoderOutput` and forwards the structured JSON to the orchestrator. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures everything in the EventV2 bus.
 
-See `.opencode/docs/agent-output-protocol.md` for the complete specification.
-
-**Quick reference**:
-- Return summary (5-10 lines) to orchestrator
-- Write `summary.md` + `output-full.md` to `{session_path}/agents/coder-{timestamp}/`
-- Append row to `{session_path}/agents/manifest.md`
+If the return does not match the schema, the task tool prepends a `[output_schema validation warning: ...]` line and keeps the raw text. Aim to return valid JSON on the first try.
 
 ## Rules
 

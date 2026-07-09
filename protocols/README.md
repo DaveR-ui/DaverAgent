@@ -10,8 +10,7 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 |---|---|---|
 | [`canonical-prompter.md`](./canonical-prompter.md) | Phase 1 of the delivery pipeline. Analyzes raw prompts: term resolution, classification, module identification, hint extraction, acceptance criteria, edge cases, clarification decision. | `delivery` (Phase 1) |
 | [`context-reductor.md`](./context-reductor.md) | Phase 2 of the delivery pipeline. Identifies scope, evaluates complexity (Baja→Muy Alta), detects hot spots, surfaces hidden assumptions, defines verification path. | `delivery` (Phase 2) |
-| [`interruption.md`](./interruption.md) | File-based pause/resume bus (`traffic-light.md` + `interruption-log.md`) and per-agent memory (`reasoning-full.md` + `summary.md`). Semáforo states and checkpoint schedule. | every subagent |
-| [`session-archiver.md`](./session-archiver.md) | Closes a session by reading every per-agent `reasoning-full.md` and producing a single cross-agent `session-digest.md`. | `delivery` (on session close) |
+| [`session-archiver.md`](./session-archiver.md) | Closes a session by reading the durable `Subagent.*` and `Step.*` event stream from EventV2 (SQLite) and producing a single cross-agent `session-digest.md`. | `delivery` (on session close) |
 | [`sessions-setup.md`](./sessions-setup.md) | Opencode home bootstrap (`~/.config/opencode/`) and session-structure conventions. Includes `humano.md` and `project.md` two-tier policies. | `delivery`, `project-context` |
 | [`doc-maintainer.md`](./doc-maintainer.md) | Documentation health checks: broken links, code-doc consistency, duplicate content, content placement, dead references. | `project-context`, `documenter` |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
