@@ -72,7 +72,6 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 │   ├── README.md               # Índice
 │   ├── canonical-prompter.md   # Phase 1: análisis de prompts
 │   ├── context-reductor.md     # Phase 2: scope + complexity + hot spots
-│   ├── interruption.md         # Bus de pause/resume (traffic-light + interruption-log)
 │   ├── session-archiver.md     # Cierre y digestión de sesiones
 │   ├── sessions-setup.md       # Bootstrap del opencode home
 │   ├── doc-maintainer.md       # Validación de docs
