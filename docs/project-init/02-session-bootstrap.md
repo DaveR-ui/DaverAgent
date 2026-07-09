@@ -13,9 +13,8 @@ Responsibilities:
 - Bootstrap the opencode home directory structure
 - Sync `humano.md` from source to session snapshot
 - Create the session path (`sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}`)
+- Initialize `agents/manifest.md` before subagents are released
 - Return a **Session Bootstrap Report** with: status, summary, phase results, warnings, ready-for-handoff section
-
-The session-manager does **not** create `agents/manifest.md` or any per-subagent output directory. Subagent outcomes flow through the EventV2 bus and the `GET /session/:id/children` endpoint, not through on-disk files. See `.opencode/session-structure.md` for the canonical layout.
 
 ---
 
@@ -42,7 +41,7 @@ Example: `sessions/david.romaniuk/ab-ceramica/02072026-architecture-design-docs`
 
 - Date is `DDMMYYYY` (day-first)
 - Keywords are hyphenated, lowercase, descriptive of the session's task
-- The full path is where orchestrator-snapshots are stored and where task attachments live
+- The full path is what subagents write their artifacts into
 
 ---
 
@@ -65,15 +64,22 @@ Inside the session path:
 |----------|---------|
 | `general-context.md` | Raw prompt + translation + session metadata |
 | `assets/` | Attached files/images for the task |
-| `orchestrator-snapshots/{uuid}.md` | Per-orchestrator-instance snapshots (delivery writes these) |
+| `agents/manifest.md` | Index of all subagent outputs in this session |
+| `agents/{agent}-{timestamp}/summary.md` | Short report returned to orchestrator |
+| `agents/{agent}-{timestamp}/output-full.md` | Detailed report with diffs, logs, findings |
 
-**Subagent outcomes do not live in the file tree.** They flow through:
+**Initialize `manifest.md` before releasing subagents.** Subagents append rows to it when they finish. If it doesn't exist, they'll error or skip the manifest step.
 
-- The `task` tool, which validates the subagent return against `output_schema` (when defined) and emits a `Subagent.Completed` event on the EventV2 bus.
-- `GET /session/:id/children`, which returns a `ChildInfo[]` array (status, summary, agent type, durationMs) for every subagent.
-- The `session-archiver` protocol, which reads the EventV2 stream and produces `session-digest.md`.
+---
 
-There is no `agents/manifest.md`, no `summary.md`, and no `output-full.md` in the new layout. New agents must not write those files.
+## Agent output structure
+
+Each subagent writes to `agents/{agent}-{timestamp}/`:
+
+- `summary.md` — 5-10 line report returned to the orchestrator (keeps context small)
+- `output-full.md` — detailed report with diffs, logs, full findings (read on demand)
+
+The orchestrator reads `summary.md` by default. It only reads `output-full.md` when it needs the full detail. This two-file pattern is how the system keeps context budgets manageable.
 
 ---
 
@@ -84,8 +90,8 @@ There is no `agents/manifest.md`, no `summary.md`, and no `output-full.md` in th
 - **The project slang snapshot starts empty (0 terms).** Populate incrementally as project jargon is discovered. Don't try to pre-fill it — you'll guess wrong.
 - **The session-manager uses Gemini 3.5 Flash.** It's I/O-bound (file creation, copying), so the cheap fast model is correct. Don't expect deep reasoning or analysis from it — that's not its job.
 - **Bootstrap creates 23+ items.** The output is long. This is normal, not a sign of failure.
+- **`manifest.md` must exist before subagents run.** If you skip this step, subagents may fail to log their outputs.
 - **Session path date format is DDMMYYYY, not MMDDYYYY.** If you get the date wrong, the session path won't match what the session-manager created.
-- **Do not initialize `agents/manifest.md`.** It is no longer part of the session layout. The runtime tracks subagent outcomes through the EventV2 bus.
 
 ---
 
@@ -97,5 +103,6 @@ There is no `agents/manifest.md`, no `summary.md`, and no `output-full.md` in th
 | Bootstrap refresh | `& ".\.opencode\scripts\bootstrap-opencode-structure.ps1" -RefreshDocumentation -RefreshScripts -RefreshTemplates` |
 | Session path format | `sessions/{human_id}/{project_id}/{DDMMYYYY-keywords}` |
 | Source vs snapshot | Edit `humans/` and `projects/` sources; treat `sessions/` snapshots as read-only |
-| Subagent outcomes | Flow through EventV2 bus + `GET /session/:id/children` (not files) |
+| Manifest | Initialize `agents/manifest.md` before releasing subagents |
+| Agent output | `summary.md` (short) + `output-full.md` (detailed) per agent |
 | Session-manager model | Gemini 3.5 Flash (I/O-bound, cheap) |
