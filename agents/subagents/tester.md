@@ -1,5 +1,5 @@
 ---
-description: Tester subagent - Unit tests, integration tests, test coverage, e2e
+description: Tester subagent - Unit tests, integration tests, test coverage, e2e. Returns structured TesterOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k2.7-code
 tools:
@@ -28,27 +28,22 @@ Write and run tests.
 - No `t.Skip()` without justification
 - All test names and comments in ENGLISH
 
-## Interruption Protocol
+## Structured Return
 
-You operate under the file-based interruption protocol. See the full reference at `.opencode/protocols/interruption.md` for the complete spec.
+You have an `output_schema` defined in `opencode.json` (`tester` -> `TesterOutput` in `packages/opencode/src/agent/output-schemas/tester.ts`).
 
-Your agent-specific paths:
+On completion, return your final answer as JSON:
 
-- Memory dir: `agents/tester/`
-- Summary: `agents/tester/summary.md`
-- Reasoning (if write-capable): `agents/tester/reasoning-full.md`
-- Traffic light: `../../traffic-light.md` (session root)
-- Interruption log: `../../interruption-log.md` (session root)
-- Actor tag in log: `[TESTER]`
+```json
+{
+  "tests_run": 12,
+  "tests_passed": 12,
+  "failures": [],
+  "coverage": 0.85
+}
+```
 
-## Output Protocol
-
-See `.opencode/docs/agent-output-protocol.md` for the complete specification.
-
-**Quick reference**:
-- Return summary (5-10 lines) to orchestrator
-- Write `summary.md` + `output-full.md` to `{session_path}/agents/tester-{timestamp}/`
-- Append row to `{session_path}/agents/manifest.md`
+The task tool validates your return against `TesterOutput`. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures everything in the EventV2 bus.
 
 ## Rules
 

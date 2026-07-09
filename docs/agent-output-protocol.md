@@ -1,5 +1,13 @@
 # Agent Output Protocol
 
+## Fully deprecated
+
+> This protocol is **fully replaced** by `output_schema` (Stage 6 of `docs/context/agent-improvement-plan.md`).
+>
+> The runtime validates each subagent return against the schema declared in `opencode.json` (`packages/opencode/src/agent/output-schemas/`). The structured JSON is included in the `Subagent.Completed` event on the EventV2 bus. Subagents do not write to disk; the orchestrator receives the JSON via the task tool return.
+>
+> No new agent should reference this document.
+
 ## Deprecation
 
 > Este protocolo está **deprecado** desde la Etapa 3 del `agent-improvement-plan`.
