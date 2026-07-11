@@ -37,9 +37,7 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 | `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Third distinct model in the coder/reviewer/architect trio. |
 | `explorer` | `opencode-go/minimax-m3` | Exploration / Search | Code search, file discovery, dependency tracing. |
 | `project-context` | `opencode-go/minimax-m3` | Docs / Read-Only | Reads and writes `docs/`. |
-| `angular-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only Angular + AG Grid documentation lookup. |
 | `opencode-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only opencode documentation lookup. |
-| `vscode-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only VSCode documentation lookup. |
 | `vision-relay` | `opencode-go/minimax-m3` | Vision Relay | Image inspection only. Cheaper than the previous `gemini-3-flash`; `gemini-3-flash` retained as runtime fallback. |
 
 ## Context Budget Policy
@@ -71,13 +69,11 @@ When the context is trending toward the budget limit:
 
 ## Documentation Topic Fast Path
 
-When the user asks for **Angular**, **Opencode**, or **VSCode** documentation/data lookup:
+When the user asks for **Opencode** documentation/data lookup:
 
 1. Delegate to the dedicated read-only expert subagent:
-   - `angular-expert` — consults `.opencode/docs/angular/` and Angular CLI / AG Grid MCP tools.
-   - `opencode-expert` — consults `.opencode/docs/opencode/`.
-   - `vscode-expert` — consults `.opencode/docs/vscode/`.
-2. These agents are **read-only** and **must not** fall back to the web or to training data. If the expected docs folder is missing, they report the exact path and stop.
+   - `opencode-expert` — read-only lookup against `docs/project.md`, `AGENTS.md`, `CONTEXT.md`, and the slice READMEs under `docs/<slice>/<subslice>/README.md`.
+2. These agents are **read-only** and **must not** fall back to the web or to training data. If the expected docs are missing, they report and stop.
 3. Because this route is documentation/research, default to the **Docs / Read-Only** route and apply compact-output discipline. Keep the answer read-only unless the user explicitly asks for configuration changes.
 
 ## Exploration Fast Path

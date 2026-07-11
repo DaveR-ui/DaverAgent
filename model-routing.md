@@ -13,7 +13,7 @@ This file is the compatibility entry point for model-selection rules.
 
 - Do not maintain duplicated routing tables in multiple random files.
 - Update the scope-specific table above, then update any references.
-- For Opencode, VSCode, or Angular documentation/data lookup, prefer the dedicated `*-expert` subagents.
+- For Opencode documentation/data lookup, prefer the `opencode-expert` subagent.
 - For image inspection by a non-vision model, prefer the `vision-relay` subagent.
 
 ## Runtime Policy Summary

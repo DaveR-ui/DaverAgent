@@ -30,8 +30,8 @@ Analyze code - never modify it.
 3. Permission system (`docs/context/auth-identity/security-permissions.md`) for auth changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 queries, missing indexes, unbuffered channels
-7. Anti-patterns - business logic in handlers, raw SQL in services, `any` types
-8. Testing - coverage, proper mocking
+7. Anti-patterns - business logic in HTTP handlers, raw SQL in services, `any` types, importing `core`/`server` from `client`
+8. Testing - coverage, proper mocking, tests run from package dirs (never root)
 
 ## Sampling and Fan-out (partition by independence)
 

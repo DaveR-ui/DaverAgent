@@ -49,7 +49,7 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/minimax-m3`
 
-- **Role in this project**: `delivery`, `explorer`, `project-context`, `angular-expert`, `opencode-expert`, `vscode-expert`, `vision-relay` — the default for everything "average".
+- **Role in this project**: `delivery`, `explorer`, `project-context`, `opencode-expert`, `vision-relay` — the default for everything "average".
 - **Provider**: opencode-go
 - **Price tier**: cheap ($0.30 / $1.20, $0.06 cached)
 - **Standout feature**: cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash` fallback.

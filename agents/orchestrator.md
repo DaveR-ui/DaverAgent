@@ -18,9 +18,7 @@ permission:
     architect: allow
     explorer: allow
     project-context: allow
-    angular-expert: allow
     opencode-expert: allow
-    vscode-expert: allow
     vision-relay: allow
 ---
 
@@ -160,7 +158,7 @@ You will receive a handoff prompt structured like this:
 
 ## Constraints
 - Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- For permission changes, follow `packages/core/src/permission/` (the design lives next to the code; there is no `docs/context/permission-architecture.md`)
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
 - Run `bun typecheck` and `bun test` before reporting done (from package directories, never from repo root)
@@ -224,9 +222,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 | `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
-| `angular-expert` | `minimax-m3` | Angular + AG Grid docs (read-only) | text |
 | `opencode-expert` | `minimax-m3` | Opencode docs (read-only) | text |
-| `vscode-expert` | `minimax-m3` | VSCode docs (read-only) | text |
 | `vision-relay` | `minimax-m3` | One image + one focused question (gemini-3-flash fallback) | text |
 
 ## Available Protocols and Skills
@@ -241,14 +237,15 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 - `doc-maintainer` — documentation health check
 - `sessions-setup` — opencode home bootstrap
 - `agent-installer` — 4-phase agent install/reconfigure
+- `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `context-reductor`.
 
 **Built-in skills** (from opencode runtime):
 
 _(none — all skills have been migrated to project protocols, agent protocols, or on-demand `docs/context/` reads.)_
 
-Postgres best practices are **on demand**: when a task involves SQL, GORM queries, migrations, indexes, or schema design, read the relevant `docs/context/*.md` files directly (`architecture.md`, `rules.md`, `permission-architecture.md`). There is no preloaded skill — the orchestrator and subagents must look up the data when they need it.
+SQLite + Drizzle best practices are **on demand**: when a task involves queries, migrations, indexes, or schema design in `packages/core/storage/`, read `AGENTS.md` (Schema Definitions section) and the relevant `packages/core/src/storage/**` source. There is no preloaded skill — the orchestrator and subagents look up the data when they need it.
 
-Permission system work is **on demand** too: read `docs/context/permission-architecture.md` and `docs/context/permission-troubleshooting.md` directly. There is no `permission-system` skill anymore — the full design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version) lives in those files.
+Permission system work is **on demand** too: read `packages/core/src/permission/` directly and the `Permission` / `PermissionSaved` schemas in `packages/schema/src/`. There is no separate permission-architecture doc in `docs/context/` — the design lives next to the code in `packages/core/src/permission/`.
 
 ## Strategic Pauses
 
