@@ -3,7 +3,7 @@
 Reference catalog of the LLMs used by the agent system. This is the **raw specs** of each model — see `.opencode/llm-routing.md` for the **routing policy** (which model is used for which task and why).
 
 > **Source**: specs pulled from `https://models.dev/providers/opencode-go/` on 2026-07-05.
-> **Last updated**: 2026-07-11
+> **Last updated**: 2026-07-05.
 
 ## Model Catalog
 
@@ -68,8 +68,10 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 ### `opencode-go/qwen3.7-plus`
 
 - **Role in this project**: `reviewer` (code review, security audit, best practices).
+- **Role in this project**: `reviewer` (code review, security audit, best practices).
 - **Provider**: opencode-go
 - **Price tier**: mid ($0.40 / $1.60)
+- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
 - **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
 - **Notes**:
   - _(add your observations here)_

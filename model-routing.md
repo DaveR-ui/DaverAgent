@@ -25,6 +25,7 @@ For opencode runtime delegation, `.opencode/llm-routing.md` now defines the cano
 - **Qwen 3.7 Plus** (`opencode-go/qwen3.7-plus`) — middle tier; used by `reviewer` for code review (different model family from the coder for perspective diversity)
 - **GLM 5.2** (`opencode-go/glm-5.2`) — used only by `architect` for design-quality work
 - **Qwen 3.7 Max** (`opencode-go/qwen3.7-max`) — used only by `orchestrator` for advanced multi-step reasoning
+- **Gemini 3 Flash** (`opencode/gemini-3-flash`) — retained as runtime fallback for `vision-relay` if `minimax-m3` is unavailable
 
 Cost discipline:
 

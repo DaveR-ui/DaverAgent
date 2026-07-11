@@ -22,6 +22,8 @@
 - **Qwen 3.7 Plus (`opencode-go/qwen3.7-plus`)** — $0.40 in / $1.60 out. Middle tier. Used by `reviewer` so the review comes from a **different model family** than the one that wrote the code (`kimi-k2.7-code`), giving a genuinely different perspective without paying the full `qwen3.7-max` price.
 - **GLM 5.2 (`opencode-go/glm-5.2`)** — $1.40 in / $4.40 out. Used only for `architect` and design-quality tasks where long-horizon reasoning and structured design output matter more than throughput. Kept as a **third distinct model** in the coder/reviewer/architect trio for maximum perspective diversity.
 - **Qwen 3.7 Max (`opencode-go/qwen3.7-max`)** — $2.50 in / $7.50 out, plus prompt-caching savings. Reserved for `orchestrator` because it carries the cross-agent synthesis load and the highest cost-of-error.
+- **Gemini 3 Flash (`opencode/gemini-3-flash`)** — $0.50 in / $3.00 out. No longer the primary for `vision-relay` (replaced by the cheaper `minimax-m3`), but retained as a runtime fallback if `minimax-m3` is unavailable.
+
 ## Agent Defaults
 
 Each agent has a per-agent `model` field. The runtime rule is: **the agent's own `model` field wins over the global default**. If a per-agent model is missing, subagents inherit the primary agent's model.
@@ -33,7 +35,7 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 | `coder` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Programming, bug fixes, feature implementation, refactoring. Code-specialized model; no `temperature` (unsupported by API). |
 | `tester` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Unit, integration, e2e tests. Same model as `coder` because tests are code; no `temperature`. |
 | `reviewer` | `opencode-go/qwen3.7-plus` | Complex (different perspective) | Code review, security audit, best practices. Read-only by permission. Different model family from `coder` on purpose. |
-| `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Distinct model from the code tier. |
+| `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Third distinct model in the coder/reviewer/architect trio. |
 | `explorer` | `opencode-go/minimax-m3` | Exploration / Search | Code search, file discovery, dependency tracing. |
 | `project-context` | `opencode-go/minimax-m3` | Docs / Read-Only | Reads and writes `docs/`. |
 | `opencode-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only opencode documentation lookup. |
