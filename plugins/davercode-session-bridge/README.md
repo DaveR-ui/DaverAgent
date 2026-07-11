@@ -2,6 +2,8 @@
 
 Plugin V1 de DaverCode que conecta el ciclo de vida de las sesiones de agente con los eventos nativos del runtime de opencode.
 
+> **Contexto**: este plugin es parte de un **fork** de [`sst/opencode`](https://github.com/sst/opencode). La carpeta `.opencode/` no viene de opencode upstream — es un sistema de agentes especializado que se está desarrollando sobre opencode, perfeccionándose a partir del código fuente y las APIs internas del runtime. Ver [`docs/project.md`](../../../docs/project.md) para el contexto completo del proyecto y [`BOOTSTRAP.md`](./BOOTSTRAP.md) para la guía de instalación + troubleshooting.
+
 ## Qué hace
 
 Escucha eventos de sesión emitidos por el runtime y los traduce a entradas de log estructuradas usando `client.app.log()`. También expone una herramienta llamada `session_status` para consultar las sesiones recientes de forma compacta.
@@ -83,4 +85,39 @@ El archivo `index.ts` es el único punto de entrada. No necesita un paso de buil
 
 ## Cómo cargarlo
 
-Coloca esta carpeta en `.opencode/plugins/`. opencode la detecta y carga automáticamente; no se requiere cambiar configuración ni instalar dependencias manualmente.
+> **Importante: este plugin NO se autodetecta.** El glob de auto-descubrimiento de opencode (`ConfigPlugin.load` en `packages/opencode/src/config/plugin.ts`) matchea solo archivos planos con extensión `.ts` o `.js` en `.opencode/plugin(s)/`. Como este plugin vive en un subdirectorio (`.opencode/plugins/davercode-session-bridge/index.ts`), el auto-discovery lo ignora. Hay que registrarlo **explícitamente** en `opencode.json`:
+
+```jsonc
+{
+  "plugin": ["./.opencode/plugins/davercode-session-bridge"]
+}
+```
+
+Pasos:
+
+1. **Instalar las dependencias del plugin** (necesario una vez por clon del repo):
+   ```bash
+   cd .opencode/plugins/davercode-session-bridge
+   bun install
+   ```
+
+2. **Registrar el plugin en `opencode.json`** (en la raíz del monorepo), si no está ya:
+   ```jsonc
+   {
+     "plugin": ["./.opencode/plugins/davercode-session-bridge"]
+   }
+   ```
+
+3. **Reiniciar el proceso de opencode** (TUI / `bun dev` / `bun run src/index.ts run ...`). El runtime de opencode carga la configuración una vez por proceso; los cambios en `opencode.json` no se aplican hasta el próximo arranque.
+
+4. **Verificar la instalación** con el script postinstall (corre automáticamente después de `bun install`) o manualmente:
+   ```bash
+   bun run check
+   ```
+
+El script `scripts/check-install.ts` valida que:
+- el plugin esté registrado en `opencode.json`,
+- las dependencias (`@opencode-ai/plugin`) estén instaladas,
+- el plugin sea resoluble como módulo.
+
+Si todo está OK, imprime `davercode-session-bridge: install OK`. Si falta algo, imprime un warning accionable y exit code 1.

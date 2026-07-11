@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/bun/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -8,5 +9,7 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["index.ts", "env.d.ts"]
+  "include": ["index.ts", "env.d.ts", "scripts/**/*.ts"]
 }
+
+
