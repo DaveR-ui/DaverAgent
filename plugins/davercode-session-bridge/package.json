@@ -1,0 +1,10 @@
+{
+  "name": "davercode-session-bridge",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Phase A plugin: bridges DaverCode agent sessions to opencode runtime events via structured logging and a session_status tool.",
+  "dependencies": {
+    "@opencode-ai/plugin": "1.17.18"
+  }
+}
