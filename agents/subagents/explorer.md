@@ -29,6 +29,7 @@ Read and analyze the opencode monorepo — never modify code.
 - For business rules / V2 session semantics, consult `CONTEXT.md` and `AGENTS.md` (V2 Session Core section)
 - The 6 slices (from `docs/project.md`): `runtime`, `contracts`, `clients`, `interfaces`, `integrations`, `infrastructure`
 - The layer direction is `schema ← protocol ← server ← core`; use that to predict where a symbol lives (e.g. an HTTP handler is in `packages/server/src/handlers/`, the domain logic behind it is in `packages/core/src/`)
+- For **broad-coverage** tasks (map / inventory / audit a class of thing across the repo, where incomplete coverage is the worst failure mode), the incoming prompt is expected to follow the `broad-investigation-template` protocol (`.opencode/protocols/broad-investigation-template.md`). Honor its Search Strategy, Evidence Requirements, Coverage Checklist and Definition of Done. Do NOT apply the template to targeted lookups ("where is `X` defined?") — those stay single-pass.
 
 ## Sampling and Fan-out (divide and conquer)
 

@@ -14,6 +14,7 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 | [`sessions-setup.md`](./sessions-setup.md) | Opencode home bootstrap (`~/.config/opencode/`) and session-structure conventions. Includes `humano.md` and `project.md` two-tier policies. | `delivery`, `project-context` |
 | [`doc-maintainer.md`](./doc-maintainer.md) | Documentation health checks: broken links, code-doc consistency, duplicate content, content placement, dead references. | `project-context`, `documenter` |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
+| [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 
 ## Built-in protocols (from opencode runtime)
 

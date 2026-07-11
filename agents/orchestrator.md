@@ -237,6 +237,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 - `doc-maintainer` — documentation health check
 - `sessions-setup` — opencode home bootstrap
 - `agent-installer` — 4-phase agent install/reconfigure
+- `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `context-reductor`.
 
 **Built-in skills** (from opencode runtime):
 
