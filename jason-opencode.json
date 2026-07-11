@@ -6,7 +6,7 @@
     "delivery": {
       "description": "Delivery Agent - Sole interface between human and agent system. Translates, coordinates sessions, delegates ALL work to subagents.",
       "mode": "primary",
-      "model": "opencode-go/glm-5.2",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.3,
       "permission": {
         "skill": {},
@@ -55,7 +55,7 @@
     "coder": {
       "description": "Programming, bug fixes, feature implementation, refactoring",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -68,7 +68,7 @@
     "reviewer": {
       "description": "Code review, security audit, best practices, performance",
       "mode": "subagent",
-      "model": "opencode-go/qwen3.7-plus",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -81,7 +81,7 @@
     "tester": {
       "description": "Unit tests, integration tests, test coverage, e2e",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,

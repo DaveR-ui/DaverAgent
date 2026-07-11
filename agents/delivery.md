@@ -1,7 +1,7 @@
 ---
 description: "Delivery Agent - Sole interface between the human and the agent system. Translates, writes documentation directly, coordinates sessions, and delegates technical work to subagents."
 mode: primary
-model: opencode-go/glm-5.2
+model: opencode-go/minimax-m3
 temperature: 0.3
 permission:
   skill: {}
