@@ -130,7 +130,7 @@
           "id": "context_selection",
           "prompt": "Which context docs do you want to enable? (comma-separated ids; lives in docs/context/)",
           "type": "string",
-          "default": "architecture,api-contracts,rule,naming-registry",
+          "default": "architecture,api-contracts,rules,naming-registry",
           "options": [
             "architecture",
             "api-contracts",
@@ -232,17 +232,11 @@
             "scope": "agent",
             "default_body": "Phase 2 of the delivery pipeline. Document scope boundaries, complexity levels (Baja->Muy Alta), hot spot types, hidden assumption detection, and verification path."
           },
-          "interruption": {
-            "filename": "interruption.md",
-            "title": "Interruption Bus",
-            "scope": "agent",
-            "default_body": "File-based pause/resume bus. Document traffic-light.md (semaforo), interruption-log.md (append-only audit trail), and per-agent memory (reasoning-full.md + summary.md)."
-          },
           "session-archiver": {
             "filename": "session-archiver.md",
             "title": "Session Archiver",
             "scope": "agent",
-            "default_body": "Session closeout distillation. Reads per-agent reasoning-full.md and produces session-digest.md with decisions, lessons, open questions, and links."
+            "default_body": "Session closeout distillation. Reads the durable event stream (Subagent.* and Step.* events) and produces session-digest.md with decisions, lessons, open questions, and links."
           },
           "sessions-setup": {
             "filename": "sessions-setup.md",
@@ -278,11 +272,10 @@
           "id": "agent_protocols",
           "prompt": "Which agent protocols do you want to enable? (comma-separated ids; lives in .opencode/protocols/)",
           "type": "string",
-          "default": "canonical-prompter,context-reductor,interruption,session-archiver,sessions-setup,doc-maintainer,agent-installer",
+          "default": "canonical-prompter,context-reductor,session-archiver,sessions-setup,doc-maintainer,agent-installer",
           "options": [
             "canonical-prompter",
             "context-reductor",
-            "interruption",
             "session-archiver",
             "sessions-setup",
             "doc-maintainer",

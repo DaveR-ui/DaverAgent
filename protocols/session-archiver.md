@@ -1,6 +1,8 @@
 # Protocol: Session Archiver
 
-Distillation convention. Closes a session by reading every per-agent reasoning file and producing a single cross-agent digest. This is the second half of the write/distill cycle: the interruption bus produces the inputs, the session archiver consumes them.
+Distillation convention. Closes a session by reading the durable `Subagent.*` and `Step.*` event stream from the EventV2 bus (persisted in SQLite) and producing a single cross-agent digest.
+
+This protocol replaces the older file-based cycle where subagents wrote `reasoning-full.md` + `summary.md` to disk and the archiver consumed those files. The replacement is event-sourced: the runtime emits lifecycle events with stable IDs, the archiver projects them into a human-readable digest.
 
 ## When to apply
 
@@ -10,19 +12,18 @@ Distillation convention. Closes a session by reading every per-agent reasoning f
 
 Do **not** apply:
 
-- Mid-session, while a subagent is still running. Wait for the subagent to return.
-- For per-agent summaries — that is the subagent's job (`agents/{name}/summary.md`).
+- Mid-session, while a subagent is still running. Wait for the subagent's `Subagent.Completed` / `Subagent.Failed` / `Subagent.Interrupted` event before reading the stream.
+- For per-agent summaries — that is the structured return from the task tool (validated against `output_schema` when defined).
 - For real-time memory — this is a one-shot distillation, not a streaming log.
 
 ## Inputs
 
-| Artifact | Path (relative to session root) | Required |
+| Source | Path / accessor | Required |
 |---|---|---|
-| Per-agent reasoning | `agents/{name}/reasoning-full.md` | At least one |
-| Per-agent summary | `agents/{name}/summary.md` | At least one |
-| Traffic light | `traffic-light.md` | Optional but recommended |
-| Interruption log | `interruption-log.md` | Optional but recommended |
-| Session metadata | session directory name (contains date and keywords) | Yes — used in the digest header |
+| Durable event stream | EventV2 bus, persisted in SQLite (e.g. via `EventV2Bridge.Service.listByAggregate(sessionID)`) | Yes |
+| Session metadata | Session row in DB (`session.id`, `session.parent_id`, `session.title`, `session.created_at`, `session.updated_at`) | Yes |
+| Subagent `output_schema` results | The structured JSON returned by each `Subagent.Completed` event | Recommended (one per completed subagent) |
+| Final assistant messages | Last `MessageV2` per subagent session (fallback when no `output_schema`) | Fallback |
 
 The session root is `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-keywords}/` by default. The delivery agent or the orchestrator passes the absolute path when invoking this protocol.
 
@@ -30,23 +31,22 @@ The session root is `~/.config/opencode/sessions/{human}/{project}/{DDMMYYYY-key
 
 A single file: `session-digest.md` at the session root. It contains:
 
-1. **Header** — session name, date range, human, project, final semáforo state per agent.
-2. **Decisions** — cross-agent decisions, deduplicated and grouped by topic. Each decision cites the agent that made it and the file path.
-3. **Lessons learned** — cross-agent lessons, deduplicated. Each lesson cites the agent.
-4. **Open questions** — questions left unanswered, from any agent's `reasoning-full.md` or `summary.md`.
-5. **Links** — links to each `agents/{name}/summary.md` so the per-agent executive view is reachable.
-6. **Interruptions summary** — count of human interventions, count of agent acknowledgments, and a short list of the most consequential hints.
+1. **Header** — session name, date range, human, project, subagent count, final status per subagent.
+2. **Decisions** — cross-agent decisions, deduplicated and grouped by topic. Each decision cites the `Subagent.Spawned` event ID and the originating agent.
+3. **Lessons learned** — cross-agent lessons, deduplicated. Each lesson cites the source event(s).
+4. **Open questions** — questions left unanswered, surfaced from `output_schema` fields (e.g. `coder.open_questions`) or final assistant messages.
+5. **Links** — links to each child session via `GET /session/:id/children` so the per-subagent run is reachable.
+6. **Interruptions summary** — count of `Subagent.Interrupted` events, count of `Step.Failed` with `metadata.interrupted = true`, and a short list of the most consequential interrupts.
 
 ## Process
 
-1. **Discover** — list the contents of `agents/` to find every agent directory.
-2. **Read** — for each `agents/{name}/`, read `reasoning-full.md` (if present) and `summary.md`. If a `reasoning-full.md` is already marked archived (`<!-- archived: {timestamp} -->` at the top), skip it and note in the digest that it was a re-archive of stale data.
-3. **Extract** — pull out decisions, lessons, and open questions from each file. Tag every item with the agent name and a citation like `agents/coder/reasoning-full.md#L42`.
-4. **Deduplicate** — merge decisions and lessons that appear in multiple agents. Prefer the most specific phrasing; keep all citations.
-5. **Group** — organize decisions by topic (e.g., "Testing strategy", "Module boundaries", "Error handling") and lessons by severity (e.g., "Bugs to avoid", "Conventions to follow").
+1. **Discover** — query the event store for the parent session ID. List every `Subagent.Spawned` event to enumerate child sessions.
+2. **Read** — for each child session, follow the event stream: `Subagent.Spawned` → `Subagent.Completed` / `Subagent.Failed` / `Subagent.Interrupted`. Capture `duration_ms` and final status. If `output_schema` is defined, attach the structured JSON to the child record.
+3. **Extract** — pull out decisions, lessons, and open questions from each child's structured return (preferred) or from the final assistant message (fallback). Tag every item with the agent name and a citation like `event:Subagent.Completed#01H...`.
+4. **Deduplicate** — merge decisions and lessons that appear in multiple children. Prefer the most specific phrasing; keep all citations.
+5. **Group** — organize decisions by topic (e.g. "Testing strategy", "Module boundaries", "Error handling") and lessons by severity (e.g. "Bugs to avoid", "Conventions to follow").
 6. **Write** — produce `session-digest.md` at the session root.
-7. **Mark archived** — prepend `<!-- archived: {ISO-8601 timestamp} -->` to each `agents/{name}/reasoning-full.md` that was consumed. Do NOT modify `summary.md` files — they remain the resume anchors for future sessions.
-8. **Report** — return a short message: "Session archived. Digest: {session_root}/session-digest.md. Marked {N} reasoning files as archived. {M} summary files preserved."
+7. **No mutation** — the event stream is append-only and durable. The archiver never modifies it.
 
 ## Output Template
 
@@ -56,82 +56,79 @@ A single file: `session-digest.md` at the session root. It contains:
 **Human**: {human_id}
 **Project**: {project_id}
 **Date range**: {started_at} → {closed_at}
-**Agents involved**: {comma-separated list}
+**Subagents involved**: {comma-separated list of agent names}
+**Subagent outcomes**: {N} completed, {M} failed, {K} interrupted
 
-## Final Semáforo
+## Final Status
 
-| Agent | Final status | Summary |
-|---|---|---|
-| coder | success | Implemented 3 endpoints |
-| tester | partial | Wrote 8 tests, 2 skipped |
-| reviewer | success | Approved with 2 minor notes |
+| Subagent | Status | Duration | Summary |
+|---|---|---|---|
+| coder | completed | 1234ms | Implemented 3 endpoints |
+| tester | partial | 567ms | Wrote 8 tests, 2 skipped |
+| reviewer | interrupted | 89ms | Cancelled mid-review |
 
 ## Decisions
 
 ### {Topic group 1}
-- **{Decision}** — cited from `agents/{agent}/reasoning-full.md` (also `agents/{other}/summary.md`).
+- **{Decision}** — cited from `event:Subagent.Completed#01H...` (also `event:Subagent.Completed#01H...`).
 
 ### {Topic group 2}
-- **{Decision}** — cited from `agents/{agent}/reasoning-full.md`.
+- **{Decision}** — cited from `event:Subagent.Completed#01H...`.
 
 ## Lessons learned
 
 ### Bugs to avoid
-- **{Lesson}** — cited from `agents/{agent}/reasoning-full.md`.
+- **{Lesson}** — cited from `event:Subagent.Completed#01H...`.
 
 ### Conventions to follow
-- **{Lesson}** — cited from `agents/{agent}/reasoning-full.md`.
+- **{Lesson}** — cited from `event:Subagent.Completed#01H...`.
 
 ## Open questions
 
-- {question 1} — from `agents/{agent}/reasoning-full.md`.
-- {question 2} — from `agents/{other}/summary.md`.
+- {question 1} — from `event:Subagent.Completed#01H...`.
+- {question 2} — from `event:Subagent.Completed#01H...`.
 
 ## Interruptions summary
 
-- Total human interventions: {N}
-- Total agent acknowledgments: {N}
-- Most consequential hints:
-  - {ISO-8601 timestamp}: {one-line summary of the hint and how it was incorporated}
+- Total `Subagent.Interrupted`: {N}
+- Total `Step.Failed` with `metadata.interrupted = true`: {N}
+- Most consequential interrupts:
+  - {ISO-8601 timestamp}: {one-line summary of the interrupt and how it was handled}
 
-## Per-agent summaries
+## Per-subagent runs
 
-- coder — `agents/coder/summary.md`
-- tester — `agents/tester/summary.md`
-- reviewer — `agents/reviewer/summary.md`
+- coder — child session `{id}`, structured return at `event:Subagent.Completed#01H...`
+- tester — child session `{id}`, structured return at `event:Subagent.Completed#01H...`
+- reviewer — child session `{id}`, interrupted at `event:Subagent.Interrupted#01H...`
 - {etc.}
 ```
 
-## Marking `reasoning-full.md` as Archived
+## Event source: EventV2 bus
 
-To archive a reasoning file, prepend a single HTML comment line as the very first line of the file:
+The archiver reads the durable event bus. The relevant event types are:
 
-```markdown
-<!-- archived: 2026-06-17T18:00:00Z -->
-```
+- `Subagent.Spawned { parent_session_id, child_session_id, agent_type, prompt_summary }`
+- `Subagent.Completed { child_session_id, status, duration_ms }`
+- `Subagent.Failed { child_session_id, error }`
+- `Subagent.Interrupted { child_session_id, reason }`
+- `Step.Failed { session_id, error, metadata: { interrupted: true } }`
 
-The original content below the comment is preserved unchanged. The next time the archiver runs on the same session, it sees the archive marker, skips the file, and notes in the new digest that the file was already archived.
+Schema definitions live in `packages/schema/src/session-event.ts` (namespace `Subagent`, lines ~434-526). Persistence is handled by `EventV2Bridge.Service` in `packages/core/src/event.ts`.
 
-Do NOT:
+## Implementation phases
 
-- Delete the file. It may be needed for compliance, debugging, or future re-distillation.
-- Modify any line other than the prepended archive marker.
-- Archive `summary.md` files. They are the resume anchors and must stay live.
+This protocol describes the **final** event-sourced shape. Two intermediate phases apply:
 
-## Interaction with the interruption bus
+1. **Phase 1 (current)**: archiver reads the EventV2 bus but accepts fallback to the old `summary.md` path if a child has no `Subagent.Completed` event. The old files are produced only as a transitional measure by agents that have not yet been updated to return structured JSON.
+2. **Phase 2 (after orchestrator stability is verified)**: archiver reads **only** the EventV2 bus. All old `summary.md` / `output-full.md` / `manifest.md` references are removed. `GET /session/:id/children` with `ChildInfo` becomes the single source of truth for subagent outcomes.
 
-The interruption bus produces `reasoning-full.md` and `summary.md` files as a side effect of subagent work. The session archiver is the consumer of those files at session close. Together they form a complete cycle:
-
-```
-subagent work → reasoning-full.md + summary.md  (write phase)
-session close → session-digest.md               (distill phase)
-future session → reads summary.md               (resume phase)
-```
+Do not skip Phase 1. The archiver must be testable end-to-end against the event stream before any agent stops writing the fallback files.
 
 ## Rules
 
 - Always run after all subagents have returned. Never archive while a subagent is still running.
-- Never edit `reasoning-full.md` content — only prepend the archive marker.
-- Never edit `summary.md` — it is the resume anchor.
+- Never edit the event stream — it is append-only and durable.
+- Never read or write `summary.md` / `output-full.md` / `manifest.md` / `traffic-light.md` / `interruption-log.md` / `reasoning-full.md` — those files no longer exist in the protocol.
 - All output in ENGLISH.
-- If no `agents/` directory exists or no reasoning files are present, write a minimal `session-digest.md` with an "Empty session" note rather than failing.
+- If no events exist for the session, write a minimal `session-digest.md` with an "Empty session" note rather than failing.
+- If a child has no `Subagent.Completed` event but has a `Subagent.Failed` or `Subagent.Interrupted`, treat the child as terminated and include the error/reason in the digest.
