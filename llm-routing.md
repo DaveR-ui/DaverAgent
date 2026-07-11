@@ -145,6 +145,6 @@ See `.opencode/agents/delivery.md` for the full session structure and delegation
 5. If the task is code review, security audit, or best-practices check, route to `reviewer` (which uses **`opencode-go/qwen3.7-plus`** — a different model family from the coder for genuine perspective diversity).
 6. If the task is design or architecture, route to `architect` (which uses **`opencode-go/glm-5.2`** — a third distinct model in the coder/reviewer/architect trio).
 7. If the task is multi-step orchestration, route to `orchestrator` (which uses **`opencode-go/qwen3.7-max`**).
-8. If the task involves inspecting an image and the calling model is not vision-capable, route the image to `vision-relay` (which uses **`opencode-go/minimax-m3`**, with `gemini-3-flash` as fallback).
+8. If the task involves inspecting an image and the calling model is not vision-capable, route the image to `vision-relay` (which uses **`opencode-go/minimax-m3`**).
 9. If the context is approaching **250K**, compact first and try to keep the resulting working set **<= 272K**.
 10. If the primary model is unavailable, use the fallback listed in the matrix.
