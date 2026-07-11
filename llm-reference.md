@@ -3,7 +3,7 @@
 Reference catalog of the LLMs used by the agent system. This is the **raw specs** of each model — see `.opencode/llm-routing.md` for the **routing policy** (which model is used for which task and why).
 
 > **Source**: specs pulled from `https://models.dev/providers/opencode-go/` on 2026-07-05.
-> **Last updated**: 2026-07-05.
+> **Last updated**: 2026-07-11
 
 ## Model Catalog
 
@@ -49,7 +49,7 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/minimax-m3`
 
-- **Role in this project**: `delivery`, `explorer`, `project-context`, `opencode-expert`, `vision-relay` — the default for everything "average".
+- **Role in this project**: `explorer`, `project-context`, `vision-relay` — the "investigations" and docs-lookup model. No longer used by `delivery` (moved to `qwen3.7-plus`).
 - **Provider**: opencode-go
 - **Price tier**: cheap ($0.30 / $1.20, $0.06 cached)
 - **Standout feature**: cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash` fallback.
@@ -67,10 +67,10 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/qwen3.7-plus`
 
-- **Role in this project**: `reviewer` (code review, security audit, best practices).
+- **Role in this project**: `delivery` (intake, routing, prompt analysis) — the smarter model for the highest cost-of-error layer. Previously `reviewer` (reviewer moved to `minimax-m2.7`).
 - **Provider**: opencode-go
 - **Price tier**: mid ($0.40 / $1.60)
-- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
+- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; smarter reasoning than the cheap tier, used for delivery intake/routing.
 - **Notes**:
   - _(add your observations here)_
 
