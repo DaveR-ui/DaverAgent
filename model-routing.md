@@ -20,10 +20,10 @@ This file is the compatibility entry point for model-selection rules.
 
 For opencode runtime delegation, `.opencode/llm-routing.md` now defines the canonical user-requested policy:
 
-- **MiniMax M3** (`opencode-go/minimax-m3`) — cheap 1M-context generalist; used by `explorer`, `project-context`, `opencode-expert` (investigations/docs) and `vision-relay` (image inspection)
+- **MiniMax M3** (`opencode-go/minimax-m3`) — cheap 1M-context generalist; used by `delivery` (intake/routing), `explorer`, `project-context`, `opencode-expert` (investigations/docs) and `vision-relay` (image inspection)
 - **Kimi K2.7 Code** (`opencode-go/kimi-k2.7-code`) — code-specialized; used by `coder` and `tester`
-- **Qwen 3.7 Plus** (`opencode-go/qwen3.7-plus`) — smart middle tier; used by `delivery` for intake/routing (highest cost-of-error layer)
-- **GLM 5.2** (`opencode-go/glm-5.2`) — used only by `architect` for design-quality work and used by `delivery` for intake/routing (highest cost-of-error layer)
+- **Qwen 3.7 Plus** (`opencode-go/qwen3.7-plus`) — middle tier; used by `reviewer` for code review (different model family from the coder for perspective diversity)
+- **GLM 5.2** (`opencode-go/glm-5.2`) — used only by `architect` for design-quality work
 - **Qwen 3.7 Max** (`opencode-go/qwen3.7-max`) — used only by `orchestrator` for advanced multi-step reasoning
 
 Cost discipline:

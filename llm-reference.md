@@ -49,7 +49,7 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/minimax-m3`
 
-- **Role in this project**: `explorer`, `project-context`, `vision-relay` — the "investigations" and docs-lookup model. No longer used by `delivery` (moved to `qwen3.7-plus`).
+- **Role in this project**: `delivery`, `explorer`, `project-context`, `opencode-expert`, `vision-relay` — the cheap 1M-context generalist for intake, investigations, docs-lookup, and image inspection.
 - **Provider**: opencode-go
 - **Price tier**: cheap ($0.30 / $1.20, $0.06 cached)
 - **Standout feature**: cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash` fallback.
@@ -67,10 +67,10 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/qwen3.7-plus`
 
-- **Role in this project**: `delivery` (intake, routing, prompt analysis) — the smarter model for the highest cost-of-error layer. Previously `reviewer` (reviewer moved to `minimax-m2.7`).
+- **Role in this project**: `reviewer` (code review, security audit, best practices).
 - **Provider**: opencode-go
 - **Price tier**: mid ($0.40 / $1.60)
-- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; smarter reasoning than the cheap tier, used for delivery intake/routing.
+- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
 - **Notes**:
   - _(add your observations here)_
 
