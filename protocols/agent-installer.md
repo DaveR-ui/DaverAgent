@@ -85,6 +85,22 @@ If the human is unsure, these defaults cover the most common cases:
 | Subagents | coder, tester, reviewer, architect, explorer, documenter |
 | Doc language | en |
 
+> **Important for this repo (DaverCode fork of `sst/opencode`)**: the defaults above are the installer's *generic* defaults. They do **not** describe this repo. The actual values for this repo are:
+>
+> | Question | Real value for this repo |
+> |---|---|
+> | Architecture pattern | layered (monorepo: `schema ← protocol ← server ← core`) |
+> | Primary language | typescript |
+> | Framework | Effect 4 + Hono + Solid.js + `@opentui/solid` |
+> | Database | SQLite (drizzle) |
+> | ORM | drizzle-orm |
+> | Auth | `@openauthjs/openauth` + AWS SSO |
+> | Default agent | delivery |
+> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, vision-relay, documenter, opencode-expert |
+> | Doc language | es (for `docs/`) / en (for `.opencode/`, code) |
+>
+> If a future run of the installer reuses the generic defaults, **the installer's stub output must be replaced** before the agent system is usable. See `docs/project.md` (Slices, Backend Structure, Domain Entities) for the canonical content.
+
 ## Example conversations
 
 **Human**: "Set up the agent for this project."

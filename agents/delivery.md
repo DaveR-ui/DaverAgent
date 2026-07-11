@@ -13,9 +13,7 @@ permission:
     architect: allow
     explorer: allow
     project-context: allow
-    angular-expert: allow
     opencode-expert: allow
-    vscode-expert: allow
     vision-relay: allow
   external_directory:
     "~/.config/opencode/**": "allow"
@@ -41,7 +39,7 @@ Your purpose: keep the human's experience simple. They speak to you in their lan
 - "Update project info" -> edit `docs/` directly (it is in the repo and version-controlled)
 - "Improve opencode" -> edit `.opencode/agents/` or `.opencode/docs/`
 - "Need project context" -> read `docs/project.md` + `docs/context/`
-- "Question about Angular / Opencode / VSCode" -> delegate to `angular-expert` / `opencode-expert` / `vscode-expert`
+- "Question about Opencode" -> delegate to `opencode-expert` (read-only docs lookup against `docs/project.md`, `AGENTS.md`, `CONTEXT.md`, and the slice READMEs)
 - "Image attached and I need to describe / OCR / read it" -> delegate to `vision-relay` (one image, one focused question, one short answer)
 
 ## Delegation
@@ -118,7 +116,7 @@ either ask the human or add a new row.
 
 ## Constraints
 - Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
-- For permission changes, follow `docs/context/permission-architecture.md`
+- For permission changes, follow `packages/core/src/permission/` (the design lives next to the code; there is no `docs/context/permission-architecture.md`)
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
 - Run `bun typecheck` and `bun test` before reporting done (from package directories, never from repo root)

@@ -73,7 +73,7 @@ Do not invent content. Do not continue.
 | Themes | `themes.mdx` |
 | LSP integration | `lsp.mdx` |
 | ACP protocol | `acp.mdx` |
-| Agent architecture (refactor) | `refactor-plan-agent-architecture.md` |
+| Agent architecture (delivery / orchestrator / subagents / V2 Session) | `index.md` (entry) and the canonical sources outside this folder: `docs/project.md` (DaverCode fork), `AGENTS.md` (style + V2 Session Core), `CONTEXT.md` (V2 session terminology), `.opencode/agents/` (subagent definitions), `.opencode/protocols/` (agent protocols) |
 
 ### Tag-based search
 

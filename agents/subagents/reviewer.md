@@ -25,14 +25,14 @@ Analyze code - never modify it.
 
 ## Review Checklist
 
-1. Architecture compliance (`docs/context/architecture.md`)
-2. Development standards (`docs/context/rules.md`)
-3. API contracts (`docs/context/api-contracts.md`) for HTTP changes
-4. Permission system (`docs/context/permission-architecture.md`) for auth changes
+1. Architecture compliance — layer direction (`schema ← protocol ← server ← core`); see `docs/project.md` Slices section and `AGENTS.md` rules
+2. Development standards — `AGENTS.md` style guide, snake_case Drizzle, no `any`, no star imports, no alias imports
+3. API contracts — `packages/server/src/api.ts` (`HttpApi`) and `packages/protocol/` for HTTP / SSE changes; client regenerated via `bun run generate` from `packages/client`
+4. Permission system — `packages/core/src/permission/` and `Permission` / `PermissionSaved` schemas for auth changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 queries, missing indexes, unbuffered channels
-7. Anti-patterns - business logic in handlers, raw SQL in services, `any` types
-8. Testing - coverage, proper mocking
+7. Anti-patterns - business logic in HTTP handlers, raw SQL in services, `any` types, importing `core`/`server` from `client`
+8. Testing - coverage, proper mocking, tests run from package dirs (never root)
 
 ## Sampling and Fan-out (partition by independence)
 

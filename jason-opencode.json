@@ -17,9 +17,7 @@
           "architect": "allow",
           "explorer": "allow",
           "project-context": "allow",
-          "angular-expert": "allow",
           "opencode-expert": "allow",
-          "vscode-expert": "allow",
           "vision-relay": "allow"
         },
         "external_directory": {
@@ -48,9 +46,7 @@
           "architect": "allow",
           "explorer": "allow",
           "project-context": "allow",
-          "angular-expert": "allow",
           "opencode-expert": "allow",
-          "vscode-expert": "allow",
           "vision-relay": "allow"
         }
       }
