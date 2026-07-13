@@ -8,6 +8,7 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 - **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list
 - **Question reference**: `docs/context/agent-installer-questions.md` — what each question means (currently does not exist; create if needed or remove this reference)
 - **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten (currently does not exist; create if needed or remove this reference)
+- **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer, currently driven by inline questions and manual update logic.
 
 ## The 4 phases
 
@@ -96,7 +97,7 @@ If the human is unsure, these defaults cover the most common cases:
 > | ORM | drizzle-orm |
 > | Auth | `@openauthjs/openauth` + AWS SSO |
 > | Default agent | delivery |
-> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, vision-relay, documenter, opencode-expert |
+> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, vision-relay, documenter |
 > | Doc language | es (for `docs/`) / en (for `.opencode/`, code) |
 >
 > If a future run of the installer reuses the generic defaults, **the installer's stub output must be replaced** before the agent system is usable. See `docs/project.md` (Slices, Backend Structure, Domain Entities) for the canonical content.
@@ -109,7 +110,7 @@ You: Run the installer in interactive mode. The 4 phases walk through everything
 
 **Human**: "I added a new context doc called `cache-strategy.md`."
 
-You: Edit `install-agent.schema.json` to add the new entry under `context_templates`. Re-run `install-agent.ps1 -Update` so the new file generates and `docs/context/README.md` gets the new row.
+You: Add the new context doc under `docs/context/` and update the index in `docs/context/README.md`. Re-run `install-agent.ps1 -Update` if the installer maintains context doc stubs.
 
 **Human**: "Update the slices table to include a new 'reports' slice."
 

@@ -144,7 +144,7 @@ The `deliver` agent picks up these docs on the next session and starts routing t
 |---|---|
 | Add a slice to `docs/project.md` | Edit the file directly; run `sync-project.ps1`. |
 | Add or update a subagent | Edit `.opencode/agents/subagents/<id>.md`; ensure the agent is in `jason-opencode.json`'s `agent.task` allowlist. |
-| Add a new context doc type | Add an entry under `context_templates` in `.opencode/scripts/install-agent.schema.json`, then re-run `install-agent.ps1`. |
+| Add a new context doc type | Add the file under `docs/context/` and update the index in `docs/context/README.md`, then re-run `install-agent.ps1`. |
 | Regenerate everything from scratch | Delete `docs/project.md` and the unwanted `docs/context/*.md` stubs, then re-run `install-agent.ps1`. The installer will not touch curated files unless you also delete them. |
 | Audit what would change | Append `-VerifyOnly` to any of the above scripts. |
 

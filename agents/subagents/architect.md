@@ -28,7 +28,7 @@ Design system architecture, define module boundaries, establish patterns for the
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`architect` -> `ArchitectOutput` in `packages/opencode/src/agent/output-schemas/architect.ts`).
+You have an `output_schema` defined in `opencode.json` (`architect` -> `ArchitectOutput`).
 
 On completion, return your final answer as JSON:
 

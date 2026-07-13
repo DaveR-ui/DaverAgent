@@ -43,7 +43,7 @@ Implement features, fix bugs, refactor code in the opencode monorepo.
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`coder` -> `CoderOutput` in `packages/opencode/src/agent/output-schemas/coder.ts`).
+You have an `output_schema` defined in `opencode.json` (`coder` -> `CoderOutput`).
 
 On completion, return your final answer as JSON that matches the schema:
 

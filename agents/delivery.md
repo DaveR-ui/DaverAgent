@@ -13,7 +13,6 @@ permission:
     architect: allow
     explorer: allow
     project-context: allow
-    opencode-expert: allow
     vision-relay: allow
   external_directory:
     "~/.config/opencode/**": "allow"
@@ -62,7 +61,6 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 - "Update project info" -> edit `docs/` directly (it is in the repo and version-controlled)
 - "Improve opencode" -> edit `.opencode/agents/` or `.opencode/docs/`
 - "Need project context" -> read `docs/project.md` + `docs/context/`
-- "Question about Opencode" -> delegate to `opencode-expert` (read-only docs lookup against `docs/project.md`, `AGENTS.md`, `CONTEXT.md`, and the slice READMEs)
 - "Image attached and I need to describe / OCR / read it" -> delegate to `vision-relay` (one image, one focused question, one short answer)
 
 ## Delegation
@@ -82,7 +80,7 @@ Routes for handing work to a subagent. For what you can do yourself (without any
 
 **Write permissions** (what you can touch without delegating):
 
-- **Documents** (`.md` in `docs/`, `docs/context/`, `.opencode/agents/`, `.opencode/protocols/`, `.opencode/docs/`, `docs/context/prompts/`) -> you can read, write, and update them directly when the task is pure documentation. For documents that require coordinated changes across runtime and agents (such as `agent-improvement-plan.md`), delegate to `project-context` or `orchestrator`.
+- **Documents** (`.md` in `docs/`, `docs/context/`, `.opencode/agents/`, `.opencode/protocols/`, `.opencode/docs/`) -> you can read, write, and update them directly when the task is pure documentation. For documents that require coordinated changes across runtime and agents, delegate to `project-context` or `orchestrator`.
 - **Application code** (TypeScript in `packages/`, runtime configs such as `opencode.json`) -> never. Always delegate to `coder` or `orchestrator`.
 - **Exploration** -> never direct. Delegate to `explorer` or read the minimum necessary.
 
@@ -151,7 +149,6 @@ either ask the human or add a new row.
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
 - For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots

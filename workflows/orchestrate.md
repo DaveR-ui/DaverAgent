@@ -13,7 +13,7 @@ Thinking instructions for the AI before executing any command.
 5. **Language Rule**: Ensure all new documentation and comments are in **ENGLISH**.
 
 ## Execution Process
-- **Phase 0: Protocol Discovery**: List `.opencode/protocols/` and `docs/protocols/` to identify reusable conventions relevant to the task (e.g., `api-endpoint-factory`). For the permission system, refer directly to `docs/context/auth-identity/security-permissions.md`.
+- **Phase 0: Protocol Discovery**: List `.opencode/protocols/` to identify reusable conventions relevant to the task. For the permission system, refer directly to `docs/context/auth-identity/security-permissions.md`.
 - **Phase 1: Context Refresh**: Read the identified protocol and any relevant `docs/context/*.md` files.
 - **Phase 2: Proposal**: Explain the technical solution to the user before implementing.
 - **Phase 3: Implementation**: Write code following standards.

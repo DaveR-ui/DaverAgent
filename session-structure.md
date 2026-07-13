@@ -61,7 +61,7 @@ The delivery agent and session workflow use files outside the repo for human-spe
 
 Subagent outcomes do **not** live in the file tree. They flow through the runtime:
 
-- The `task` tool, when called with a subagent that has an `output_schema` in `opencode.json`, validates the return against the schema in `packages/opencode/src/agent/output-schemas/` and includes the structured JSON in the `Subagent.Completed` event on the EventV2 bus.
+- The `task` tool, when called with a subagent that has an `output_schema` in `opencode.json`, validates the return and includes the structured JSON in the `Subagent.Completed` event on the EventV2 bus.
 - `GET /session/:id/children` returns a `ChildInfo[]` array (status, summary, agent type, durationMs) for every subagent spawned from a parent session.
 - The `session-archiver` protocol reads the durable event stream and produces `session-digest.md` from it (no per-agent files involved).
 

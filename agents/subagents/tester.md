@@ -32,7 +32,7 @@ Write and run tests for the opencode monorepo.
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`tester` -> `TesterOutput` in `packages/opencode/src/agent/output-schemas/tester.ts`).
+You have an `output_schema` defined in `opencode.json` (`tester` -> `TesterOutput`).
 
 On completion, return your final answer as JSON:
 

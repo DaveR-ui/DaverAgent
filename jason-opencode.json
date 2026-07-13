@@ -18,7 +18,6 @@
           "architect": "allow",
           "explorer": "allow",
           "project-context": "allow",
-          "opencode-expert": "allow",
           "vision-relay": "allow",
           "external-scout": "allow"
         },
@@ -48,7 +47,6 @@
           "architect": "allow",
           "explorer": "allow",
           "project-context": "allow",
-          "opencode-expert": "allow",
           "vision-relay": "allow",
           "external-scout": "allow"
         }
@@ -166,7 +164,6 @@
   "instructions": [
     "docs/project.md",
     "docs/context/README.md",
-    "docs/protocols/README.md",
     ".opencode/session-structure.md",
     ".opencode/protocols/README.md",
     ".opencode/model-routing.md",
