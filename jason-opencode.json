@@ -19,7 +19,8 @@
           "explorer": "allow",
           "project-context": "allow",
           "opencode-expert": "allow",
-          "vision-relay": "allow"
+          "vision-relay": "allow",
+          "external-scout": "allow"
         },
         "external_directory": {
           "~/.config/opencode/**": "allow"
@@ -48,7 +49,8 @@
           "explorer": "allow",
           "project-context": "allow",
           "opencode-expert": "allow",
-          "vision-relay": "allow"
+          "vision-relay": "allow",
+          "external-scout": "allow"
         }
       }
     },
@@ -133,13 +135,26 @@
     "vision-relay": {
       "description": "Vision Relay - Cheap image inspection for non-vision models. Receives one image plus one focused question, returns a compact textual answer. Does NOT explore, does NOT chain of thought, does NOT touch files.",
       "mode": "subagent",
-      "model": "opencode/gemini-3-flash",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.1,
       "tools": {
         "write": false,
         "edit": false,
         "bash": false,
         "read": true
+      }
+    },
+    "external-scout": {
+      "description": "External Scout - Fetches live documentation for external Go libraries on demand. Receives a library path, version, and one focused question, returns a compact textual answer. Read-only plus webfetch.",
+      "mode": "subagent",
+      "model": "opencode-go/minimax-m3",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "read": true,
+        "webfetch": true
       }
     }
   },

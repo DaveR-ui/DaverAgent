@@ -52,7 +52,7 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 - **Role in this project**: `delivery`, `explorer`, `project-context`, `opencode-expert`, `vision-relay` — the cheap 1M-context generalist for intake, investigations, docs-lookup, and image inspection.
 - **Provider**: opencode-go
 - **Price tier**: cheap ($0.30 / $1.20, $0.06 cached)
-- **Standout feature**: cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash` fallback.
+- **Standout feature**: cheapest vision-capable model we use.
 - **Notes**:
   - _(add your observations here)_
 
@@ -78,14 +78,9 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ---
 
-## Fallback Models (not in the opencode-go catalog)
+## Fallback Models
 
-These are retained as runtime fallbacks for `vision-relay` if the primary is unavailable. They live under different providers.
-
-| Model | Route | Price (in/out per 1M) | Notes |
-|---|---|---|---|
-| Gemini 3 Flash | `opencode/gemini-3-flash` | $0.50 / $3.00 | Previous primary for vision-relay. Retained as fallback. |
-| GPT-5.4 Nano | `opencode/gpt-5.4-nano` | _(check models.dev)_ | Last-resort fallback. |
+No fallback models are currently configured (as of 2026-07-12). If a primary is unavailable, the runtime surfaces the error. To add a fallback for a specific route, edit the importance matrix in `.opencode/llm-routing.md` and add a row to this section.
 
 ---
 

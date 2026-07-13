@@ -6,7 +6,7 @@
  *   1. node_modules is installed (deps declared in package.json are resolved)
  *   2. @opencode-ai/plugin (the runtime SDK) is importable
  *   3. opencode.json at the monorepo root registers the plugin
- *   4. the registered path resolves to a directory with package.json + index.ts
+ *   4. the registered path resolves to a directory with package.json + src/index.ts
  *
  * Exit codes:
  *   0  -> install OK
@@ -99,9 +99,9 @@ if (existsSync(registeredAbs)) {
     fail(`registered path ${registeredAbs} exists but is not a directory`)
   } else {
     const pkg = join(registeredAbs, "package.json")
-    const idx = join(registeredAbs, "index.ts")
+    const idx = join(registeredAbs, "src", "index.ts")
     if (!existsSync(pkg)) warn(`registered dir ${registeredAbs} has no package.json`)
-    if (!existsSync(idx)) warn(`registered dir ${registeredAbs} has no index.ts`)
+    if (!existsSync(idx)) warn(`registered dir ${registeredAbs} has no src/index.ts`)
     if (existsSync(pkg) && existsSync(idx)) ok("plugin target directory is well-formed")
   }
 } else {

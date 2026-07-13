@@ -223,7 +223,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
 | `opencode-expert` | `minimax-m3` | Opencode docs (read-only) | text |
-| `vision-relay` | `minimax-m3` | One image + one focused question (gemini-3-flash fallback) | text |
+| `vision-relay` | `minimax-m3` | One image + one focused question (no fallback) | text |
 
 ## Available Protocols and Skills
 

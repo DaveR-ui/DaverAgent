@@ -81,11 +81,18 @@ Antes de esta fase, los plugins o agentes auxiliares solían imprimir diagnósti
 
 ## Desarrollo
 
-El archivo `index.ts` es el único punto de entrada. No necesita un paso de build: opencode lo importa directamente como módulo ECMAScript. El `tsconfig.json` está incluido solo para validación local con `bun typecheck` o el editor.
+El archivo `src/index.ts` es el punto de entrada. El código se organiza en:
+
+- `src/schema.ts` — schema Zod de los snapshots.
+- `src/snapshot.ts` — lógica de escritura de snapshots en disco.
+- `src/logger.ts` — helper de log estructurado sobre `client.app.log()`.
+- `src/index.ts` — wiring del plugin (event hook + tool).
+
+No necesita un paso de build: opencode lo importa directamente como módulo ECMAScript. El `tsconfig.json` está incluido solo para validación local con `bun typecheck` o el editor.
 
 ## Cómo cargarlo
 
-> **Importante: este plugin NO se autodetecta.** El glob de auto-descubrimiento de opencode (`ConfigPlugin.load` en `packages/opencode/src/config/plugin.ts`) matchea solo archivos planos con extensión `.ts` o `.js` en `.opencode/plugin(s)/`. Como este plugin vive en un subdirectorio (`.opencode/plugins/davercode-session-bridge/index.ts`), el auto-discovery lo ignora. Hay que registrarlo **explícitamente** en `opencode.json`:
+> **Importante: este plugin NO se autodetecta.** El glob de auto-descubrimiento de opencode (`ConfigPlugin.load` en `packages/opencode/src/config/plugin.ts`) matchea solo archivos planos con extensión `.ts` o `.js` en `.opencode/plugin(s)/`. Como este plugin vive en un subdirectorio (`.opencode/plugins/davercode-session-bridge/src/index.ts`), el auto-discovery lo ignora. Hay que registrarlo **explícitamente** en `opencode.json`:
 
 ```jsonc
 {

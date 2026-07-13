@@ -1,7 +1,7 @@
 # ⚠️ BOOTSTRAP — davercode-session-bridge
 
 > **Este plugin requiere instalación manual.** No se autodetecta.
-> El glob de auto-discovery de opencode (`{plugin,plugins}/*.{ts,js}`) **solo captura archivos planos**, no subdirectorios con `index.ts`. Como este plugin vive en un subdirectorio, tenés que registrarlo a mano en `opencode.json` e instalar sus dependencias.
+> El glob de auto-discovery de opencode (`{plugin,plugins}/*.{ts,js}`) **solo captura archivos planos**, no subdirectorios con `src/index.ts`. Como este plugin vive en un subdirectorio, tenés que registrarlo a mano en `opencode.json` e instalar sus dependencias.
 
 ---
 
@@ -99,7 +99,7 @@ El sistema se perfecciona continuamente **leyendo el código fuente y las APIs i
 
 - **Las APIs internas de opencode pueden cambiar entre versiones upstream**. Si un test falla o el plugin deja de funcionar después de un `git pull`, lo más probable es que un nombre de evento, una forma de payload o un punto de inyección haya cambiado en opencode. Antes de asumir que el bug es del plugin, revisá el código del runtime (`packages/opencode/src/...`).
 - **El shape de los eventos `session.*` está en transición**. El V2 runtime está migrando de eventos planos (`session.idle`, `session.error`, etc.) a `session.status` con `status.type: "idle" | "retry" | "busy"`. Este plugin escucha los eventos planos, que siguen funcionando en v1.17.18 (la versión upstream actual de DaverCode) pero pueden ser removidos en una versión futura — en ese caso hay que migrar el `event` hook para escuchar `session.status` y filtrar por `status.type === "idle"`.
-- **El `glob` de auto-discovery de plugins en `ConfigPlugin.load` (`packages/opencode/src/config/plugin.ts:21`) tampoco recorre subdirectorios**, así que el registro explícito en `opencode.json` es necesario hasta que se arregle upstream (o hasta que el plugin se reorganice como archivo plano).
+- **El `glob` de auto-discovery de plugins en `ConfigPlugin.load` (`packages/opencode/src/config/plugin.ts:21`) tampoco recorre subdirectorios**, así que el registro explícito en `opencode.json` es necesario hasta que se arregle upstream. El punto de entrada del plugin está en `src/index.ts`, pero el glob solo matchea archivos planos en `.opencode/plugin(s)/`.
 
 Para más contexto, ver:
 
@@ -129,7 +129,7 @@ Técnicamente: `ConfigPlugin.load` en `packages/opencode/src/config/plugin.ts:21
 Glob.scan("{plugin,plugins}/*.{ts,js}", { cwd: dir, absolute: true, dot: true, symlink: true })
 ```
 
-El glob matchea **archivos** como `plugins/foo.ts` o `plugins/bar.js`, pero **no recurre** a `plugins/<name>/index.ts`. El loader sí soporta directorios con `package.json` (ver `resolvePathPluginTarget` en `plugin/shared.ts:175-192`), pero la ruta de auto-discovery no los recorre.
+El glob matchea **archivos** como `plugins/foo.ts` o `plugins/bar.js`, pero **no recurre** a `plugins/<name>/src/index.ts`. El loader sí soporta directorios con `package.json` (ver `resolvePathPluginTarget` en `plugin/shared.ts:175-192`), pero la ruta de auto-discovery no los recorre.
 
 Por eso: **registro explícito obligatorio** en `opencode.json` hasta que se arregle el glob upstream.
 
