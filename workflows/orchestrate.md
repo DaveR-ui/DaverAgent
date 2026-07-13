@@ -15,7 +15,7 @@ Thinking instructions for the AI before executing any command.
 7. **Language Rule**: Ensure all new documentation and comments are in **ENGLISH** (for `.opencode/`, code comments, and code-fenced docstrings); the human-facing `docs/` directory is in **Spanish** per `docs/README.md`.
 
 ## Execution Process
-- **Phase 0: Protocol Discovery**: List `.opencode/protocols/` and `docs/protocols/` to identify reusable conventions relevant to the task (e.g., `api-endpoint-factory`).
+- **Phase 0: Protocol Discovery**: List `.opencode/protocols/` to identify reusable conventions relevant to the task.
 - **Phase 1: Context Refresh**: Read `docs/context/naming-registry.md` and the identified Protocol.
 - **Phase 2: Proposal**: Explain the technical solution to the user before implementing.
 - **Phase 3: Implementation**: Write code following standards.

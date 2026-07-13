@@ -79,7 +79,7 @@ Run all three in parallel when the diff is `> 30` files AND the concerns are cle
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`reviewer` -> `ReviewerOutput` in `packages/opencode/src/agent/output-schemas/reviewer.ts`).
+You have an `output_schema` defined in `opencode.json` (`reviewer` -> `ReviewerOutput`).
 
 The free-form review report goes inside the `summary` field of the JSON envelope; per-finding issues go in the `issues` array:
 

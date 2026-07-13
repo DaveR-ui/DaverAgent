@@ -18,7 +18,6 @@ permission:
     architect: allow
     explorer: allow
     project-context: allow
-    opencode-expert: allow
     vision-relay: allow
 ---
 
@@ -49,7 +48,7 @@ When instructions conflict, resolve them in this order. A higher-priority rule a
 
 ## Structured return
 
-Subagents declared with `output_schema` in `opencode.json` are validated by the task tool against the schemas in `packages/opencode/src/agent/output-schemas/`. The structured JSON is included in the `Subagent.Completed` event on the EventV2 bus. Your `task` tool return for these agents is the validated JSON, not a text summary.
+Subagents declared with `output_schema` in `opencode.json` are validated by the task tool. The structured JSON is included in the `Subagent.Completed` event on the EventV2 bus. Your `task` tool return for these agents is the validated JSON, not a text summary.
 
 Schemas by agent:
 
@@ -157,7 +156,6 @@ You will receive a handoff prompt structured like this:
 <paste the agent-snapshot from the previous orchestrator instance>
 
 ## Constraints
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for endpoint work
 - For permission changes, follow `packages/core/src/permission/` (the design lives next to the code; there is no `docs/context/permission-architecture.md`)
 - Do NOT touch opencode config or .opencode/ files
 - Do NOT mutate humano.md or session snapshots
@@ -222,13 +220,9 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 | `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
-| `opencode-expert` | `minimax-m3` | Opencode docs (read-only) | text |
 | `vision-relay` | `minimax-m3` | One image + one focused question (gemini-3-flash fallback) | text |
 
 ## Available Protocols and Skills
-
-**Project protocols** (in `docs/protocols/`):
-- `api-endpoint-factory` — 4-layer endpoint scaffolding
 
 **Agent protocols** (in `.opencode/protocols/`):
 - `canonical-prompter` — Phase 1 of the delivery pipeline

@@ -93,7 +93,7 @@ Si ves un `.json` y un `.md` con `schemaVersion: "1.0"`, el plugin está operati
 Este repositorio es un **fork** de [`sst/opencode`](https://github.com/sst/opencode) (la AI coding agent open source). La carpeta `.opencode/` **no es parte de opencode upstream** — es un **sistema de agentes especializado** que se está desarrollando sobre opencode, con dos objetivos principales:
 
 - **Observar el ciclo de vida de las sesiones** del runtime desde adentro, vía plugins como este. Cada plugin es un "órgano" del sistema de agentes: traduce eventos nativos del runtime a estado ejecutivo persistente (snapshots, logs estructurados, herramientas).
-- **Sustituir gradualmente las convenciones file-based** (`~/.config/opencode/sessions/...`, manifestos, interruption logs) por las APIs nativas que opencode expone. Este plugin es una pieza del plan documentado en `docs/context/agent-improvement-plan.md`.
+- **Sustituir gradualmente las convenciones file-based** (`~/.config/opencode/sessions/...`, manifestos, interruption logs) por las APIs nativas que opencode expone. Este plugin es una pieza del plan.
 
 El sistema se perfecciona continuamente **leyendo el código fuente y las APIs internas de opencode** desde el propio monorepo: `packages/opencode`, `packages/core`, `packages/schema`, `packages/protocol` y el SDK público `@opencode-ai/plugin`. Implicaciones prácticas:
 
@@ -104,7 +104,6 @@ El sistema se perfecciona continuamente **leyendo el código fuente y las APIs i
 Para más contexto, ver:
 
 - [`docs/project.md`](../../../docs/project.md) — entry point del proyecto: stack, comandos, slices, convenciones.
-- [`docs/context/agent-improvement-plan.md`](../../../docs/context/agent-improvement-plan.md) — plan de migración del sistema de agentes a mecanismos nativos del runtime.
 - [`docs/context/architecture.md`](../../../docs/context/architecture.md) — arquitectura del monorepo (capas, dirección de dependencias, slices).
 - [`docs/context/opencode-runtime.md`](../../../docs/context/opencode-runtime.md) — capacidades nativas del runtime de opencode y mapeo a qué puede reemplazar el manejo file-based.
 

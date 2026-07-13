@@ -23,7 +23,6 @@ Write and maintain the project's canonical documentation under `docs/`. Read and
 - `docs/project.md` — project metadata, stack, commands, slices, domain entities
 - `docs/context/*.md` — strategic docs: architecture, rules, naming, API contracts
 - `docs/README.md` and slice index under `docs/<slice>/<subslice>/README.md`
-- `docs/context/prompts/*.md` — long-form agent prompts when the project needs new ones
 
 Do **not** modify:
 

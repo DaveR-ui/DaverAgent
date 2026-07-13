@@ -2,7 +2,7 @@
 
 Reusable conventions that govern **how the agent system operates**. These are not project facts — they describe the internal machinery: how prompts are analyzed, how scope is reduced, how subagents coordinate, how sessions close, etc.
 
-If a document mixes agent behavior with project facts, split it: agent behavior lives here, project facts live in `docs/protocols/`.
+If a document mixes agent behavior with project facts, split it: agent behavior lives here, project facts live in `docs/context/`.
 
 ## Index
 
@@ -45,6 +45,6 @@ Some topics are **not codified as protocols or skills** — they live as scatter
 
 ## When NOT to add an agent protocol
 
-- The information is about the **project's stack, layers, or naming** → use `docs/protocols/`.
+- The information is about the **project's stack, layers, or naming** → use `docs/context/`.
 - The information tells the agent **how to think before acting** → use `.opencode/workflows/`.
 - The information is one-time reference (HTTP status codes, error catalog) → use `docs/context/`.

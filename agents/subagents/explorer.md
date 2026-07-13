@@ -62,7 +62,7 @@ You are a **recursive explorer**. When the input you receive is large, do not pr
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`explorer` -> `ExplorerOutput` in `packages/opencode/src/agent/output-schemas/explorer.ts`).
+You have an `output_schema` defined in `opencode.json` (`explorer` -> `ExplorerOutput`).
 
 On completion, return your final answer as JSON:
 

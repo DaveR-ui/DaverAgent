@@ -29,7 +29,6 @@ Implement features, fix bugs, refactor code.
 - Follow `docs/context/rules.md` for development standards
 - Follow `docs/context/api-contracts.md` for HTTP responses
 - For permission system work, follow `packages/core/src/permission/` (the design lives next to the code; there is no `docs/context/permission-architecture.md`)
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for new endpoints
 - Write tests for new functionality
 - All comments and docs in ENGLISH
 - Never commit without explicit instruction
