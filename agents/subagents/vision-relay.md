@@ -26,8 +26,9 @@ Single-purpose image inspection relay. Used by other subagents (or the orchestra
 
 ## Model
 
-- Primary: `opencode-go/minimax-m3` (cheapest vision-capable model we use; cheaper than the previous `gemini-3-flash`).
-- Fallback: `opencode/gemini-3-flash` (previous primary) or `opencode/gpt-5.4-nano` if MiniMax M3 is unavailable.
+- Primary: `opencode-go/minimax-m3` (cheapest vision-capable model we use).
+- No fallback configured; if the primary is unavailable, the runtime
+  surfaces the error.
 - Do not escalate further on your own.
 
 ## When to use

@@ -6,22 +6,24 @@
 
 | Importance / Intent | Task Type | Primary Model | Fallback Model | Routing Rule |
 | --- | --- | --- | --- | --- |
-| **Docs / Read-Only** | Documentation reading, prompt analysis, read-only investigation, explanatory Q&A, repo navigation for answers | **`opencode-go/minimax-m3`** (MiniMax M3) | `opencode/gemini-3-flash` | Use the cheapest fast model and force compact output. |
-| **Exploration / Search** | Code search, file discovery, dependency tracing, scope discovery, architecture exploration | **`opencode-go/minimax-m3`** (MiniMax M3) | `opencode/gemini-3-flash` | Average-cost generalist is enough; fall back to the cheapest flash on capacity issues. |
-| **Code (specialized)** | Programming, bug fixes, feature implementation, refactoring, tests | **`opencode-go/kimi-k2.7-code`** (Kimi K2.7 Code) | `opencode-go/minimax-m3` | Code-specialized model with 262k context = 262k output. No `temperature` support. |
-| **Complex Review** | Code review, security audit, best-practices check, second-opinion on complex work | **`opencode-go/qwen3.7-plus`** (Qwen 3.7 Plus) | `opencode-go/minimax-m3` | Middle tier; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity. |
+| **Intake / Routing** | Delivery intake, prompt analysis, routing decisions, policy application, human-facing translation | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Delivery uses the cheap 1M-context generalist; routing decisions are simple enough that the cheap model suffices, and the smart models are reserved for the specialist subagents (coder/tester/reviewer/architect/orchestrator). |
+| **Docs / Read-Only** | Documentation reading, read-only investigation, explanatory Q&A, repo navigation for answers (explorer, project-context) | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Use the cheapest fast model and force compact output. |
+| **Exploration / Search** | Code search, file discovery, dependency tracing, scope discovery, architecture exploration | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Average-cost generalist is enough. |
+| **Code** | Programming, bug fixes, feature implementation, refactoring, tests | **`opencode-go/kimi-k2.7-code`** (Kimi K2.7 Code) | `opencode-go/minimax-m3` | Code-specialized model with 262k context = 262k output. No `temperature` support. |
+| **Code Review** | Code review, security audit, best-practices check, second-opinion on complex work | **`opencode-go/qwen3.7-plus`** (Qwen 3.7 Plus) | `opencode-go/minimax-m3` | Middle tier; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity. |
 | **Design / Architecture** | System design, module boundaries, patterns, high-level architecture decisions, design reviews | **`opencode-go/glm-5.2`** (GLM 5.2) | `opencode-go/minimax-m3` | Use GLM 5.2 for design-quality work because its reasoning profile is stronger for long-horizon planning. |
 | **Orchestration (advanced)** | Multi-step task decomposition, multi-agent coordination, planning, synthesis across heterogeneous sources | **`opencode-go/qwen3.7-max`** (Qwen 3.7 Max) | `opencode-go/minimax-m3` | Use the most capable reasoning model here; orchestrators carry the most cross-agent context and the highest cost-of-error. |
-| **Vision Relay** | Single-purpose image inspection for non-vision models: OCR screenshots, UI mockups, diagrams, error dialogs | **`opencode-go/minimax-m3`** (MiniMax M3) | `opencode/gemini-3-flash` | Cheapest vision-capable model we use. `gemini-3-flash` retained as runtime fallback. |
+| **Vision Relay** | Single-purpose image inspection for non-vision models: OCR screenshots, UI mockups, diagrams, error dialogs | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Cheapest vision-capable model we use. No fallback configured. |
+
+> **Fallback policy (2026-07-12)**: As of this revision, no `gemini-*` models are used in the routing matrix. Routes whose primary is `minimax-m3` (Intake, Docs, Exploration, Vision Relay) have **no fallback** — if `minimax-m3` is unavailable, the runtime surfaces the error. Routes whose primary is a specialized model (Code, Code Review, Design, Orchestration) fall back to `minimax-m3` as a safety net, but this should be a rare event — investigate the underlying capacity issue instead of relying on the fallback.
 
 ### Why these specific models
 
-- **MiniMax M3 (`opencode-go/minimax-m3`)** — $0.30 in / $1.20 out per 1M tokens, 0.06 cached. Strong generalist at a low price; the default for "average" work (intake, exploration, doc reading, prompt analysis) and also the primary for `vision-relay` because it is cheaper than the previous `gemini-3-flash` while still supporting vision input.
-- **Kimi K2.7 Code (`opencode-go/kimi-k2.7-code`)** — $0.95 in / $4.00 out. Code-specialized model with 262k context = 262k output (huge output capacity for whole-file generation). Used by `coder` and `tester`. Does **not** support `temperature` customization — the field is ignored by the API, so neither agent sets it.
-- **Qwen 3.7 Plus (`opencode-go/qwen3.7-plus`)** — $0.40 in / $1.60 out. Middle tier between `minimax-m3` and `qwen3.7-max`. Used by `reviewer` so the review comes from a **different model family** than the one that wrote the code (`kimi-k2.7-code`), giving a genuinely different perspective without paying the full `qwen3.7-max` price.
+- **MiniMax M3 (`opencode-go/minimax-m3`)** — $0.30 in / $1.20 out per 1M tokens, 0.06 cached. Strong generalist at a low price with 1M context. Used by `delivery`, `explorer`, `project-context` (the "investigations" and docs-lookup agents) and `vision-relay`.
+- **Kimi K2.7 Code (`opencode-go/kimi-k2.7-code`)** — $0.95 in / $4.00 out. Code-specialized model with 262k context = 262k output. Used by `coder` and `tester`. Does not support `temperature` customization — the field is ignored by the API.
+- **Qwen 3.7 Plus (`opencode-go/qwen3.7-plus`)** — $0.40 in / $1.60 out. Middle tier. Used by `reviewer` so the review comes from a **different model family** than the one that wrote the code (`kimi-k2.7-code`), giving a genuinely different perspective without paying the full `qwen3.7-max` price.
 - **GLM 5.2 (`opencode-go/glm-5.2`)** — $1.40 in / $4.40 out. Used only for `architect` and design-quality tasks where long-horizon reasoning and structured design output matter more than throughput. Kept as a **third distinct model** in the coder/reviewer/architect trio for maximum perspective diversity.
 - **Qwen 3.7 Max (`opencode-go/qwen3.7-max`)** — $2.50 in / $7.50 out, plus prompt-caching savings. Reserved for `orchestrator` because it carries the cross-agent synthesis load and the highest cost-of-error.
-- **Gemini 3 Flash (`opencode/gemini-3-flash`)** — $0.50 in / $3.00 out. No longer the primary for `vision-relay` (replaced by the cheaper `minimax-m3`), but retained as a runtime fallback if `minimax-m3` is unavailable.
 
 ## Agent Defaults
 
@@ -29,7 +31,7 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 
 | Agent | Default Model | Route Class | Notes |
 | --- | --- | --- | --- |
-| `delivery` | `opencode-go/minimax-m3` | Docs / Read-Only | Intake, translation, routing, and policy application. Stays compact and delegates all technical work. |
+| `delivery` | `opencode-go/minimax-m3` | Intake / Routing | Intake, translation, routing, and policy application. Uses the cheap 1M-context generalist; routing is simple enough that the smart models are reserved for the specialist subagents. Delegates all technical work. |
 | `orchestrator` | `opencode-go/qwen3.7-max` | Orchestration (advanced) | Owns task decomposition, context trimming decisions, and downstream model choice. |
 | `coder` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Programming, bug fixes, feature implementation, refactoring. Code-specialized model; no `temperature` (unsupported by API). |
 | `tester` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Unit, integration, e2e tests. Same model as `coder` because tests are code; no `temperature`. |
@@ -37,10 +39,7 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 | `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Third distinct model in the coder/reviewer/architect trio. |
 | `explorer` | `opencode-go/minimax-m3` | Exploration / Search | Code search, file discovery, dependency tracing. |
 | `project-context` | `opencode-go/minimax-m3` | Docs / Read-Only | Reads and writes `docs/`. |
-| `angular-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only Angular + AG Grid documentation lookup. |
-| `opencode-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only opencode documentation lookup. |
-| `vscode-expert` | `opencode-go/minimax-m3` | Docs / Read-Only | Read-only VSCode documentation lookup. |
-| `vision-relay` | `opencode-go/minimax-m3` | Vision Relay | Image inspection only. Cheaper than the previous `gemini-3-flash`; `gemini-3-flash` retained as runtime fallback. |
+| `vision-relay` | `opencode-go/minimax-m3` | Vision Relay | Image inspection only. No fallback configured. |
 
 ## Context Budget Policy
 
@@ -51,12 +50,11 @@ The user-requested cost policy is:
 3. **Cheap-band ceiling:** after compaction, aim to keep the working set **<= 272K** whenever feasible because that band is materially cheaper.
 4. **Do not pay for redundant context:** remove repeated evidence, long pasted excerpts, irrelevant files, stale plans, and duplicate summaries before escalating.
 5. **Escalation ladder (cheap → expensive):**
-   - `minimax-m3` (cheapest, vision-capable, default for everything "average") → used for the majority of work and by `vision-relay`.
+   - `minimax-m3` (cheapest, vision-capable) → used by `delivery`, `explorer`, `project-context`, `vision-relay`.
    - `qwen3.7-plus` (middle tier, different perspective) → used by `reviewer` for code review.
    - `kimi-k2.7-code` (code-specialized) → used by `coder` and `tester`.
    - `glm-5.2` (design) → used by `architect` only.
    - `qwen3.7-max` (advanced orchestration) → used by `orchestrator` only.
-   - `gemini-3-flash` (previous vision primary) → retained as runtime fallback for `vision-relay` if `minimax-m3` is unavailable.
 
 ### Required Context-Reduction Moves
 
@@ -71,14 +69,11 @@ When the context is trending toward the budget limit:
 
 ## Documentation Topic Fast Path
 
-When the user asks for **Angular**, **Opencode**, or **VSCode** documentation/data lookup:
+When the user asks for **Opencode** documentation/data lookup:
 
-1. Delegate to the dedicated read-only expert subagent:
-   - `angular-expert` — consults `.opencode/docs/angular/` and Angular CLI / AG Grid MCP tools.
-   - `opencode-expert` — consults `.opencode/docs/opencode/`.
-   - `vscode-expert` — consults `.opencode/docs/vscode/`.
-2. These agents are **read-only** and **must not** fall back to the web or to training data. If the expected docs folder is missing, they report the exact path and stop.
-3. Because this route is documentation/research, default to the **Docs / Read-Only** route and apply compact-output discipline. Keep the answer read-only unless the user explicitly asks for configuration changes.
+1. Delegate to `project-context` for read-only lookup against `docs/project.md`, `AGENTS.md`, `CONTEXT.md`, and the slice READMEs under `docs/<slice>/<subslice>/README.md`.
+2. Keep the answer read-only unless the user explicitly asks for configuration changes.
+3. Because this route is documentation/research, default to the **Docs / Read-Only** route and apply compact-output discipline.
 
 ## Exploration Fast Path
 
@@ -96,7 +91,7 @@ When a subagent (or the orchestrator) needs to inspect an image but its own mode
 2. `vision-relay` uses `opencode-go/minimax-m3` to look at the image and returns a compact textual answer.
 3. The calling agent continues its work with the textual answer — it does not need to receive the image itself.
 
-This keeps image inspection costs on the cheapest vision-capable model we use instead of forcing the whole subagent to switch models. If `minimax-m3` is unavailable, the runtime falls back to `opencode/gemini-3-flash` (the previous primary).
+This keeps image inspection costs on the cheapest vision-capable model we use instead of forcing the whole subagent to switch models.
 
 ### Example delegation
 
@@ -107,9 +102,9 @@ and tell me: which HTTP status code and which Go function is on the error page?
 
 The vision-relay contract is: one image, one focused question, one compact textual answer. No chain of thought, no exploration, no side effects.
 
-## Flash Discipline
+## Cheap Model Discipline
 
-When the selected route is **`gemini-3-flash`** (vision relay) or any cheap-flash fallback:
+When the selected route is `minimax-m3` or any other cheap-tier model:
 
 1. Return summary-first output.
 2. Keep sections short.
@@ -143,12 +138,12 @@ See `.opencode/agents/delivery.md` for the full session structure and delegation
 ## Selection Procedure
 
 1. Classify the task by **importance / intent** first, not by file count alone.
-2. If the task is documentation reading or synthesis, use **`opencode-go/minimax-m3`** (the default).
-3. If the task is code search/exploration, use **`opencode-go/minimax-m3`** via the `explorer` agent.
+2. If the task is delivery intake / routing / prompt analysis, use **`opencode-go/minimax-m3`** (the `delivery` agent — the cheap 1M-context generalist; smart models are reserved for specialist subagents).
+3. If the task is documentation reading/synthesis or code search/exploration, use **`opencode-go/minimax-m3`** via `project-context` / `explorer` (the cheap 1M-context "investigations" model).
 4. If the task is code implementation, bug fixing, refactoring, or test writing, route to `coder` / `tester` (which use **`opencode-go/kimi-k2.7-code`**).
 5. If the task is code review, security audit, or best-practices check, route to `reviewer` (which uses **`opencode-go/qwen3.7-plus`** — a different model family from the coder for genuine perspective diversity).
 6. If the task is design or architecture, route to `architect` (which uses **`opencode-go/glm-5.2`** — a third distinct model in the coder/reviewer/architect trio).
 7. If the task is multi-step orchestration, route to `orchestrator` (which uses **`opencode-go/qwen3.7-max`**).
-8. If the task involves inspecting an image and the calling model is not vision-capable, route the image to `vision-relay` (which uses **`opencode-go/minimax-m3`**, with `gemini-3-flash` as fallback).
+8. If the task involves inspecting an image and the calling model is not vision-capable, route the image to `vision-relay` (which uses **`opencode-go/minimax-m3`**).
 9. If the context is approaching **250K**, compact first and try to keep the resulting working set **<= 272K**.
 10. If the primary model is unavailable, use the fallback listed in the matrix.

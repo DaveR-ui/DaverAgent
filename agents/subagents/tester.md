@@ -1,5 +1,5 @@
 ---
-description: Tester subagent - Unit tests, integration tests, test coverage, e2e
+description: Tester subagent - Unit tests, integration tests, test coverage, e2e. Returns structured TesterOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k2.7-code
 tools:
@@ -14,7 +14,7 @@ permission:
 
 # Tester Subagent
 
-Write and run tests.
+Write and run tests for the opencode monorepo.
 
 **Model note**: `kimi-k2.7-code` is a code-specialized model with 262k context = 262k output. It does **not** support `temperature` customization (the field is ignored by the API), so no `temperature` is set in the frontmatter — the model uses its own default. Tests are code, so the same model as the coder is appropriate.
 
@@ -22,36 +22,35 @@ Write and run tests.
 
 ## Standards (summary)
 
-- Go standard `testing` package (no framework configured yet)
-- Tests next to source files (`*_test.go`)
-- Mock external deps (DB, HTTP, JWT)
-- No `t.Skip()` without justification
+- Runner: Bun's built-in test runner (`bun test`)
+- Tests live next to source files (`*.test.ts`, `*.test.tsx`) and in `test/` directories at package roots
+- Mock external deps sparingly — `AGENTS.md` forbids `globalThis.*` mocks unless they are the only option
+- Test actual implementation; do not duplicate logic into tests
+- Run from package dirs (e.g. `packages/opencode`, `packages/core`), **never** from the repo root (guard `do-not-run-tests-from-root`)
 - All test names and comments in ENGLISH
+- For the test/runtime setup at package level, see `bunfig.toml` and the `bun test` script in each `package.json`
 
-## Interruption Protocol
+## Structured Return
 
-You operate under the file-based interruption protocol. See the full reference at `.opencode/protocols/interruption.md` for the complete spec.
+You have an `output_schema` defined in `opencode.json` (`tester` -> `TesterOutput`).
 
-Your agent-specific paths:
+On completion, return your final answer as JSON:
 
-- Memory dir: `agents/tester/`
-- Summary: `agents/tester/summary.md`
-- Reasoning (if write-capable): `agents/tester/reasoning-full.md`
-- Traffic light: `../../traffic-light.md` (session root)
-- Interruption log: `../../interruption-log.md` (session root)
-- Actor tag in log: `[TESTER]`
+```json
+{
+  "tests_run": 12,
+  "tests_passed": 12,
+  "failures": [],
+  "coverage": 0.85
+}
+```
 
-## Output Protocol
-
-See `.opencode/docs/agent-output-protocol.md` for the complete specification.
-
-**Quick reference**:
-- Return summary (5-10 lines) to orchestrator
-- Write `summary.md` + `output-full.md` to `{session_path}/agents/tester-{timestamp}/`
-- Append row to `{session_path}/agents/manifest.md`
+The task tool validates your return against `TesterOutput`. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures everything in the EventV2 bus.
 
 ## Rules
 
 - Run tests after writing
-- Report coverage
+- Report coverage when available
+- If you add a test, add it next to the file it covers (e.g. `packages/core/src/foo.ts` -> `packages/core/src/foo.test.ts` or `packages/core/test/foo.test.ts` per the package convention)
 - All test names and comments in ENGLISH
+- Never run `bun test` from the repo root

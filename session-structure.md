@@ -24,7 +24,6 @@ The delivery agent and session workflow use files outside the repo for human-spe
     ├── README.md                         # snapshot/session rules
     ├── _scripts/                         # bootstrap, sync, new-session helpers
     ├── _templates/                       # templates copied by bootstrap
-    │   └── agent-manifest-template.md    # template for agent output manifest
     └── {human_id}/
         ├── humano.md                     # synced human snapshot used by sessions
         └── {project_id}/
@@ -34,23 +33,8 @@ The delivery agent and session workflow use files outside the repo for human-spe
                 ├── enhanced-prompt.md    # optional prompt-analysis output
                 ├── scope.md              # optional scope-analysis output
                 ├── assets/               # attached files/images for the task
-                └── agents/               # subagent outputs (physical files)
-                    ├── manifest.md       # index of all agent outputs in this session
-                    ├── coder-{timestamp}/
-                    │   ├── summary.md    # short report returned to orchestrator
-                    │   └── output-full.md # detailed report with diffs, logs, etc.
-                    ├── tester-{timestamp}/
-                    │   ├── summary.md
-                    │   └── output-full.md
-                    ├── reviewer-{timestamp}/
-                    │   ├── summary.md
-                    │   └── output-full.md
-                    ├── explorer-{timestamp}/
-                    │   ├── summary.md
-                    │   └── output-full.md
-                    └── architect-{timestamp}/
-                        ├── summary.md
-                        └── output-full.md
+                └── orchestrator-snapshots/
+                    └── {uuid}.md         # per-orchestrator-instance snapshot (delivery writes this)
 ```
 
 ## Purpose of each relevant item
@@ -70,10 +54,18 @@ The delivery agent and session workflow use files outside the repo for human-spe
 | `sessions/{human_id}/{project_id}/project.md` | Session-facing condensed copy of the project source. |
 | `sessions/{human_id}/{project_id}/{session_id}/general-context.md` | Preserves the original request and session metadata. |
 | `sessions/{human_id}/{project_id}/{session_id}/assets/` | Stores task-specific attachments. |
-| `sessions/{human_id}/{project_id}/{session_id}/agents/` | Physical outputs from subagents (summaries + full reports). |
-| `sessions/{human_id}/{project_id}/{session_id}/agents/manifest.md` | Index of all agent outputs; orchestrator reads this to know what was done. |
-| `sessions/{human_id}/{project_id}/{session_id}/agents/{agent}-{timestamp}/summary.md` | Short report returned to orchestrator (keeps context small). |
-| `sessions/{human_id}/{project_id}/{session_id}/agents/{agent}-{timestamp}/output-full.md` | Detailed report with diffs, logs, findings (read on demand). |
+| `sessions/{human_id}/{project_id}/{session_id}/orchestrator-snapshots/{uuid}.md` | Per-orchestrator-instance snapshot; `delivery` writes this when the orchestrator returns its `agent-snapshot`. |
+| `sessions/{human_id}/{project_id}/{session_id}/assets/` | Task-specific attachments. |
+
+### Subagent outcomes
+
+Subagent outcomes do **not** live in the file tree. They flow through the runtime:
+
+- The `task` tool, when called with a subagent that has an `output_schema` in `opencode.json`, validates the return and includes the structured JSON in the `Subagent.Completed` event on the EventV2 bus.
+- `GET /session/:id/children` returns a `ChildInfo[]` array (status, summary, agent type, durationMs) for every subagent spawned from a parent session.
+- The `session-archiver` protocol reads the durable event stream and produces `session-digest.md` from it (no per-agent files involved).
+
+The legacy `summary.md` / `output-full.md` / `manifest.md` layout and the file-based interruption bus (`traffic-light.md` / `interruption-log.md` / `reasoning-full.md`) have been removed. New agents must not write those files.
 
 ## Source vs snapshot rules
 

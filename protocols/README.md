@@ -2,7 +2,7 @@
 
 Reusable conventions that govern **how the agent system operates**. These are not project facts — they describe the internal machinery: how prompts are analyzed, how scope is reduced, how subagents coordinate, how sessions close, etc.
 
-If a document mixes agent behavior with project facts, split it: agent behavior lives here, project facts live in `docs/protocols/`.
+If a document mixes agent behavior with project facts, split it: agent behavior lives here, project facts live in `docs/context/`.
 
 ## Skill Migration Redirect
 
@@ -26,11 +26,11 @@ All former repo-local skills have been migrated to agent protocols. The `.openco
 |---|---|---|
 | [`canonical-prompter.md`](./canonical-prompter.md) | Phase 1 of the delivery pipeline. Analyzes raw prompts: term resolution, classification, module identification, hint extraction, acceptance criteria, edge cases, clarification decision. | `delivery` (Phase 1) |
 | [`context-reductor.md`](./context-reductor.md) | Phase 2 of the delivery pipeline. Identifies scope, evaluates complexity (Baja→Muy Alta), detects hot spots, surfaces hidden assumptions, defines verification path. | `delivery` (Phase 2) |
-| [`interruption.md`](./interruption.md) | File-based pause/resume bus (`traffic-light.md` + `interruption-log.md`) and per-agent memory (`reasoning-full.md` + `summary.md`). Semáforo states and checkpoint schedule. | every subagent |
-| [`session-archiver.md`](./session-archiver.md) | Closes a session by reading every per-agent `reasoning-full.md` and producing a single cross-agent `session-digest.md`. | `delivery` (on session close) |
+| [`session-archiver.md`](./session-archiver.md) | Closes a session by reading the durable `Subagent.*` and `Step.*` event stream from EventV2 (SQLite) and producing a single cross-agent `session-digest.md`. | `delivery` (on session close) |
 | [`sessions-setup.md`](./sessions-setup.md) | Opencode home bootstrap (`~/.config/opencode/`) and session-structure conventions. Includes `humano.md` and `project.md` two-tier policies. | `delivery`, `project-context` |
 | [`doc-maintainer.md`](./doc-maintainer.md) | Documentation health checks: broken links, code-doc consistency, duplicate content, content placement, dead references. | `project-context`, `documenter` |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
+| [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 
 ## Built-in protocols (from opencode runtime)
 
@@ -61,6 +61,6 @@ Some topics are **not codified as protocols or skills** — they live as scatter
 
 ## When NOT to add an agent protocol
 
-- The information is about the **project's stack, layers, or naming** → use `docs/protocols/`.
+- The information is about the **project's stack, layers, or naming** → use `docs/context/`.
 - The information tells the agent **how to think before acting** → use `.opencode/workflows/`.
 - The information is one-time reference (HTTP status codes, error catalog) → use `docs/context/`.

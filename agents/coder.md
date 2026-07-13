@@ -28,7 +28,6 @@ Implement features, fix bugs, refactor code.
 - Follow `docs/context/architecture/architecture.md` for layering
 - Follow `docs/context/conventions/project-rules.md` for development standards
 - For permission system work, follow `docs/context/auth-identity/security-permissions.md`
-- Use the `api-endpoint-factory` protocol (`docs/protocols/api-endpoint-factory.md`) for new endpoints
 - Write tests for new functionality
 - All comments and docs in ENGLISH
 - Never commit without explicit instruction

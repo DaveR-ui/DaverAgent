@@ -8,6 +8,7 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 - **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list
 - **Question reference**: `docs/context/agent-installer-questions.md` — what each question means (currently does not exist; create if needed or remove this reference)
 - **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten (currently does not exist; create if needed or remove this reference)
+- **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer, currently driven by inline questions and manual update logic.
 
 ## The 4 phases
 
@@ -39,9 +40,11 @@ Do NOT use this for:
 
 ### Install (first time)
 
-1. Run `install-agent.ps1 -VerifyOnly` to see the planned output (zero writes).
-2. Run `install-agent.ps1` interactively. The human answers 4 phases of questions. Defaults are offered for every prompt.
-3. The script writes `docs/project.md`, the selected context docs, the subagent files, and `opencode.json`.
+> For the human-facing, copy-paste checklist that drives the full per-project install (clone, .gitignore, verify, apply, bootstrap, sync, smoke test), see [`INSTALL.md`](../INSTALL.md). The protocol below describes the same flow from the agent's point of view.
+
+1. Run `install-agent.ps1 -NonInteractive -VerifyOnly` to see the planned output (zero writes).
+2. Run `install-agent.ps1 -NonInteractive` to apply. With `-NonInteractive` the script takes defaults for every question. To drive the install interactively instead, omit the flag and answer the 4 phases of questions; defaults are offered for every prompt.
+3. The script writes `docs/project.md`, the selected context docs, the subagent files, and (unless a curated `opencode.json` already exists) a generated `opencode.json`.
 4. The human is responsible for filling in the substance of each generated `docs/context/*.md` stub.
 
 ### Update (existing install)
@@ -83,6 +86,22 @@ If the human is unsure, these defaults cover the most common cases:
 | Subagents | coder, tester, reviewer, architect, explorer, documenter |
 | Doc language | en |
 
+> **Important for this repo (DaverCode fork of `sst/opencode`)**: the defaults above are the installer's *generic* defaults. They do **not** describe this repo. The actual values for this repo are:
+>
+> | Question | Real value for this repo |
+> |---|---|
+> | Architecture pattern | layered (monorepo: `schema ← protocol ← server ← core`) |
+> | Primary language | typescript |
+> | Framework | Effect 4 + Hono + Solid.js + `@opentui/solid` |
+> | Database | SQLite (drizzle) |
+> | ORM | drizzle-orm |
+> | Auth | `@openauthjs/openauth` + AWS SSO |
+> | Default agent | delivery |
+> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, vision-relay, documenter |
+> | Doc language | es (for `docs/`) / en (for `.opencode/`, code) |
+>
+> If a future run of the installer reuses the generic defaults, **the installer's stub output must be replaced** before the agent system is usable. See `docs/project.md` (Slices, Backend Structure, Domain Entities) for the canonical content.
+
 ## Example conversations
 
 **Human**: "Set up the agent for this project."
@@ -91,7 +110,7 @@ You: Run the installer in interactive mode. The 4 phases walk through everything
 
 **Human**: "I added a new context doc called `cache-strategy.md`."
 
-You: Edit `install-agent.schema.json` to add the new entry under `context_templates`. Re-run `install-agent.ps1 -Update` so the new file generates and `docs/context/README.md` gets the new row.
+You: Add the new context doc under `docs/context/` and update the index in `docs/context/README.md`. Re-run `install-agent.ps1 -Update` if the installer maintains context doc stubs.
 
 **Human**: "Update the slices table to include a new 'reports' slice."
 

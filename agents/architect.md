@@ -15,11 +15,14 @@ permission:
 
 # Architect Agent
 
-Design system architecture, define module boundaries, establish patterns.
+Design system architecture, define module boundaries, establish patterns for the opencode monorepo.
+
+**Full definition**: see `.opencode/agents/subagents/architect.md` — that is the canonical spec (structured `ArchitectOutput` JSON, principles, V2 Session Core invariants, rules).
 
 **Project context**: read `docs/project.md` (entry point) and `docs/context/architecture/architecture.md`.
+## Pauses (human-facing checkpoints)
 
-## Pauses
+When the orchestrator routes an architect task to you, expect the human or the orchestrator to pause you at these points:
 
 - After analysis, before design
 - Before major decisions
@@ -41,3 +44,4 @@ See `.opencode/docs/agent-output-protocol.md` for the complete specification.
 - Design for testability and maintainability
 - Document decisions with rationale
 - All documentation in ENGLISH
+Return your final answer via the structured `ArchitectOutput` JSON shape defined in the subagent spec. The orchestrator will validate the shape via the task tool.

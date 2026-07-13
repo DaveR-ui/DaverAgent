@@ -30,12 +30,12 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 
 ## How to Populate This File
 
-1. **Infer from the codebase**: read `internal/domain/*_model.go` and `cmd/db/seeds.go` for canonical entity names.
-2. **Listen to the human**: when the human says "el polvo" or "la factura", check if it matches a domain entity.
+1. **Infer from the codebase**: read `packages/schema/src/index.ts` and the barrel of `packages/core/src/<area>/` for canonical entity names; cross-reference `docs/project.md` (Domain Entities) and the slice READMEs under `docs/<slice>/<subslice>/README.md`.
+2. **Listen to the human**: when the human uses a term that is not in this dictionary, check whether it matches a domain concept (a slice, a subslice, a V2 session term, or a feature). Add it if the human uses it more than once.
 3. **Confidence levels**:
-   - **High** - found in both `internal/domain/` and used by the human consistently
-   - **Medium** - found in code only, or used by the human once
-   - **Low** - inferred from context, not yet confirmed
+   - **High** — found in both `packages/` and used by the human consistently.
+   - **Medium** — found in code only, or used by the human once.
+   - **Low** — inferred from context, not yet confirmed.
 4. **Update incrementally** as new terms are observed.
 
 ## Rules
@@ -44,12 +44,17 @@ Both files are **dictionaries for translation**, not style-matching guides. The 
 - Do NOT copy `docs/project.md` here. The dictionary is for jargon, not metadata.
 - If `docs/project.md` changes materially, refresh the **master** `projects/{project_id}/project.md`, not this snapshot.
 - Keep the table compact: prune entries that the human no longer uses.
+- When resolving ambiguous human terms, prefer canonical V2 session names from `CONTEXT.md` (e.g. "session context" -> `Session History`; "system prompt" -> `System Context`; "tool loop" -> `Session Drain`).
 
-## Example (illustrative, to be cleared on first real use)
+## Seed Examples (illustrative, to be cleared on first real use)
+
+These illustrate the kind of opencode-specific jargon the snapshot is for. They are placeholders — replace them as the human's actual usage emerges.
 
 | Term | Meaning | Location | Confidence |
 |---|---|---|---|
-| polvo | powder inside a fire extinguisher | `internal/domain/powder_model.go` | High |
-| matafuego | fire extinguisher | `internal/domain/fire_extinguisher_model.go` | High |
-| factura | invoice | `internal/domain/invoice_model.go` | High |
-| credencial | credential | `internal/domain/credentials_model.go` | High |
+| drain | one process-local execution span (Session Drain) | `packages/core/src/session/runner/` | High |
+| admission | durable acceptance of a prompt before provider execution | `packages/core/src/session/v2.ts` (admit) | High |
+| provider turn | one model request and the response projected from it | `packages/core/src/session/runner/llm.ts` | High |
+| context epoch | span during which one rendered System Context remains the provider-cache baseline | `packages/core/src/system-context/` | High |
+| HttpApi | authoritative public HTTP contract in `packages/server/src/api.ts` | `packages/server/src/api.ts` | High |
+| sdk-next | in-process scoped host composing `client + core + server` | `packages/sdk-next/src/` | High |
