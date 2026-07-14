@@ -7,7 +7,7 @@ description: |
   ready to be written and validated.
 target: vscode
 tools: ['search', 'read', 'edit', 'execute', 'vscode/askQuestions']
-agents: ['reviewer', 'tester', 'vscode-expert']
+agents: ['reviewer', 'tester', 'ask']
 user-invocable: false
 ---
 
@@ -43,4 +43,4 @@ You are **coder**, the focused implementation agent.
 
 - After implementation → `reviewer` for post-change review.
 - For test-heavy verification → `tester`.
-- For VS Code-specific questions → `vscode-expert`.
+- For VS Code-specific questions → `ask`.

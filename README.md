@@ -66,7 +66,7 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 │       ├── project-context.md
 │       ├── angular-expert.md
 │       ├── opencode-expert.md
-│       └── vscode-expert.md
+│       └── ask.md                 # VS Code/read-only Q&A in the current topology
 │
 ├── protocols/                  # Convenciones operativas del agente
 │   ├── README.md               # Índice
@@ -81,10 +81,9 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 │   └── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
 │
 ├── context/                    # Docs estratégicas del propio opencode (raro tocarlas)
-├── docs/                       # Referencia para los subagents *-expert
+├── docs/                       # Referencia repo-local para subagents propios
 │   ├── opencode/
-│   ├── angular/
-│   └── vscode/
+│   └── angular/
 │
 ├── scripts/                    # PowerShell helpers (ver abajo)
 ├── session-templates/          # Templates para nuevas sesiones
@@ -121,6 +120,8 @@ La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotro
 ```
 
 ## Permisos de los agentes
+
+Nota de compatibilidad: la topología activa en `.github/` ya no usa `vscode-expert` ni asume una copia vendorizada de toda la documentación de VS Code dentro del repo. Para temas de VS Code, el route read-only activo es `ask`, con fallback de política hacia documentación oficial externa cuando haga falta.
 
 Los agentes NO tienen skills externos habilitados. El directorio `.opencode/skills/` **no existe** y no debe crearse. Todos los antiguos skills repo-local fueron migrados a protocolos (ver [`.opencode/protocols/README.md`](./protocols/README.md#skill-migration-redirect)).
 

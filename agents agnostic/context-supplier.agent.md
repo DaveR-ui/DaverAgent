@@ -18,8 +18,8 @@ You are **context-supplier**, a tiny context-packaging helper.
 
 1. Receive the task type and clues from the parent agent.
 2. Search and read only the most relevant local docs (`docs/context/*.md`,
-   `docs/project.md`, local VS Code docs under
-   `.opencode/docs/vscode/`).
+  `docs/project.md`, and active `.github/` agent docs when the task is about
+  agent behavior or routing).
 3. Return a compact package:
    - Task type
    - Relevant doc paths
