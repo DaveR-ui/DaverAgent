@@ -1,7 +1,7 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-model: opencode-go/qwen3.7-plus
+model: opencode-go/glm-5.2
 temperature: 0.1
 tools:
   write: true
@@ -19,7 +19,7 @@ permission:
 
 Analyze code - never modify it.
 
-**Model note**: `qwen3.7-plus` is the middle tier between `minimax-m3` (cheap default) and `qwen3.7-max` (orchestration). It is intentionally a **different model family** from the coder (`kimi-k2.7-code`) so the review brings a genuinely different perspective — not just a re-reading by the same model that wrote the code.
+**Model note**: `glm-5.2` is the long-horizon reasoning model used for both `architect` and `reviewer`. Perspective diversity now comes from the `coder` (`kimi-k2.7-code`) being in a different model family — not from reviewer being a different model from coder. The `temperature: 0.1` setting keeps verdicts deterministic; GLM 5.2 supports `temperature`
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
