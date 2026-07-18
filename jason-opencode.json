@@ -29,7 +29,7 @@
     "orchestrator": {
       "description": "Orchestrator Agent - Persistent coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, and maintains state across delegations. Works exclusively in English.",
       "mode": "subagent",
-      "model": "opencode-go/qwen3.7-max",
+      "model": "opencode-go/kimi-k3",
       "temperature": 0.3,
       "tools": {
         "write": true,

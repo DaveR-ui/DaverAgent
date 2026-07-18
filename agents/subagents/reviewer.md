@@ -1,7 +1,7 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-model: opencode-go/qwen3.7-plus
+model: opencode-go/minimax-m3
 temperature: 0.1
 tools:
   write: true
@@ -19,7 +19,7 @@ permission:
 
 Analyze code - never modify it.
 
-**Model note**: `qwen3.7-plus` is the middle tier between `minimax-m3` (cheap default) and `qwen3.7-max` (orchestration). It is intentionally a **different model family** from the coder (`kimi-k2.7-code`) so the review brings a genuinely different perspective — not just a re-reading by the same model that wrote the code.
+**Model note**: `minimax-m3` is the cheap 1M-context generalist. The reviewer is read-only by permission and runs on the same tier as `delivery`, `explorer`, `project-context`, and `vision-relay`. Tradeoff: cost discipline over perspective diversity — the review is a different prompt against the same model family, not a different model.
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

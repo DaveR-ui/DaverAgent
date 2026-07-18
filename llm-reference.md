@@ -3,7 +3,7 @@
 Reference catalog of the LLMs used by the agent system. This is the **raw specs** of each model — see `.opencode/llm-routing.md` for the **routing policy** (which model is used for which task and why).
 
 > **Source**: specs pulled from `https://models.dev/providers/opencode-go/` on 2026-07-05.
-> **Last updated**: 2026-07-05.
+> **Last updated**: 2026-07-18.
 
 ## Model Catalog
 
@@ -11,9 +11,8 @@ Reference catalog of the LLMs used by the agent system. This is the **raw specs*
 |---|---|---|---|---|---|---|---|---|
 | **GLM-5.2** | `opencode-go/glm-5.2` | 1,000,000 | 131,072 | $1.40 / $4.40 | Yes | Yes | Yes | Yes |
 | **Kimi K2.7 Code** | `opencode-go/kimi-k2.7-code` | 262,144 | 262,144 | $0.95 / $4.00 | Yes | Yes | Yes | **No** |
+| **Kimi K3** | `opencode-go/kimi-k3` | 1,048,576 | 131,072 | $3.00 / $15.00 | Yes | Yes | Yes | Yes |
 | **MiniMax-M3** | `opencode-go/minimax-m3` | 1,000,000 | 131,072 | $0.30 / $1.20 | Yes | Yes | — | Yes |
-| **Qwen3.7 Max** | `opencode-go/qwen3.7-max` | 1,000,000 | 65,536 | $2.50 / $7.50 | Yes | Yes | — | Yes |
-| **Qwen3.7 Plus** | `opencode-go/qwen3.7-plus` | 1,000,000 | 65,536 | $0.40 / $1.60 | Yes | Yes | — | Yes |
 
 ### Notes on the table
 
@@ -56,23 +55,12 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 - **Notes**:
   - _(add your observations here)_
 
-### `opencode-go/qwen3.7-max`
+### `opencode-go/kimi-k3`
 
 - **Role in this project**: `orchestrator` (advanced multi-step reasoning, multi-agent coordination).
 - **Provider**: opencode-go
-- **Price tier**: highest ($2.50 / $7.50)
-- **Standout feature**: most capable reasoning model in the catalog; carries the cross-agent synthesis load.
-- **Notes**:
-  - _(add your observations here)_
-
-### `opencode-go/qwen3.7-plus`
-
-- **Role in this project**: `reviewer` (code review, security audit, best practices).
-- **Role in this project**: `reviewer` (code review, security audit, best practices).
-- **Provider**: opencode-go
-- **Price tier**: mid ($0.40 / $1.60)
-- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
-- **Standout feature**: middle tier between MiniMax-M3 and Qwen3.7 Max; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity.
+- **Price tier**: highest ($3.00 / $15.00)
+- **Standout feature**: most capable reasoning model in the catalog; 1M context (1,048,576 tokens), 131K output, supports structured output, tool calling, and `temperature` customization. Carries the cross-agent synthesis load.
 - **Notes**:
   - _(add your observations here)_
 
