@@ -55,7 +55,7 @@
     "coder": {
       "description": "Programming, bug fixes, feature implementation, refactoring",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "opencode-go/minimax-m3",
       "temperature": 0.2,
       "tools": {
         "write": true,
@@ -143,7 +143,7 @@
       }
     },
     "external-scout": {
-      "description": "External Scout - Fetches live documentation for external libraries on demand. Receives a library path, version, and one focused question, returns a compact textual answer. Read-only plus webfetch.",
+      "description": "External Scout - Fetches live documentation for external Go libraries on demand. Receives a library path, version, and one focused question, returns a compact textual answer. Read-only plus webfetch.",
       "mode": "subagent",
       "model": "opencode-go/minimax-m3",
       "temperature": 0.1,
