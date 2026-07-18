@@ -21,14 +21,15 @@ For opencode runtime delegation, `.opencode/llm-routing.md` now defines the cano
 
 - **MiniMax M3** (`opencode-go/minimax-m3`) — cheap 1M-context generalist; used by `delivery` (intake/routing), `explorer`, `project-context` (investigations/docs) and `vision-relay` (image inspection)
 - **Kimi K2.7 Code** (`opencode-go/kimi-k2.7-code`) — code-specialized; used by `coder` and `tester`
-- **GLM 5.2** (`opencode-go/glm-5.2`) — used by `architect` (design-quality work) and `reviewer` (code review). Perspective diversity comes from the `coder` being in a different model family (Kimi), not from splitting architect and reviewer across providers.
-- **Kimi K3** (`opencode-go/kimi-k3`) — used only by `orchestrator` for advanced multi-step reasoning
+- **Qwen 3.7 Plus** (`opencode-go/qwen3.7-plus`) — middle tier; used by `reviewer` for code review (different model family from the coder for perspective diversity)
+- **GLM 5.2** (`opencode-go/glm-5.2`) — used only by `architect` for design-quality work
+- **Qwen 3.7 Max** (`opencode-go/qwen3.7-max`) — used only by `orchestrator` for advanced multi-step reasoning
 
 Cost discipline:
 
 - Prefer the cheapest tier that can do the work.
-- Do not escalate to `kimi-k3` unless the work is orchestration.
-- Do not escalate to `glm-5.2` unless the work is design or code review.
+- Do not escalate to `qwen3.7-max` unless the work is orchestration.
+- Do not escalate to `glm-5.2` unless the work is design.
 - **Trim/reduce context before continuing** when the working set approaches **250K**; aim to keep it **<= 272K** after compaction to stay in the cheaper band.
 
 Do not restate that matrix elsewhere for the opencode runtime. Reference `.opencode/llm-routing.md` instead.

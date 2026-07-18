@@ -10,9 +10,9 @@
 | **Docs / Read-Only** | Documentation reading, read-only investigation, explanatory Q&A, repo navigation for answers (explorer, project-context) | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Use the cheapest fast model and force compact output. |
 | **Exploration / Search** | Code search, file discovery, dependency tracing, scope discovery, architecture exploration | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Average-cost generalist is enough. |
 | **Code** | Programming, bug fixes, feature implementation, refactoring, tests | **`opencode-go/kimi-k2.7-code`** (Kimi K2.7 Code) | Code-specialized model with 262k context = 262k output. No `temperature` support. |
-| **Code Review** | Code review, security audit, best-practices check, second-opinion on complex work | **`opencode-go/glm-5.2`** (GLM 5.2) | `opencode-go/minimax-m3` | Same model as `architect`; the perspective-diversity role that `qwen3.7-plus` used to play is now provided by the `coder` (`kimi-k2.7-code`) being in a different family. |
+| **Code Review** | Code review, security audit, best-practices check, second-opinion on complex work | **`opencode-go/qwen3.7-plus`** (Qwen 3.7 Plus) | `opencode-go/minimax-m3` | Middle tier; intentionally a different model family from the coder (`kimi-k2.7-code`) for genuine perspective diversity. |
 | **Design / Architecture** | System design, module boundaries, patterns, high-level architecture decisions, design reviews | **`opencode-go/glm-5.2`** (GLM 5.2) | `opencode-go/minimax-m3` | Use GLM 5.2 for design-quality work because its reasoning profile is stronger for long-horizon planning. |
-| **Orchestration (advanced)** | Multi-step task decomposition, multi-agent coordination, planning, synthesis across heterogeneous sources | **`opencode-go/kimi-k3`** (Kimi K3) | `opencode-go/minimax-m3` | Use the most capable reasoning model here; orchestrators carry the most cross-agent context and the highest cost-of-error. |
+| **Orchestration (advanced)** | Multi-step task decomposition, multi-agent coordination, planning, synthesis across heterogeneous sources | **`opencode-go/qwen3.7-max`** (Qwen 3.7 Max) | `opencode-go/minimax-m3` | Use the most capable reasoning model here; orchestrators carry the most cross-agent context and the highest cost-of-error. |
 | **Vision Relay** | Single-purpose image inspection for non-vision models: OCR screenshots, UI mockups, diagrams, error dialogs | **`opencode-go/minimax-m3`** (MiniMax M3) | — | Cheapest vision-capable model we use. No fallback configured. |
 
 > **Fallback policy (2026-07-12)**: As of this revision, no `gemini-*` models are used in the routing matrix. Routes whose primary is `minimax-m3` (Intake, Docs, Exploration, Vision Relay) have **no fallback** — if `minimax-m3` is unavailable, the runtime surfaces the error. Routes whose primary is a specialized model (Code, Code Review, Design, Orchestration) fall back to `minimax-m3` as a safety net, but this should be a rare event — investigate the underlying capacity issue instead of relying on the fallback.
@@ -21,8 +21,9 @@
 
 - **MiniMax M3 (`opencode-go/minimax-m3`)** — $0.30 in / $1.20 out per 1M tokens, 0.06 cached. Strong generalist at a low price with 1M context. Used by `delivery`, `explorer`, `project-context` (the "investigations" and docs-lookup agents) and `vision-relay`.
 - **Kimi K2.7 Code (`opencode-go/kimi-k2.7-code`)** — $0.95 in / $4.00 out. Code-specialized model with 262k context = 262k output. Used by `coder` and `tester`. Does not support `temperature` customization — the field is ignored by the API.
-- **GLM 5.2 (`opencode-go/glm-5.2`)** — $1.40 in / $4.40 out. Used for `architect` and `reviewer` — design-quality work and code review both need long-horizon reasoning and structured output. The perspective-diversity rationale is now carried entirely by the `coder` being in a different model family (Kimi).
-- **Kimi K3 (`opencode-go/kimi-k3`)** — $3.00 in / $15.00 out per 1M tokens; cached read $0.30, cached write $15. 1M context, 131k output. Reserved for `orchestrator` because it carries the cross-agent synthesis load and the highest cost-of-error. Same model family as the `coder` (`kimi-k2.7-code`); prompt and tool design carry the diversity load for orchestration.
+- **Qwen 3.7 Plus (`opencode-go/qwen3.7-plus`)** — $0.40 in / $1.60 out. Middle tier. Used by `reviewer` so the review comes from a **different model family** than the one that wrote the code (`kimi-k2.7-code`), giving a genuinely different perspective without paying the full `qwen3.7-max` price.
+- **GLM 5.2 (`opencode-go/glm-5.2`)** — $1.40 in / $4.40 out. Used only for `architect` and design-quality tasks where long-horizon reasoning and structured design output matter more than throughput. Kept as a **third distinct model** in the coder/reviewer/architect trio for maximum perspective diversity.
+- **Qwen 3.7 Max (`opencode-go/qwen3.7-max`)** — $2.50 in / $7.50 out, plus prompt-caching savings. Reserved for `orchestrator` because it carries the cross-agent synthesis load and the highest cost-of-error.
 
 ## Agent Defaults
 
@@ -31,11 +32,11 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 | Agent | Default Model | Route Class | Notes |
 | --- | --- | --- | --- |
 | `delivery` | `opencode-go/minimax-m3` | Intake / Routing | Intake, translation, routing, and policy application. Uses the cheap 1M-context generalist; routing is simple enough that the smart models are reserved for the specialist subagents. Delegates all technical work. |
-| `orchestrator` | `opencode-go/kimi-k3` | Orchestration (advanced) | Owns task decomposition, context trimming decisions, and downstream model choice. |
+| `orchestrator` | `opencode-go/qwen3.7-max` | Orchestration (advanced) | Owns task decomposition, context trimming decisions, and downstream model choice. |
 | `coder` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Programming, bug fixes, feature implementation, refactoring. Code-specialized model; no `temperature` (unsupported by API). |
 | `tester` | `opencode-go/kimi-k2.7-code` | Code (specialized) | Unit, integration, e2e tests. Same model as `coder` because tests are code; no `temperature`. |
-| `reviewer` | `opencode-go/glm-5.2` | Complex (long-horizon reasoning) | Code review, security audit, best practices. Read-only by permission. Same model as `architect`; the diversity for review comes from `coder` being in a different family (Kimi). |
-| `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Same model as `reviewer`; the trio is now `kimi-k2.7-code` (coder/tester) + `glm-5.2` (architect/reviewer), with `kimi-k3` reserved for the orchestrator. |
+| `reviewer` | `opencode-go/qwen3.7-plus` | Complex (different perspective) | Code review, security audit, best practices. Read-only by permission. Different model family from `coder` on purpose. |
+| `architect` | `opencode-go/glm-5.2` | Design / Architecture | System design, module boundaries, patterns. Third distinct model in the coder/reviewer/architect trio. |
 | `explorer` | `opencode-go/minimax-m3` | Exploration / Search | Code search, file discovery, dependency tracing. |
 | `project-context` | `opencode-go/minimax-m3` | Docs / Read-Only | Reads and writes `docs/`. |
 | `vision-relay` | `opencode-go/minimax-m3` | Vision Relay | Image inspection only. No fallback configured. |
@@ -44,15 +45,16 @@ Each agent has a per-agent `model` field. The runtime rule is: **the agent's own
 
 The user-requested cost policy is:
 
-1. **Preferred band per tier:** MiniMax M3 stays cheap; do not escalate to Kimi K3 unless the work is orchestration; do not escalate to GLM 5.2 unless the work is design or review.
+1. **Preferred band per tier:** MiniMax M3 stays cheap; do not escalate to Qwen 3.7 Max unless the work is orchestration; do not escalate to GLM 5.2 unless the work is design.
 2. **Early compaction trigger:** when the working set is getting close to **250K**, reduce context before releasing or continuing an important subagent.
 3. **Cheap-band ceiling:** after compaction, aim to keep the working set **<= 272K** whenever feasible because that band is materially cheaper.
 4. **Do not pay for redundant context:** remove repeated evidence, long pasted excerpts, irrelevant files, stale plans, and duplicate summaries before escalating.
 5. **Escalation ladder (cheap → expensive):**
    - `minimax-m3` (cheapest, vision-capable) → used by `delivery`, `explorer`, `project-context`, `vision-relay`.
+   - `qwen3.7-plus` (middle tier, different perspective) → used by `reviewer` for code review.
    - `kimi-k2.7-code` (code-specialized) → used by `coder` and `tester`.
-   - `glm-5.2` (design and review) → used by `architect` and `reviewer`.
-   - `kimi-k3` (advanced orchestration) → used by `orchestrator` only.
+   - `glm-5.2` (design) → used by `architect` only.
+   - `qwen3.7-max` (advanced orchestration) → used by `orchestrator` only.
 
 ### Required Context-Reduction Moves
 
@@ -79,7 +81,7 @@ When the task is mainly code search, repo exploration, or scope discovery:
 
 1. Route directly to **`explorer`** when possible.
 2. Use **`opencode-go/minimax-m3`** as the first choice (average-cost generalist, no need to pay more for search).
-3. Escalate to `kimi-k3` only if the orchestrator itself is doing the exploration and needs synthesis at the same time.
+3. Escalate to `qwen3.7-max` only if the orchestrator itself is doing the exploration and needs synthesis at the same time.
 
 ## Vision Relay Fast Path
 
@@ -139,9 +141,9 @@ See `.opencode/agents/delivery.md` for the full session structure and delegation
 2. If the task is delivery intake / routing / prompt analysis, use **`opencode-go/minimax-m3`** (the `delivery` agent — the cheap 1M-context generalist; smart models are reserved for specialist subagents).
 3. If the task is documentation reading/synthesis or code search/exploration, use **`opencode-go/minimax-m3`** via `project-context` / `explorer` (the cheap 1M-context "investigations" model).
 4. If the task is code implementation, bug fixing, refactoring, or test writing, route to `coder` / `tester` (which use **`opencode-go/kimi-k2.7-code`**).
-5. If the task is code review, security audit, or best-practices check, route to `reviewer` (which uses **`opencode-go/glm-5.2`** — same model as `architect`; the diversity for review now comes from the `coder` being in a different model family).
-6. If the task is design or architecture, route to `architect` (which uses **`opencode-go/glm-5.2`**).
-7. If the task is multi-step orchestration, route to `orchestrator` (which uses **`opencode-go/kimi-k3`**).
+5. If the task is code review, security audit, or best-practices check, route to `reviewer` (which uses **`opencode-go/qwen3.7-plus`** — a different model family from the coder for genuine perspective diversity).
+6. If the task is design or architecture, route to `architect` (which uses **`opencode-go/glm-5.2`** — a third distinct model in the coder/reviewer/architect trio).
+7. If the task is multi-step orchestration, route to `orchestrator` (which uses **`opencode-go/qwen3.7-max`**).
 8. If the task involves inspecting an image and the calling model is not vision-capable, route the image to `vision-relay` (which uses **`opencode-go/minimax-m3`**).
 9. If the context is approaching **250K**, compact first and try to keep the resulting working set **<= 272K**.
 10. If the primary model is unavailable, use the fallback listed in the matrix.

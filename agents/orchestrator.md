@@ -1,7 +1,7 @@
 ---
 description: Orchestrator Agent - Persistent coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, and maintains state across delegations. Works exclusively in English.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/qwen3.7-max
 temperature: 0.3
 tools:
   write: true
@@ -100,7 +100,7 @@ Your working set must stay small. The cost policy in `.opencode/llm-routing.md` 
 
 - **Trigger at 250K** — pause, compact, or split before releasing or continuing an important subagent.
 - **Ceiling at 272K** — never exceed this; the band above it is materially more expensive.
-- **Escalation ladder** — `minimax-m3` → `kimi-k3`. Do not escalate by default; only when the task demands it.
+- **Escalation ladder** — `minimax-m3` → `qwen3.7-plus` → `kimi-k2.7-code` → `glm-5.2` → `qwen3.7-max`. Do not escalate by default; only when the task demands it.
 
 When the trigger fires, prefer in this order: (a) trim redundant context, (b) hand a bounded slice to a fresh subagent, (c) ask `delivery` to re-instantiate you with a clean `agent-snapshot`.
 
@@ -216,7 +216,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 |---|---|---|---|
 | `coder` | `kimi-k2.7-code` | Implementation, bug fixes, refactoring | `CoderOutput` |
 | `tester` | `kimi-k2.7-code` | Tests, coverage, e2e | `TesterOutput` |
-| `reviewer` | `glm-5.2` | Code review, security, performance (same model as `architect`; diversity comes from `coder` being in a different family) | `ReviewerOutput` |
+| `reviewer` | `qwen3.7-plus` | Code review, security, performance (different family from `coder` on purpose) | `ReviewerOutput` |
 | `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
