@@ -214,8 +214,8 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 
 | Subagent | Model | Purpose | Returns |
 |---|---|---|---|
-| `coder` | `kimi-k2.7-code` | Implementation, bug fixes, refactoring | `CoderOutput` |
-| `tester` | `kimi-k2.7-code` | Tests, coverage, e2e | `TesterOutput` |
+| `coder` | `kimi-k3` | Implementation, bug fixes, refactoring | `CoderOutput` |
+| `tester` | `minimax-m3` | Tests, coverage, e2e | `TesterOutput` |
 | `reviewer` | `glm-5.2` | Code review, security, performance (same model as `architect`; diversity comes from `coder` being in a different family) | `ReviewerOutput` |
 | `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |

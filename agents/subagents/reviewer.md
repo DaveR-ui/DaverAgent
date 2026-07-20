@@ -19,7 +19,7 @@ permission:
 
 Analyze code - never modify it.
 
-**Model note**: `glm-5.2` is the long-horizon reasoning model used for both `architect` and `reviewer`. Perspective diversity now comes from the `coder` (`kimi-k2.7-code`) being in a different model family — not from reviewer being a different model from coder. The `temperature: 0.1` setting keeps verdicts deterministic; GLM 5.2 supports `temperature`
+**Model note**: `glm-5.2` is the long-horizon reasoning model used for both `architect` and `reviewer`. Perspective diversity now comes from the `coder` (`kimi-k3`) being in a different model family — not from reviewer being a different model from coder. The `temperature: 0.1` setting keeps verdicts deterministic; GLM 5.2 supports `temperature`
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

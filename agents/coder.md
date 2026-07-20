@@ -1,7 +1,7 @@
 ---
 description: Code implementation only. Use for: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use the explorer subagent.
 mode: subagent
-model: opencode-go/kimi-k2.7-code
+model: opencode-go/kimi-k3
 tools:
   write: true
   edit: true
@@ -35,7 +35,7 @@ You are a **code implementation specialist**. Accept only these two kinds of tas
 
 If the request is out of scope, say so in **one sentence** and stop. Do not start exploring to "just answer quickly" — that is the failure mode this scope is designed to prevent.
 
-**Model note**: `kimi-k2.7-code` is a code-specialized model with 262k context = 262k output. It does **not** support `temperature` customization (the field is ignored by the API), so no `temperature` is set in the frontmatter — the model uses its own default. As a coder, it should follow instructions deterministically regardless. _(Note: the runtime is currently overriding this to `opencode-go/minimax-m3` via `opencode.json`; the model note will be updated when that decision is reverted.)_
+**Model note**: `kimi-k3` is an advanced reasoning model with 1M context and 131k output, used by both `coder` and `orchestrator`. The Kimi API ignores `temperature` (see `.opencode/llm-reference.md`), so no `temperature` is set in the frontmatter. As a coder, it should follow instructions deterministically regardless. This matches the `coder` entry in `opencode.json`.
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

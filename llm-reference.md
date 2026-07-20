@@ -3,7 +3,7 @@
 Reference catalog of the LLMs used by the agent system. This is the **raw specs** of each model — see `.opencode/llm-routing.md` for the **routing policy** (which model is used for which task and why).
 
 > **Source**: specs pulled from `https://models.dev/providers/opencode-go/` on 2026-07-05.
-> **Last updated**: 2026-07-17.
+> **Last updated**: 2026-07-19.
 
 ## Model Catalog
 
@@ -34,11 +34,11 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 - **Price tier**: high ($1.40 / $4.40)
 - **Standout feature**: 1M context window, supports structured output.
 - **Notes**:
-  - Used by both `architect` and `reviewer`; perspective diversity is no longer achieved by changing model family between these two roles, but by the `coder` (`kimi-k2.7-code`) being in a different family from both.
+  - Used by both `architect` and `reviewer`; perspective diversity is no longer achieved by changing model family between these two roles, but by the `coder` and `orchestrator` (Kimi family) being in a different family from both.
 
 ### `opencode-go/kimi-k2.7-code`
 
-- **Role in this project**: `coder`, `tester` (code-specialized).
+- **Role in this project**: none — currently not assigned to any agent (previously `coder` and `tester`; `coder` moved to `kimi-k3` and `tester` to `minimax-m3` on 2026-07-19).
 - **Provider**: opencode-go
 - **Price tier**: mid ($0.95 / $4.00)
 - **Standout feature**: code-specialized, 262k context = 262k output (huge output capacity).
@@ -48,13 +48,13 @@ Use the sections below to capture observations, gotchas, benchmarks, and any oth
 
 ### `opencode-go/kimi-k3`
 
-- **Role in this project**: `orchestrator` (advanced multi-step reasoning, multi-agent coordination).
+- **Role in this project**: `coder` (code implementation) and `orchestrator` (advanced multi-step reasoning, multi-agent coordination) — the code + orchestration tier.
 - **Provider**: opencode-go
 - **Price tier**: highest ($3.00 / $15.00, $0.30 cached read, $15 cached write)
 - **Standout feature**: 1M context window, large output capacity (131k), carries the cross-agent synthesis load.
 - **Limitations**: highest cost.
 - **Notes**:
-  - Replaces `qwen3.7-max` for orchestration. Same model family as the `coder` (`kimi-k2.7-code`), so perspective diversity for the orchestrator now depends on the prompt and tools, not the model family.
+  - Replaces `qwen3.7-max` for orchestration and later took over the `coder` route as well (2026-07-19). `coder` and `orchestrator` share the Kimi family, so perspective diversity vs `architect`/`reviewer` comes from the Kimi↔GLM family split; diversity between `coder` and `orchestrator` depends on prompt and tools, not the model family.
 
 ### `opencode-go/minimax-m3`
 
