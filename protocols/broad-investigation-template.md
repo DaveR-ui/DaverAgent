@@ -50,6 +50,6 @@ Compact scaffold for prompts that ask an agent to **map, inventory, or audit a c
 
 - The template is a **prompt-side scaffold** — the agent's return still goes through its standard structured format (`ExplorerOutput` for `explorer`, free text for `project-context`, etc.). Do not duplicate the output schema here.
 - Customize the **Coverage Checklist** per task. The defaults above are storage-flavored; for permission or session audits, swap the anchors.
-- This protocol complements, does not replace, the **Acceptance Criteria** from `canonical-prompter` and the **Verification Path** from `context-reductor`. Use it after both phases, when constructing the actual subagent prompt.
+- This protocol complements, does not replace, the **Acceptance Criteria** from `prompt-pipeline` Phase 1 and the **Verification Path** from Phase 2. Use it after both phases, when constructing the actual subagent prompt.
 - The **Verified / Likely / Inferred** scale is per-finding evidence quality; it is separate from the overall `ExplorerOutput.confidence` (low / medium / high), which rates the whole return. Do not merge the two scales.
 - See `.opencode/agents/subagents/explorer.md` (Approach) and `.opencode/agents/orchestrator.md` (Available Protocols and Skills) for the call sites that should consult this template.

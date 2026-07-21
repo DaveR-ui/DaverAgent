@@ -1,163 +1,115 @@
-# Instalación del Agente Opencode
+# Agente Opencode — `goland-api`
 
-Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) que trabaja sobre el repo `goland-api`.
+Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) que opera sobre el repo `goland-api` (Go 1.24, Gin, GORM, PostgreSQL).
 
-El archivo `jason-opencode.json` dentro de esta carpeta es la **fuente de verdad** de la configuración. Para que opencode la cargue al iniciar, hay que copiarla un nivel arriba con el nombre estándar `opencode.json`.
-
-## Instalación rápida (1 paso)
-
-Desde la raíz del repo:
-
-```powershell
-Copy-Item -LiteralPath ".\.opencode\jason-opencode.json" -Destination ".\opencode.json" -Force
-```
-
-Listo. Opencode ya levanta con la config de este repo.
-
-> **Para instalar el sistema completo en un proyecto nuevo** (instalador + bootstrap del opencode home + sync de docs + smoke test), seguí [`INSTALL.md`](./INSTALL.md). Esa guía incluye la lista ordenada y copy-paste de los pasos.
-
-**Importante**: si ya tenías un `opencode.json` propio, hacé un backup antes:
-
-```powershell
-Copy-Item -LiteralPath ".\opencode.json" -Destination ".\opencode.json.bak" -Force
-Copy-Item -LiteralPath ".\.opencode\jason-opencode.json" -Destination ".\opencode.json" -Force
-```
-
-## Verificación
-
-Después de copiar, confirmá que la config está vigente:
-
-```powershell
-# El archivo debe existir y ser JSON válido
-Get-Content -LiteralPath ".\opencode.json" -Raw | ConvertFrom-Json | Out-Null
-
-# Opencode lo lee al inicio; abrí el editor y verificá que reconoce los agentes
-```
-
-## ¿Por qué hay dos archivos?
+## Fuente de verdad: una sola
 
 | Archivo | Ubicación | Rol |
 |---|---|---|
-| `jason-opencode.json` | `.opencode/jason-opencode.json` | **Fuente de verdad** de la config. Se versiona en el repo, junto al resto de `.opencode/`. |
-| `opencode.json` | `opencode.json` (raíz del repo) | **Copia que opencode lee al arrancar**. Es la convención del runtime. |
+| `opencode.json` | raíz del repo | **Única fuente de verdad** de la config. El runtime de opencode la lee al arrancar. La mantiene el `install-agent.ps1` (con `-Update`) o se edita a mano. |
 
-La razón: opencode busca `opencode.json` en la raíz del proyecto, pero nosotros queremos que la config viva **junto al resto de los archivos del agente** (`.opencode/agents/`, `.opencode/protocols/`, etc.) para mantener todo bajo control de versiones en una sola carpeta. Por eso la fuente es `jason-opencode.json` y se copia en el paso de instalación.
+No hay `jason-opencode.json` ni otra copia duplicada. Si querés cambiar un modelo, un permiso o un agente, editá `opencode.json` directamente.
 
-## Estructura del agente (qué hay en `.opencode/`)
+## Modelos
+
+El catálogo raw está en [`llm-reference.md`](./llm-reference.md). El routing efectivo vive en `opencode.json` y se resume así:
+
+| Modelo | Carácter | Agentes |
+|---|---|---|
+| `opencode-go/minimax-m3` | El más barato | `delivery`, `explorer`, `project-context`, `vision-relay`, `tester`, `external-scout` |
+| `opencode-go/glm-5.2` | El más creativo | `architect`, `reviewer` |
+| `opencode-go/kimi-k3` | El más inteligente | `coder`, `orchestrator` |
+
+**Prioridad**: si un agente declara `model:` en su frontmatter `.md` y otro valor en `opencode.json`, **gana `opencode.json`**. El frontmatter es documentación, no runtime.
+
+## Estructura
 
 ```
 .opencode/
-├── jason-opencode.json         # Fuente de la config (copiala a ../opencode.json)
-├── README.md                   # Este archivo
-├── session-structure.md        # Layout de ~/.config/opencode/ (sesiones, humanos, proyectos)
-├── model-routing.md            # Reglas de selección de modelo por categoría
-├── llm-routing.md              # Routing real del runtime opencode
+├── opencode (config) ───────────────────
+├── opencode.json                       # Config del runtime (única fuente)
+├── llm-reference.md                    # Catálogo raw de modelos
+├── README.md                           # Este archivo
+├── INSTALL.md                          # Cómo instalar el agente en otro repo
 │
-├── agents/                     # Definiciones de agentes (system prompts)
-│   ├── delivery.md             # Agente principal (interfaz con el humano)
-│   ├── orchestrator.md         # Coordinador efímero
-│   ├── coder.md                # (legacy) — la versión activa está en subagents/
-│   └── subagents/
+├── agents/                             # System prompts por agente
+│   ├── delivery.md                     # Interfaz con el humano
+│   ├── orchestrator.md                 # Coordinador (delegable a fondo)
+│   ├── coder.md                        # Implementación
+│   ├── reviewer.md                     # Code review
+│   ├── vision-relay.md                 # Inspección de imágenes
+│   ├── architect.md                    # Wrapper -> subagents/architect.md
+│   └── subagents/                      # Specs canónicos (los lee opencode runtime)
+│       ├── architect.md
 │       ├── coder.md
 │       ├── tester.md
 │       ├── reviewer.md
-│       ├── architect.md
 │       ├── explorer.md
 │       ├── project-context.md
-│       ├── angular-expert.md
-│       ├── opencode-expert.md
-│       └── vscode-expert.md
+│       ├── documenter.md
+│       ├── external-scout.md
+│       └── vision-relay.md
 │
-├── protocols/                  # Convenciones operativas del agente
-│   ├── README.md               # Índice
-│   ├── canonical-prompter.md   # Phase 1: análisis de prompts
-│   ├── context-reductor.md     # Phase 2: scope + complexity + hot spots
-│   ├── session-archiver.md     # Cierre y digestión de sesiones
-│   ├── sessions-setup.md       # Bootstrap del opencode home
-│   ├── doc-maintainer.md       # Validación de docs
-│   └── agent-installer.md      # 4 fases del installer
+├── agents agnostic/                    # Definiciones alternativas (referencia, no usadas)
 │
-├── workflows/                  # Instrucciones de razonamiento (cómo piensa el agente)
-│   └── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
+├── protocols/                          # Convenciones operativas del agente
+│   ├── README.md                       # Índice
+│   ├── prompt-pipeline.md              # Step 0 Interpret (interpreter subagent) + Phase 2 Reduce
+│   ├── agent-installer.md              # 4 fases del installer
+│   └── broad-investigation-template.md # Scaffold para auditorías wide-surface
 │
-├── context/                    # Docs estratégicas del propio opencode (raro tocarlas)
-├── docs/                       # Referencia para los subagents *-expert
-│   ├── opencode/
-│   ├── angular/
-│   └── vscode/
+├── workflows/                          # Thinking instructions
+│   └── orchestrate.md                  # Reglas que el orchestrator aplica antes de actuar
 │
-├── scripts/                    # PowerShell helpers (ver abajo)
-├── session-templates/          # Templates para nuevas sesiones
-└── .backups/                   # Backups automáticos del installer (no commitear)
+├── plugins/                            # Plugins del runtime
+│   └── prompt-fetcher/                 # Tool: fetch_original_prompt (lee el primer mensaje de una sesión)
+│
+├── scripts/                            # PowerShell helpers
+│   └── install-agent.ps1               # 4 fases: regenera docs/project.md, context docs, subagents, opencode.json
+│
+├── .git/                               # Historial interno de .opencode/
+└── .backups/                           # Backups automáticos del installer (no commitear)
 ```
 
-## Scripts disponibles (en `.opencode/scripts/`)
+## Subagents disponibles
 
-| Script | Propósito |
-|---|---|
-| `bootstrap-opencode-structure.ps1` | Crea la estructura base de `~/.config/opencode/` (humans/, projects/, sessions/) |
-| `install-agent.ps1` | 4 fases: regenera `docs/project.md`, context docs, slang snapshot, subagents y `opencode.json` |
-| `install-agent.schema.json` | Schema data-driven que `install-agent.ps1` consulta |
-| `sync-project.ps1` | Sincroniza `docs/project.md` → `projects/{project_id}/project.md` |
-| `sync-humano.ps1` | Sincroniza `humans/{human_id}/humano.md` → `sessions/{human_id}/humano.md` |
-| `new-session.ps1` | Crea el directorio de una sesión nueva (`{DDMMYYYY-keywords}/`) |
-| `init-sessions.ps1` | Wrapper legacy de bootstrap (deprecado, usar `bootstrap-opencode-structure.ps1`) |
-| `test-opencode-structure.ps1` | Smoke test de la estructura |
+Definidos en `opencode.json` (modo `subagent`). Se invocan desde `delivery` u `orchestrator` con el `task` tool.
 
-### Uso típico
+| Agente | Modelo | Propósito |
+|---|---|---|
+| `delivery` | minimax-m3 | Interfaz con el humano. NO delega trabajo técnico. |
+| `orchestrator` | kimi-k3 | Coordina trabajo multi-paso, hace fan-out de subagentes. |
+| `coder` | kimi-k3 | Implementa features, fixes, refactors. Devuelve `CoderOutput`. |
+| `tester` | minimax-m3 | Tests. Devuelve `TesterOutput`. |
+| `reviewer` | glm-5.2 | Code review, security, performance. Devuelve `ReviewerOutput`. |
+| `architect` | glm-5.2 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
+| `explorer` | minimax-m3 | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
+| `project-context` | minimax-m3 | Lee/escribe `docs/`. |
+| `vision-relay` | minimax-m3 | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
+| `external-scout` | minimax-m3 | Trae docs de libs Go externas vía webfetch. |
 
-```powershell
-# 1) Instalar/actualizar el agente
-& ".\.opencode\scripts\install-agent.ps1" -VerifyOnly   # ver qué cambiaría
-& ".\.opencode\scripts\install-agent.ps1"                 # aplicar cambios (con defaults)
+## Protocolos (cómo piensa el agente)
 
-# 2) Bootstrap del opencode home
-& ".\.opencode\scripts\bootstrap-opencode-structure.ps1" -VerifyOnly
-& ".\.opencode\scripts\bootstrap-opencode-structure.ps1"
-
-# 3) Sincronizar contexto
-& ".\.opencode\scripts\sync-project.ps1"
-& ".\.opencode\scripts\sync-humano.ps1"
-```
+Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más importante es [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), que define el análisis en 2 fases que el `delivery` aplica a cada prompt no trivial. El `delivery.md` lo referencia por anchor en vez de duplicar el contenido.
 
 ## Permisos de los agentes
 
-Los agentes NO tienen skills externos habilitados. El directorio `.opencode/skills/` **no existe** y no debe crearse. Todos los antiguos skills repo-local fueron migrados a protocolos (ver [`.opencode/protocols/README.md`](./protocols/README.md#skill-migration-redirect)).
-
-Toda la info (Postgres, permission system, librerías, etc.) vive en `docs/context/` y se lee **on demand** cuando la tarea lo requiere.
-
-- `delivery` es el único agente con permiso `external_directory: ~/.config/opencode/**` (necesario para escribir en el opencode home).
-- `orchestrator` y subagentes no tienen skills precargados. El único skill legítimo es `customize-opencode` (built-in del runtime opencode, no es repo-local).
-
-## Protocolos vs workflows vs context — la diferencia
-
-| Carpeta | Qué vive ahí | Cuándo lo lee el agente |
-|---|---|---|
-| `docs/context/` | **Info del proyecto** (stack, reglas, arquitectura, postgres, permission system) | Cuando la tarea toca ese tema (on demand) |
-| `docs/protocols/` | **Plantillas del proyecto** (ej. `api-endpoint-factory` con el template Go 4-layer) | Cuando la tarea es crear un endpoint |
-| `.opencode/protocols/` | **Convenciones del agente** (cómo analiza prompts, cómo pausa subagents, cómo cierra sesiones) | Siempre que el agente actúa |
-| `.opencode/workflows/` | **Reglas de razonamiento** (qué pensar antes de actuar) | Al planificar una tarea |
-| `.opencode/agents/` | **System prompts** de cada agente (identidad + permisos) | Al instanciar el agente |
+- `orchestrator` y los subagentes NO tienen skills externos prehabilitados. El único skill built-in legítimo es `customize-opencode` (del runtime de opencode, no repo-local).
+- Toda la info del proyecto (Postgres, permission system, etc.) vive en `docs/context/` y se lee **on demand**.
 
 ## Actualizar la config
 
-Si tocás `jason-opencode.json` (agregás un subagent, cambiás permisos, etc.), volvé a copiarlo a la raíz:
+Si tocás `opencode.json` (agregás un subagente, cambiás un modelo, etc.), no necesitás correr nada más — opencode lo relee al próximo arranque. Si en cambio querés regenerar todo desde el schema del installer:
 
 ```powershell
-Copy-Item -LiteralPath ".\.opencode\jason-opencode.json" -Destination ".\opencode.json" -Force
+& ".\.opencode\scripts\install-agent.ps1" -VerifyOnly   # ver qué cambiaría
+& ".\.opencode\scripts\install-agent.ps1"                 # aplicar
 ```
 
-Si en cambio querés regenerar todo desde el installer (recomendado para cambios grandes), usá `install-agent.ps1` y dejá que él reescriba la config.
+El installer hace backup automático en `.opencode/.backups/<timestamp>/` antes de sobrescribir.
 
 ## Solución de problemas
 
-**"No me toma la config"**
-- Verificá que `opencode.json` existe en la raíz (no solo `.opencode/jason-opencode.json`).
-- Verificá que el JSON es válido: `Get-Content .\opencode.json -Raw | ConvertFrom-Json`.
+**"No me toma la config"** — Verificá que `opencode.json` es JSON válido: `Get-Content .\opencode.json -Raw | ConvertFrom-Json`.
 
-**"Quiero volver a la versión anterior"**
-- Si venís de `install-agent.ps1`, hay un backup en `.opencode/.backups/<timestamp>/`.
-- Si solo copiás manualmente, tenés que tener tu propio backup de `opencode.json`.
-
-**"Falta la carpeta `humans/`, `projects/` o `sessions/` en `~/.config/opencode/`"**
-- Corré `bootstrap-opencode-structure.ps1`. Es idempotente y no destructivo.
+**"Quiero volver a la versión anterior"** — Si el cambio lo hizo `install-agent.ps1`, hay backup en `.opencode/.backups/<timestamp>/`. Si lo hiciste a mano, depende de tu propio control de versiones.

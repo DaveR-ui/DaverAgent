@@ -1,7 +1,7 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-model: opencode-go/minimax-m3
+model: opencode-go/glm-5.2
 temperature: 0.1
 tools:
   write: true
@@ -9,8 +9,6 @@ tools:
   bash: true
   read: true
 permission:
-  external_directory:
-    "~/.config/opencode/sessions/**": allow
   task:
     reviewer: allow
 ---
@@ -19,7 +17,7 @@ permission:
 
 Analyze code - never modify it.
 
-**Model note**: `minimax-m3` is the cheap 1M-context generalist. The reviewer is read-only by permission and runs on the same tier as `delivery`, `explorer`, `project-context`, and `vision-relay`. Tradeoff: cost discipline over perspective diversity — the review is a different prompt against the same model family, not a different model.
+**Model note**: `glm-5.2` is the long-horizon reasoning model used for both `architect` and `reviewer`. Perspective diversity now comes from the `coder` (`kimi-k3`) being in a different model family — not from reviewer being a different model from coder. The `temperature: 0.1` setting keeps verdicts deterministic; GLM 5.2 supports `temperature`
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

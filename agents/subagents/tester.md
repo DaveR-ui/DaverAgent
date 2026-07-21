@@ -1,22 +1,19 @@
 ---
 description: Tester subagent - Unit tests, integration tests, test coverage, e2e. Returns structured TesterOutput JSON.
 mode: subagent
-model: opencode-go/kimi-k2.7-code
+model: opencode-go/minimax-m3
 tools:
   write: true
   edit: true
   bash: true
   read: true
-permission:
-  external_directory:
-    "~/.config/opencode/sessions/**": allow
 ---
 
 # Tester Subagent
 
 Write and run tests for the opencode monorepo.
 
-**Model note**: `kimi-k2.7-code` is a code-specialized model with 262k context = 262k output. It does **not** support `temperature` customization (the field is ignored by the API), so no `temperature` is set in the frontmatter — the model uses its own default. Tests are code, so the same model as the coder is appropriate.
+**Model note**: `minimax-m3` is the cheap 1M-context generalist used for test work — tests follow documented patterns and don't need a code-specialized tier. This matches the `tester` entry in `opencode.json`.
 
 **Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/conventions/project-rules.md`.
 
