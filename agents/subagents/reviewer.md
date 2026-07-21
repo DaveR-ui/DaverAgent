@@ -9,8 +9,6 @@ tools:
   bash: true
   read: true
 permission:
-  external_directory:
-    "~/.config/opencode/sessions/**": allow
   task:
     reviewer: allow
 ---

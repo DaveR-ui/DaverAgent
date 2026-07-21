@@ -1,5 +1,5 @@
 ---
-description: Coder subagent - Angular implementation: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
+description: Coder subagent - Go implementation: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k3
 tools:
@@ -7,9 +7,6 @@ tools:
   edit: true
   bash: true
   read: true
-permission:
-  external_directory:
-    "~/.config/opencode/sessions/**": allow
 ---
 
 # Coder Subagent — Canonical Spec

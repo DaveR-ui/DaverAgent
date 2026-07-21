@@ -32,7 +32,7 @@ A calling agent uses the `task` tool with `subagent_type: "vision-relay"` and pa
 Example:
 
 ```
-@vision-relay inspect the screenshot at .opencode/sessions/.../assets/error.png
+@vision-relay inspect the screenshot at .opencode/assets/error.png
 and tell me: which HTTP status code and which Go function is shown on the error page?
 ```
 

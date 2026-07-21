@@ -433,8 +433,7 @@ function Build-OpencodeJson {
     $taskLines = @()
     foreach ($s in $Subagents) { $taskLines += "          ""$s"": ""allow""" }
     if ($taskLines.Count -gt 0) { [void]$sb.AppendLine(($taskLines -join ",`n")) }
-    [void]$sb.AppendLine('        },')
-    [void]$sb.AppendLine('        "external_directory": { "~/.config/opencode/**": "allow" }')
+    [void]$sb.AppendLine('        }')
     [void]$sb.AppendLine('      }')
     [void]$sb.AppendLine('    }')
     foreach ($s in $Subagents) {
@@ -451,8 +450,8 @@ function Build-OpencodeJson {
     [void]$sb.AppendLine('    "docs/project.md",')
     [void]$sb.AppendLine('    "docs/context/README.md",')
     [void]$sb.AppendLine('    "docs/protocols/README.md",')
-    [void]$sb.AppendLine('    ".opencode/session-structure.md",')
-    [void]$sb.AppendLine('    ".opencode/protocols/README.md"')
+    [void]$sb.AppendLine('    ".opencode/protocols/README.md",')
+    [void]$sb.AppendLine('    ".opencode/protocols/prompt-pipeline.md"')
     [void]$sb.AppendLine('  ]')
     [void]$sb.AppendLine('}')
     return $sb.ToString()
@@ -502,9 +501,7 @@ foreach ($id in $selected) {
 $readmePath = Join-Path $contextDir "README.md"
 Write-Generated -Path $readmePath -Content (Build-ContextReadme -SelectedIds $selected -Templates $tplHashtable) -Overwrite:$Update
 
-# slang template
-$slangPath = Join-Path $script:RepoRoot ".opencode\session-templates\project-session-template.md"
-Write-Generated -Path $slangPath -Content (Build-SlangTemplate -SlangBlock $phase3.slang_entries) -Overwrite:$Update
+# (No more session-templates/ — the project slang snapshot is part of docs/, not a separate template.)
 
 # agents
 $agentsDir = Join-Path $script:RepoRoot ".opencode\agents\subagents"
