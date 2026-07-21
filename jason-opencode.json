@@ -28,8 +28,8 @@
       "model": "opencode-go/minimax-m3",
       "temperature": 0.3,
       "permission": {
-        "skill": {},
         "task": {
+          "interpreter": "allow",
           "orchestrator": "allow",
           "coder": "allow",
           "tester": "allow",
@@ -58,8 +58,8 @@
         "task": true
       },
       "permission": {
-        "skill": {},
         "task": {
+          "interpreter": "allow",
           "coder": "allow",
           "tester": "allow",
           "reviewer": "allow",
@@ -173,12 +173,24 @@
         "read": true,
         "webfetch": true
       }
+    },
+    "interpreter": {
+      "description": "Interpreter - Lightweight normalization helper invoked as Step 0 by delivery. Reconciles vocabulary, captures constraints, may ask the user one batch of clarifying questions via the question tool, and returns a compact routing packet.",
+      "mode": "subagent",
+      "model": "opencode-go/minimax-m3",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "read": true,
+        "grep": true,
+        "question": true
+      }
     }
   },
   "permission": {
-    "skill": {
-      "*": "allow"
-    }
+    "question": "allow"
   },
   "instructions": [
     "docs/project.md",
