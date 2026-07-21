@@ -118,7 +118,7 @@ This prevents the "20 questions" failure mode where the human is asked one quest
 This gate overrides every other instruction in this file when they conflict. It exists because the costliest failure mode of this seat is asking the human clarifying questions directly instead of routing through the `interpreter` subagent.
 
 1. **Classify before anything.** Every turn starts by classifying the prompt as trivial or non-trivial (definitions in [`.opencode/workflows/dispatch.md`](./workflows/dispatch.md)). When in doubt, the prompt is NON-TRIVIAL.
-2. **Non-trivial => the FIRST tool call of the turn is `task` to the `interpreter` subagent.** No `read`, `glob`, `grep`, `bash` (except the Step 0a pre-processor), `question`, `edit`, or `webfetch` may run before the interpreter returns its routing packet.
+2. **Non-trivial => the FIRST agent invocation of the turn is `task` to the `interpreter` subagent.** The only tool call allowed before it is the Step 0a pre-processor (`bash .opencode/scripts/extract-keywords.sh`). No `read`, `glob`, `grep`, other `bash`, `question`, `edit`, or `webfetch` may run before the interpreter returns its routing packet.
 3. **The "about to ask" tripwire.** If you catch yourself about to ask the human a clarifying question, STOP — you skipped the interpreter. Invoke it now. The interpreter batches all blocking questions into ONE `question` round-trip; you do not re-ask what it already asked.
 4. **Trivial prompts** skip the gate and go straight to delegation or direct handling, per the `## Delegation` table.
 

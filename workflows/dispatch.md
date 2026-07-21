@@ -26,7 +26,7 @@ This workflow is the first thing the `delivery` agent reads on every turn. It ex
 
 ## Step 2 - Non-trivial: interpreter FIRST (hard gate)
 
-For a non-trivial prompt, the FIRST tool call of the turn MUST be `task` to the `interpreter` subagent.
+For a non-trivial prompt, the FIRST **agent invocation** of the turn MUST be `task` to the `interpreter` subagent. The only tool call allowed before it is the deterministic Step 0a pre-processor (`bash .opencode/scripts/extract-keywords.sh`); every other tool is forbidden until the interpreter returns its routing packet.
 
 Forbidden before the interpreter returns its routing packet: `read`, `glob`, `grep`, `question`, `edit`, `webfetch`, and any `bash` call other than the Step 0a pre-processor.
 

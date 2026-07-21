@@ -78,7 +78,7 @@ Return a JSON object with this shape (the parent agent reads it directly, no fil
 Field rules:
 
 - `resolved_by_lookup`: one entry per term your lookups resolved. `source` MUST cite a concrete file (and section where useful), never "general knowledge".
-- `unresolved_questions`: only populated when `clarification_needed` is `yes`. Every entry MUST carry `could_not_resolve` explaining which lookups you ran and why they did not settle the term.
+- `unresolved_questions`: populated whenever lookups failed to settle a term, regardless of whether clarification is needed. When `clarification_needed` is `yes`, these entries drive the `blocking_questions` list. Every entry MUST carry `could_not_resolve` explaining which lookups you ran and why they did not settle the term.
 - If `clarification_needed` is `yes`, the `blocking_questions` field carries the list of questions you asked via the `question` tool.
 
 ## Rules

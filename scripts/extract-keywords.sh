@@ -27,6 +27,9 @@ else
   RAW_PROMPT="$(cat 2>/dev/null)"
 fi
 
+# Strip CR so PowerShell-piped input and CRLF sources stay clean.
+RAW_PROMPT="${RAW_PROMPT//$'\r'/}"
+
 # --- helpers ------------------------------------------------------------------
 json_escape() {
   # Escape the characters that must not appear raw inside a JSON string.
@@ -81,7 +84,7 @@ while IFS= read -r term; do
   for doc in "${PROJECT_MD}" "${CONTEXT_README}"; do
     [ -f "${doc}" ] || continue
     rel="${doc#"${REPO_ROOT}"/}"
-    hits="$(grep -in -F -m "${MAX_MATCHES_PER_TERM}" -- "${term}" "${doc}" 2>/dev/null | sed "s|^|${rel}:|" || true)"
+    hits="$(grep -in -F -m "${MAX_MATCHES_PER_TERM}" -- "${term}" "${doc}" 2>/dev/null | tr -d '\r' | sed "s|^|${rel}:|" || true)"
     [ -n "${hits}" ] && term_hits="${term_hits}${hits}"$'\n'
   done
   mfirst=1
