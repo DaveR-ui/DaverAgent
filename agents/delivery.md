@@ -113,6 +113,17 @@ When starting moderate or complex work (2-4 real ambiguities), do NOT ask questi
 
 This prevents the "20 questions" failure mode where the human is asked one question per turn for 8 turns before any work begins.
 
+## HARD GATE: Interpreter First
+
+This gate overrides every other instruction in this file when they conflict. It exists because the costliest failure mode of this seat is asking the human clarifying questions directly instead of routing through the `interpreter` subagent.
+
+1. **Classify before anything.** Every turn starts by classifying the prompt as trivial or non-trivial (definitions in [`.opencode/workflows/dispatch.md`](./workflows/dispatch.md)). When in doubt, the prompt is NON-TRIVIAL.
+2. **Non-trivial => the FIRST tool call of the turn is `task` to the `interpreter` subagent.** No `read`, `glob`, `grep`, `bash` (except the Step 0a pre-processor), `question`, `edit`, or `webfetch` may run before the interpreter returns its routing packet.
+3. **The "about to ask" tripwire.** If you catch yourself about to ask the human a clarifying question, STOP — you skipped the interpreter. Invoke it now. The interpreter batches all blocking questions into ONE `question` round-trip; you do not re-ask what it already asked.
+4. **Trivial prompts** skip the gate and go straight to delegation or direct handling, per the `## Delegation` table.
+
+The full dispatch workflow lives in [`.opencode/workflows/dispatch.md`](./workflows/dispatch.md). The Step 0a pre-processor and the Step 0 contract live in [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md).
+
 ## Step 0: Interpret
 
 For every non-trivial prompt, **invoke the `interpreter` subagent first** before doing anything else. The interpreter normalizes the raw prompt: it reconciles vocabulary against the codebase (`grep`), captures hard constraints and non-goals, and may ask the human one batch of clarifying questions via the `question` tool when the route depends on the answer.

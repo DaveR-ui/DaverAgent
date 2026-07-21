@@ -1,10 +1,11 @@
 # Protocol: Prompt Pipeline
 
-Two-stage analysis convention for the Delivery agent. Every non-trivial prompt passes through both stages before delegation. Trivial requests (single-line fixes, factual lookups) skip the pipeline.
+Two-stage analysis convention with a deterministic pre-pass for the Delivery agent. Every non-trivial prompt passes through the pre-pass and both stages before delegation. Trivial requests (single-line fixes, factual lookups) skip the pipeline.
 
-This protocol defines the two stages conceptually; the executor of each stage may vary:
+This protocol defines the pre-pass and the two stages conceptually; the executor of each step may vary:
 
-- **Step 0: Interpret** (this protocol's predecessor) is now executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter normalizes the prompt, captures constraints, and may ask the human one batch of clarifying questions.
+- **Step 0a: Pre-process** (deterministic, zero LLM cost) is executed by the [`extract-keywords.sh`](../scripts/extract-keywords.sh) script. It extracts candidate terms from the raw prompt and greps them against `docs/project.md` and `docs/context/README.md`, producing a keyword packet. See [`prompt-preprocessor.md`](./prompt-preprocessor.md).
+- **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter starts from the Step 0a keyword packet, reconciles vocabulary, captures constraints, and may ask the human one batch of clarifying questions.
 - **Phase 2: Reduce** (this protocol) is executed by `delivery` for trivial scopes, or by `orchestrator` for multi-step work.
 
 ## When to apply
@@ -19,6 +20,18 @@ Skip when:
 - Single-line fix, factual lookup, "how do I...", simple routing decision.
 - A pure doc edit (Delivery handles directly).
 - A trivial clarification (e.g. "what is X?" answered in one read).
+
+## Step 0a: Pre-process (deterministic)
+
+Before the interpreter LLM runs, the `delivery` agent executes:
+
+```bash
+echo "<raw prompt>" | bash .opencode/scripts/extract-keywords.sh
+```
+
+The script emits a keyword packet (JSON): extracted terms, first-pass `grep` matches against `docs/project.md` and `docs/context/README.md`, and candidate slice ids from the Slices table. It always exits 0 and costs zero LLM tokens. The full contract lives in [`.opencode/protocols/prompt-preprocessor.md`](./prompt-preprocessor.md).
+
+Delivery passes the raw prompt AND the keyword packet to the interpreter. If the script is unavailable, Step 0a is skipped and the interpreter reconciles vocabulary on its own.
 
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 
@@ -100,7 +113,7 @@ The full process and the routing packet schema are defined in [`.opencode/agents
 The Delivery agent runs the two stages in sequence:
 
 ```
-Raw prompt -> Step 0 (interpreter subagent) -> routing packet -> Phase 2 (Reduce) -> scope + plan -> delegate
+Raw prompt -> Step 0a (extract-keywords.sh) -> keyword packet -> Step 0 (interpreter subagent) -> routing packet -> Phase 2 (Reduce) -> scope + plan -> delegate
 ```
 
 The Delivery's system prompt is small on purpose. Sections in the system prompt that say "see prompt-pipeline.md" or "call interpreter first" are anchors into this protocol. This file is the source of truth.
