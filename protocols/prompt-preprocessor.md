@@ -1,6 +1,6 @@
 # Protocol: Prompt Pre-processor (Step 0a)
 
-Deterministic keyword extraction that runs BEFORE the `interpreter` subagent (Step 0) on every non-trivial prompt. It costs zero LLM tokens and gives the interpreter a first-pass map of the prompt's terms against the project docs.
+Deterministic keyword extraction that runs BEFORE the `interpreter` subagent (Step 0) on every prompt. It costs zero LLM tokens and gives the interpreter a first-pass map of the prompt's terms against the project docs.
 
 ## Location and invocation
 

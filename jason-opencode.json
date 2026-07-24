@@ -30,6 +30,7 @@
       "permission": {
         "skill": {},
         "task": {
+          "interpreter": "allow",
           "orchestrator": "allow",
           "coder": "allow",
           "tester": "allow",

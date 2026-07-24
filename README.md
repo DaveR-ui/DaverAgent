@@ -90,7 +90,7 @@ Definidos en `opencode.json` (modo `subagent`). Se invocan desde `delivery` u `o
 
 ## Protocolos (cómo piensa el agente)
 
-Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más importante es [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), que define el análisis en 2 fases que el `delivery` aplica a cada prompt no trivial. El `delivery.md` lo referencia por anchor en vez de duplicar el contenido.
+Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más importante es [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), que define el análisis en 2 fases que el `delivery` aplica a cada prompt, sin excepción. El `delivery.md` lo referencia por anchor en vez de duplicar el contenido.
 
 ## Permisos de los agentes
 

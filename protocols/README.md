@@ -22,7 +22,7 @@ Phase 1 (Normalize) is now executed by the [`interpreter`](../agents/subagents/i
 
 | Protocol | Purpose | Who reads it |
 |---|---|---|
-| [`prompt-pipeline.md`](./prompt-pipeline.md) | Two-stage analysis convention for non-trivial prompts. Step 0 (Interpret) is delegated to the `interpreter` subagent. Phase 2 (Reduce) defines scope, complexity, hot spots, and verification path. | `delivery` (every non-trivial prompt) |
+| [`prompt-pipeline.md`](./prompt-pipeline.md) | Two-stage analysis convention that runs on EVERY prompt. Step 0 (Interpret) is delegated to the `interpreter` subagent — no prompt skips it. Phase 2 (Reduce) defines scope, complexity, hot spots, and verification path. | `delivery` (every prompt) |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 

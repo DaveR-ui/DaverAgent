@@ -223,7 +223,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 - Scaffold templates for the project (e.g., endpoint factory, if defined)
 
 **Agent protocols** (in `.opencode/protocols/`):
-- `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every non-trivial prompt
+- `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every prompt
 - `agent-installer` — 4-phase agent install/reconfigure
 - `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `prompt-pipeline` Phase 2.
 
