@@ -2,7 +2,7 @@
 name: interpreter
 route-aliases: []
 description: |
-  Lightweight normalization helper. Use before routing non-trivial requests to
+  Lightweight normalization helper. Use before routing every request to
   reconcile vocabulary, capture constraints, and return a compact routing
   packet.
 target: vscode
