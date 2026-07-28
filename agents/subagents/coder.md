@@ -51,7 +51,7 @@ Verify exact versions against `package.json` and `docs/project.md` before claimi
 | Grid | AG Grid Community + Enterprise 32.1.0 |
 | Auth | `@azure/msal-angular` 3.0.25 + `@azure/msal-browser` 3.25.0 |
 | Realtime / monitoring | `@datadog/browser-rum` 4.34.2, LaunchDarkly 3.1.0 |
-| Extras | PowerBI Client, ngx-editor, ngx-markdown, ngx-toastr, file-saver, xlsx, html2pdf.js, marked, angular-mentions |
+| Extras | PowerBI Client, ngx-editor, ngx-markdown, ngx-toastr, xlsx, html2pdf.js, marked, angular-mentions |
 | Language | TypeScript ~5.9, RxJS ~7.8 |
 | Zone.js | ~0.15.1 (kept for now; project target is zoneless) |
 | Tests | Karma + Jasmine ~4.5; Cypress ^13.13.3 (Cucumber); Playwright ^1.58.1 |
