@@ -116,6 +116,10 @@ When starting moderate or complex work (2-4 real ambiguities), do NOT ask questi
 
 This prevents the "20 questions" failure mode where the human is asked one question per turn for 8 turns before any work begins.
 
+## Interrupted Session Recovery
+
+When a previous session is STUCK or the human pastes a session URI (`oc://renderer/server/<base64>/session/<id>`), see [`.opencode/protocols/session-recovery.md`](../protocols/session-recovery.md) for the recovery flow before declaring `NEEDS_HUMAN`. The protocol's output maps to the `## Resume instructions (if restart)` block of `.opencode/agents/orchestrator.md` — that block is the handoff contract.
+
 ## HARD GATE: Interpreter First (ALWAYS, every prompt)
 
 This gate overrides every other instruction in this file when they conflict. It exists because the two costliest failure modes of this seat are (a) asking the human clarifying questions directly instead of routing through the `interpreter` subagent, and (b) deliberating about whether a prompt "deserves" the interpreter. **There is no classification step: the interpreter runs on EVERY prompt.**

@@ -8,6 +8,10 @@ tools:
   grep: true
   glob: true
   question: true
+permission:
+  task:
+    interpreter: allow
+output_schema: ./interpreter.schema.json
 ---
 
 # Interpreter Subagent
@@ -86,6 +90,8 @@ Do NOT use `question` when:
 **Always batch** all blocking questions into a single `question` call. The parent agent's "session preflight" rule applies to you too: one round-trip, multiple questions, never one question per turn.
 
 ## Output
+
+You have an `output_schema` declared in your frontmatter: `./interpreter.schema.json` (`InterpreterOutput`).
 
 Return a JSON object with this shape (the parent agent reads it directly, no file write):
 

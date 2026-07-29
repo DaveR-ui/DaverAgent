@@ -4,13 +4,14 @@ mode: subagent
 model: opencode-go/glm-5.2
 temperature: 0.1
 tools:
-  write: true
+  write: false
   edit: false
   bash: true
   read: true
 permission:
   task:
     reviewer: allow
+output_schema: ./reviewer.schema.json
 ---
 
 # Reviewer Subagent
@@ -46,12 +47,12 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 ## Review Checklist
 
-1. Architecture compliance (`docs/context/architecture/architecture.md`)
-2. Development standards (`docs/context/conventions/project-rules.md`)
-3. Permission system (`docs/context/auth-identity/security-permissions.md`) for auth changes
+1. Architecture compliance (`docs/context/architecture.md`)
+2. Development standards (`docs/context/project-rules.md`)
+3. Permission system (`docs/context/security-permissions.md`) for auth changes
 5. Security - secrets, auth, input validation
-6. Performance - N+1 queries, missing indexes, unbuffered channels
-7. Anti-patterns - business logic in HTTP handlers, raw SQL in services, `any` types, importing `core`/`server` from `client`
+6. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
+7. Anti-patterns - `any` types, NGRX-first when signals suffice, `setTimeout` for state sync, copying legacy `src/` patterns against `docs/`
 8. Testing - coverage, proper mocking, tests run from package dirs (never root)
 
 ## Anti-Patterns
@@ -106,7 +107,7 @@ Run all three in parallel when the diff is `> 30` files AND the concerns are cle
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`reviewer` -> `ReviewerOutput`).
+You have an `output_schema` declared in your frontmatter: `./reviewer.schema.json` (`ReviewerOutput`).
 
 The free-form review report goes inside the `summary` field of the JSON envelope; per-finding issues go in the `issues` array:
 

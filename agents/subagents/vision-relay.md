@@ -3,6 +3,11 @@ description: Vision Relay - Cheap image inspection for non-vision models. Receiv
 mode: subagent
 model: opencode-go/minimax-m3
 temperature: 0.1
+tools:
+  write: false
+  edit: false
+  bash: false
+  read: true
 permission:
   read: allow
   bash: deny
@@ -36,7 +41,7 @@ Single-purpose image inspection relay. Used by other subagents (or the orchestra
 Callers (e.g. `coder`, `reviewer`, `orchestrator`, `delivery`) invoke you with the `task` tool and `subagent_type: "vision-relay"`, passing the image path and a focused question. Typical use cases:
 
 - OCR a screenshot or error dialog.
-- Identify which Go function or HTTP status appears in a UI screenshot.
+- Identify which error code or HTTP status appears in a UI screenshot.
 - Read a UI mockup or diagram that the caller needs summarized.
 - Extract visible text from a PDF page snapshot.
 

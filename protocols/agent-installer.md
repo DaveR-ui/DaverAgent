@@ -19,7 +19,7 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 | 3 — Project Slang | session slang template | initial slang entries |
 | 4 — Agent Selection | subagent files + `opencode.json` | which subagents, default agent, doc language |
 
-> Phase 4 shape authority: every subagent file the installer scaffolds MUST follow [`subagent-spec-template.md`](./subagent-spec-template.md) — canonical full shape (Role → Scope → Stack / Context → Standards → Anti-Patterns → Structured Return → Rules) or the minimal shape for thin adapters, plus the `output_schema` ↔ `opencode.json` bridge. The same spec governs future per-specialization templates (`<role>.<specialization>.md`) when they are introduced.
+> Phase 4 shape authority: every subagent file the installer scaffolds MUST follow [`subagent-spec-template.md`](./subagent-spec-template.md) — canonical full shape (Role → Scope → Stack / Context → Standards → Anti-Patterns → Structured Return → Rules) or the minimal shape for thin adapters, plus the `output_schema` ↔ sibling schema bridge. The same spec governs future per-specialization templates (`<role>.<specialization>.md`) when they are introduced.
 
 ## When this protocol applies
 
@@ -66,7 +66,7 @@ Do NOT use this for:
 ### Add a subagent
 
 1. If the new subagent matches an existing pattern (e.g. a new `*-expert` reader), add a body in `Get-AgentBody` in `install-agent.ps1` and re-run.
-2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). The agent roster in `opencode.json` needs the new entry too — including `output_schema` if the subagent returns structured JSON (the spec documents the bridge).
+2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). Per the centralization, all per-agent config lives in the new agent's frontmatter — including `output_schema: ./<id>.schema.json` plus the sibling schema file if the subagent returns structured JSON (the spec documents the bridge); `opencode.json` carries no `agent` block.
 3. Re-run `install-agent.ps1 -VerifyOnly` to confirm the new agent shows up.
 
 ## Backup discipline

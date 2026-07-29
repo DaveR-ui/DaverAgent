@@ -4,13 +4,14 @@ mode: subagent
 model: opencode-go/minimax-m3
 temperature: 0.1
 tools:
-  write: true
+  write: false
   edit: false
   bash: true
   read: true
 permission:
   task:
     explorer: allow
+output_schema: ./explorer.schema.json
 ---
 
 # Explorer Subagent
@@ -84,7 +85,7 @@ You are a **recursive explorer**. When the input you receive is large, do not pr
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`explorer` -> `ExplorerOutput`).
+You have an `output_schema` declared in your frontmatter: `./explorer.schema.json` (`ExplorerOutput`).
 
 On completion, return your final answer as JSON:
 

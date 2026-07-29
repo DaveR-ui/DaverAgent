@@ -24,8 +24,9 @@ Phase 1 (Normalize) is now executed by the [`interpreter`](../agents/subagents/i
 |---|---|---|
 | [`prompt-pipeline.md`](./prompt-pipeline.md) | Two-stage analysis convention that runs on EVERY prompt. Step 0 (Interpret) is delegated to the `interpreter` subagent — no prompt skips it. Phase 2 (Reduce) defines scope, complexity, hot spots, and verification path. | `delivery` (every prompt) |
 | [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
+| [`session-recovery.md`](./session-recovery.md) | Recovery flow for interrupted or STUCK sessions in the delivery→orchestrator→subagent hierarchy. Covers the 3 failure modes (delivery/orchestrator/child), opencode session API usage, and the `## Resume instructions (if restart)` handoff contract. | `delivery` (on STUCK), `orchestrator` (on cancellation) |
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
-| [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ `opencode.json` bridge, composition and naming rules. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
+| [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
 
 ## Built-in protocols (from opencode runtime)
 

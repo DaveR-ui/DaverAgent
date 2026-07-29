@@ -231,13 +231,15 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 
 _(none — all opencode runtime skills have been replaced by agent protocols or on-demand `docs/context/` reads. The "customize-opencode" skill is built into the opencode runtime itself.)_
 
-Project context (Postgres/GORM conventions, permission system, naming) is **on demand**: read the relevant `docs/context/*.md` files when the task requires it. The orchestrator and subagents look up the data when they need it; there is no preloaded protocol for it.
+Project context (security permissions, identity, LaunchDarkly flags, naming) is **on demand**: read the relevant `docs/context/*.md` files when the task requires it. The orchestrator and subagents look up the data when they need it; there is no preloaded protocol for it.
 
 ## Strategic Pauses
 
 Pause for human feedback at: after analysis, on plan changes, after major phase. If no feedback, continue with best judgment.
 
 The `delivery` agent manages the human-facing pause/resume. Interruption is native via `POST /session/:id/abort` and the `Subagent.Interrupted` event.
+
+For the full recovery flow when an orchestrator session is interrupted or STUCK (including enumerating children, aborting stuck ones, and producing a `## Resume instructions (if restart)` snapshot), see [`.opencode/protocols/session-recovery.md`](../protocols/session-recovery.md).
 
 ## Hard Limits
 
