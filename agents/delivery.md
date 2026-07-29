@@ -226,7 +226,7 @@ either ask the human or add a new row.
 ## Constraints
 - For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config or .opencode/ files
-- Run `bun typecheck` and `bun test` before reporting done (from package directories, never from repo root)
+- Run the canonical test/typecheck/lint commands from `docs/project.md` (Common Commands) before reporting done (from package directories, never from repo root)
 
 ## Sub-Agent Launch Deduplication
 - Fingerprint: `<phase>:<task-summary-hash>` (e.g., `impl:add-user-profile-page`)

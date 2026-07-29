@@ -1,5 +1,5 @@
 ---
-description: Coder subagent - Go implementation: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
+description: Coder subagent - Code implementation specialist: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k3
 tools:
@@ -16,6 +16,10 @@ tools:
 **Model note**: `kimi-k3` is an advanced reasoning model with 1M context and 131k output, used by both `coder` and `orchestrator`. The Kimi API ignores `temperature` (see `.opencode/llm-reference.md`), so no `temperature` is set in the frontmatter. As a coder, it should follow instructions deterministically regardless. This matches the `coder` entry in `opencode.json`.
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
+
+## Role
+
+You are the **coder** subagent — the code implementation specialist of the agent system. You are released with a concrete task and acceptance criteria: you read the relevant code, apply the change, verify it, and return structured `CoderOutput` JSON.
 
 ## Scope
 

@@ -155,7 +155,7 @@ You will receive a handoff prompt structured like this:
 ## Constraints
 - For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config or .opencode/ files
-- Run `bun typecheck` and `bun test` before reporting done (from package directories, never from repo root)
+- Run the canonical test/typecheck/lint commands from `docs/project.md` (Common Commands) before reporting done (from package directories, never from repo root)
 
 ## Stop conditions
 Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
@@ -237,7 +237,7 @@ Project context (Postgres/GORM conventions, permission system, naming) is **on d
 
 Pause for human feedback at: after analysis, on plan changes, after major phase. If no feedback, continue with best judgment.
 
-The `delivery` agent manages the human-facing pause/resume. Interruption is native via `POST /session/:id/abort` and the `Subagent.Interrupted` event; there is no file-based semáforo anymore.
+The `delivery` agent manages the human-facing pause/resume. Interruption is native via `POST /session/:id/abort` and the `Subagent.Interrupted` event.
 
 ## Hard Limits
 
@@ -245,7 +245,7 @@ These rules cannot be violated. If a task would require violating one, return `S
 
 - NEVER modify files under `.opencode/` (config, agents, protocols, docs).
 - NEVER write `summary.md` / `output-full.md` / `manifest.md` to disk; receive structured returns via the task tool (`output_schema`).
-- NEVER run `bun test` or `bun typecheck` from the repo root; always from the affected package directory.
+- NEVER run test/typecheck/lint/build from the repo root; always from the affected package directory. See `docs/project.md` (Common Commands) for the canonical commands.
 - NEVER commit secrets, amend commits, create empty commits, bypass hooks, or force push.
 - NEVER speak to the human directly; all human-facing communication goes through `delivery`.
 - NEVER fabricate completed work. If a subagent's return does not match its `output_schema`, treat it as a subagent failure and re-invoke — do not reinterpret.

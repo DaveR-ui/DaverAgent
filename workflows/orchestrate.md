@@ -17,5 +17,5 @@ Thinking instructions for the AI before executing any command.
 - **Phase 1: Context Refresh**: Read the identified protocol and any relevant `docs/context/*.md` files.
 - **Phase 2: Proposal**: Explain the technical solution to the user before implementing.
 - **Phase 3: Implementation**: Write code following standards.
-- **Phase 4: Verification**: Run `bun typecheck` and `bun test` from the affected package directory (e.g. `packages/opencode`, `packages/core`). **Never** from the repo root (guard `do-not-run-tests-from-root`).
+- **Phase 4: Verification**: Run the canonical test/typecheck/lint commands from `docs/project.md` (Common Commands) for the affected package directory. **Never** from the repo root (guard `do-not-run-tests-from-root`).
 - **Phase 5: Documentation**: Update relevant `docs/context/*.md` files in Spanish (for `docs/`) or English (for `.opencode/`).

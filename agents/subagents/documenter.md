@@ -18,6 +18,10 @@ Write and maintain the project's canonical documentation under `docs/`. Read and
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`. For opencode conventions, also `AGENTS.md` (style, commits, layer rules) and `CONTEXT.md` (V2 session terminology).
 
+## Role
+
+Documentation specialist for the project's canonical docs tree. Writes and maintains project documentation: reads and writes `docs/` on demand — project metadata, strategic context docs, and their indexes — and never modifies code or `.opencode/` runtime config. Returns `DocumenterOutput` JSON (see Structured Return below).
+
 ## Scope
 
 - `docs/project.md` — project metadata, stack, commands, slices, domain entities
@@ -29,6 +33,19 @@ Do **not** modify:
 - `.opencode/agents/*.md`, `.opencode/protocols/*.md`, `opencode.json` (runtime config)
 - `AGENTS.md`, `CONTEXT.md` in the repo root (canon from upstream)
 - Anything under `packages/`
+
+## Stack / Context
+
+- `docs/project.md` is the canonical entry point: project metadata, stack, commands, and the **Slices table** that routes every change to its primary doc.
+- Strategic docs live in `docs/context/` — one topic per file — indexed by `docs/context/README.md`; fast tag lookup in `docs/_TAG-INDEX.md`.
+- Source-of-truth hierarchy: `docs/context/*.md` > `docs/project.md` > `docs/_TAG-INDEX.md` > `src/`. Code may be legacy or mid-refactor — document the target pattern, never the anti-pattern.
+- Project protocols live in `docs/protocols/`; agent protocols live in `.opencode/protocols/` (out of scope for this agent).
+
+## Standards
+
+- Every `docs/` page carries a frontmatter block: `last_updated`, `status`, `description`, `tags` (pattern: `docs/project.md`).
+- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice.
+- Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change.
 
 ## Rules
 
