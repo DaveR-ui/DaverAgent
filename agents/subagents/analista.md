@@ -18,8 +18,6 @@ output_schema: ./analista.schema.json
 
 > **No twin**: there is intentionally **no** `.opencode/agents/analista.md`. Post-centralization, this file is the only spec (canonical-only), ratified by the human on 2026-07-30. Do not create a top-level twin.
 
-**Model note**: `glm-5.2` is a long-horizon reasoning model with a **concrete, do-it-yourself execution profile** — it does not delegate to other agents easily, which fits an advisory role that must form its own opinion instead of punting to another agent. It is also significantly cheaper than `kimi-k3` (see `.opencode/llm-reference.md`), so `temperature: 0.2` is set for grounded, low-variance analysis. Runtime config for this agent lives in this file's frontmatter (single source of truth).
-
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
 ## Role
