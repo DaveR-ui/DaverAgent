@@ -8,11 +8,9 @@ This workflow is the first thing the `delivery` agent reads on every turn. It ex
 
 ## Step 1 - Interpreter FIRST, on every prompt (hard gate)
 
-The FIRST **agent invocation** of EVERY turn MUST be `task` to the `interpreter` subagent — every prompt, no exceptions, no pre-classification. The only tool call allowed before it is the deterministic Step 0a pre-processor (`bash .opencode/scripts/extract-keywords.sh`); every other tool is forbidden until the interpreter returns its routing packet.
+The FIRST **agent invocation** of EVERY turn MUST be `task` to the `interpreter` subagent — every prompt, no exceptions, no pre-classification.
 
 Forbidden before the interpreter returns its routing packet: `read`, `glob`, `grep`, `question`, `edit`, `webfetch`, and any `bash` call other than the Step 0a pre-processor.
-
-Single allowed exception: running the deterministic Step 0a pre-processor (`bash .opencode/scripts/extract-keywords.sh`) to produce the keyword packet that accompanies the raw prompt into the interpreter. See `.opencode/protocols/prompt-preprocessor.md`.
 
 **Do not classify.** "Trivial vs non-trivial" is an OUTPUT of the interpreter's routing packet, never a precondition for invoking it. A delivery turn that starts by weighing whether the interpreter is needed has already failed this gate. The interpreter is cheap; a misrouted prompt is expensive; and the deliberation itself is wasted budget — that deliberation is the exact failure mode this workflow exists to remove.
 

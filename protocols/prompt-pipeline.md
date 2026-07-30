@@ -4,7 +4,6 @@ Two-stage analysis convention with a deterministic pre-pass for the Delivery age
 
 This protocol defines the pre-pass and the two stages conceptually; the executor of each step may vary:
 
-- **Step 0a: Pre-process** (deterministic, zero LLM cost) is executed by the [`extract-keywords.sh`](../scripts/extract-keywords.sh) script. It extracts candidate terms from the raw prompt and greps them against `docs/project.md` and `docs/context/README.md`, producing a keyword packet. See [`prompt-preprocessor.md`](./prompt-preprocessor.md).
 - **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter starts from the Step 0a keyword packet, reconciles vocabulary, captures constraints, and may ask the human one batch of clarifying questions.
 - **Phase 2: Reduce** (this protocol) is executed by `delivery` for trivial scopes, or by `orchestrator` for multi-step work.
 
@@ -16,18 +15,6 @@ The only branch happens AFTER Step 0, based on the interpreter's routing packet:
 
 - **Packet says trivial** (single-line fix, factual lookup, "how do I...", pure doc edit with unambiguous scope) -> Delivery handles it directly per its Delegation table; Phase 2 is skipped.
 - **Packet says non-trivial** -> Phase 2 (Reduce) runs, then delegation per the Integration section below.
-
-## Step 0a: Pre-process (deterministic)
-
-Before the interpreter LLM runs, the `delivery` agent executes:
-
-```bash
-echo "<raw prompt>" | bash .opencode/scripts/extract-keywords.sh
-```
-
-The script emits a keyword packet (JSON): extracted terms, first-pass `grep` matches against `docs/project.md` and `docs/context/README.md`, and candidate slice ids from the Slices table. It always exits 0 and costs zero LLM tokens. The full contract lives in [`.opencode/protocols/prompt-preprocessor.md`](./prompt-preprocessor.md).
-
-Delivery passes the raw prompt AND the keyword packet to the interpreter. If the script is unavailable, Step 0a is skipped and the interpreter reconciles vocabulary on its own.
 
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 
