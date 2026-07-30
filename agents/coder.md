@@ -1,7 +1,8 @@
 ---
 description: Code implementation only. Use for: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use the explorer subagent.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/glm-5.2
+temperature: 0.2
 tools:
   write: true
   edit: true
@@ -34,8 +35,6 @@ You are a **code implementation specialist**. Accept only these two kinds of tas
 - Any task whose first step is "explore the codebase" before writing code.
 
 If the request is out of scope, say so in **one sentence** and stop. Do not start exploring to "just answer quickly" — that is the failure mode this scope is designed to prevent.
-
-**Model note**: `kimi-k3` is an advanced reasoning model with 1M context and 131k output, used by both `coder` and `orchestrator`. The Kimi API ignores `temperature` (see `.opencode/llm-reference.md`), so no `temperature` is set in the frontmatter. As a coder, it should follow instructions deterministically regardless. The `coder` model is set in `opencode.json`.
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 

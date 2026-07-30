@@ -1,7 +1,8 @@
 ---
 description: Coder subagent - Code implementation specialist: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/glm-5.2
+temperature: 0.2
 tools:
   write: true
   edit: true
@@ -16,8 +17,6 @@ output_schema: ./coder.schema.json
 # Coder Subagent — Canonical Spec
 
 > **Relationship to top-level file**: the runtime-loaded prompt body is `.opencode/agents/coder.md`. This file (`subagents/coder.md`) is the **canonical spec** — the install script (`agent-installer.md`) is expected to regenerate the top-level from here. **Keep both in sync.** If you edit one, edit the other.
-
-**Model note**: `kimi-k3` is an advanced reasoning model with 1M context and 131k output, used by both `coder` and `orchestrator`. The Kimi API ignores `temperature` (see `.opencode/llm-reference.md`), so no `temperature` is set in the frontmatter. As a coder, it should follow instructions deterministically regardless. Runtime config for this agent lives in this file's frontmatter (single source of truth).
 
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
 
