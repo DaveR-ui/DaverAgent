@@ -1,8 +1,7 @@
 ---
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
-model: opencode-go/glm-5.2
-temperature: 0.3
+model: opencode-go/kimi-k3
 tools:
   write: true
   edit: true
@@ -17,8 +16,6 @@ output_schema: ./architect.schema.json
 # Architect Subagent
 
 Design system architecture, define module boundaries, establish patterns for the project.
-
-**Model note**: `glm-5.2` is used for design-quality work because its reasoning profile is stronger for long-horizon planning. It is intentionally a **third distinct model** in the coder / reviewer / architect trio for maximum perspective diversity.
 
 **Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md`.
 

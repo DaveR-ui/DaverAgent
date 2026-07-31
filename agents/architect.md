@@ -1,8 +1,7 @@
 ---
 description: Architect Agent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
-model: opencode-go/glm-5.2
-temperature: 0.3
+model: opencode-go/kimi-k3
 tools:
   write: true
   edit: true

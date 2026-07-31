@@ -1,8 +1,7 @@
 ---
 description: Analista subagent - Second-opinion advisor for delivery and orchestrator. Accepts "second opinion" / "I'm stuck" / "critique this plan" / "what should I do?" queries. Read-only; returns structured AnalystOutput JSON. Re-routes implementation, review, design, tests, and exploration to the owning subagents.
 mode: subagent
-model: opencode-go/glm-5.2
-temperature: 0.2
+model: opencode-go/kimi-k3
 tools:
   write: false
   edit: false
@@ -48,7 +47,7 @@ If the request is out of scope, say so in **one sentence**, set `re_route_to`, a
 - Read `docs/project.md` (entry point) first — project metadata, stack, commands, and the **Slices table** for area routing.
 - `docs/context/` is the source of truth (index: `docs/context/README.md`); those docs override legacy `src/` patterns.
 - For STUCK-recovery advice, align with `.opencode/protocols/session-recovery.md` and the orchestrator's `## Resume instructions (if restart)` snapshot contract (see `.opencode/agents/orchestrator.md`).
-- For agent-system questions (models, routing, subagent shapes), consult `.opencode/llm-reference.md` and `.opencode/protocols/subagent-spec-template.md`.
+- For agent-system questions (models, routing, subagent shapes), consult `.opencode/protocols/subagent-spec-template.md`.
 - Verify versions against `docs/project.md` / `package.json` before claiming specifics.
 
 ## Standards

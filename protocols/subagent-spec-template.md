@@ -43,7 +43,7 @@ Rationale: a future `explorer.typescript` fans out exactly like the base `explor
 | `description` | **required** | One line, routing-oriented — the orchestrator reads this to decide delegation. Name the discipline, the accepted task shapes, and the structured return if any. |
 | `mode: subagent` | **required** | Literal value. |
 | `model` | **required** | Fully qualified (`<provider>/<model>`). Part of the cost contract — see the orchestrator's subagent table. |
-| `temperature` | optional | Omit when the model ignores it (e.g. `kimi-k3` — see `.opencode/llm-reference.md`). |
+| `temperature` | optional | Omit when the model ignores it (e.g. `kimi-k3`, kimi family). |
 | `tools` | optional | Tool allow/deny map. |
 | `permission` | optional | Permission rules (e.g. read-only adapters, `task` fan-out grants). |
 | `output_schema` | optional | Relative path to the sibling JSON Schema (`./<id>.schema.json`) — see the bridge below. |

@@ -211,8 +211,8 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 |---|---|---|---|
 | `coder` | `kimi-k3` | Implementation, bug fixes, refactoring | `CoderOutput` |
 | `tester` | `minimax-m3` | Tests, coverage, e2e | `TesterOutput` |
-| `reviewer` | `glm-5.2` | Code review, security, performance (same model as `architect`; diversity comes from `coder` being in a different family) | `ReviewerOutput` |
-| `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
+| `reviewer` | `kimi-k3` | Code review, security, performance (same model as `architect` and `coder`; the previous model-family diversity was retired on 2026-07-31) | `ReviewerOutput` |
+| `architect` | `kimi-k3` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
 | `vision-relay` | `minimax-m3` | One image + one focused question (no fallback) | text |

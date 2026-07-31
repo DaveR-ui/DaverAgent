@@ -12,13 +12,10 @@ No hay `jason-opencode.json` ni otra copia duplicada. Si querés cambiar un mode
 
 ## Modelos
 
-El catálogo raw está en [`llm-reference.md`](./llm-reference.md). El routing efectivo vive en `opencode.json` y se resume así:
-
 | Modelo | Carácter | Agentes |
 |---|---|---|
 | `opencode-go/minimax-m3` | El más barato | `delivery`, `explorer`, `project-context`, `vision-relay`, `tester`, `external-scout` |
-| `opencode-go/glm-5.2` | El más creativo | `architect`, `reviewer` |
-| `opencode-go/kimi-k3` | El más inteligente | `coder`, `orchestrator` |
+| `opencode-go/kimi-k3` | El más inteligente (No acepta temperaturas) | `coder`, `orchestrator`, `architect`, `reviewer` |
 
 **Prioridad**: si un agente declara `model:` en su frontmatter `.md` y otro valor en `opencode.json`, **gana `opencode.json`**. El frontmatter es documentación, no runtime.
 
@@ -28,7 +25,6 @@ El catálogo raw está en [`llm-reference.md`](./llm-reference.md). El routing e
 .opencode/
 ├── opencode (config) ───────────────────
 ├── opencode.json                       # Config del runtime (única fuente)
-├── llm-reference.md                    # Catálogo raw de modelos
 ├── README.md                           # Este archivo
 ├── INSTALL.md                          # Cómo instalar el agente en otro repo
 │
@@ -81,8 +77,8 @@ Definidos en `opencode.json` (modo `subagent`). Se invocan desde `delivery` u `o
 | `orchestrator` | kimi-k3 | Coordina trabajo multi-paso, hace fan-out de subagentes. |
 | `coder` | kimi-k3 | Implementa features, fixes, refactors. Devuelve `CoderOutput`. |
 | `tester` | minimax-m3 | Tests. Devuelve `TesterOutput`. |
-| `reviewer` | glm-5.2 | Code review, security, performance. Devuelve `ReviewerOutput`. |
-| `architect` | glm-5.2 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
+| `reviewer` | kimi-k3 | Code review, security, performance. Devuelve `ReviewerOutput`. |
+| `architect` | kimi-k3 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
 | `explorer` | minimax-m3 | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
 | `project-context` | minimax-m3 | Lee/escribe `docs/`. |
 | `vision-relay` | minimax-m3 | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |

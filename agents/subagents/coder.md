@@ -1,7 +1,7 @@
 ---
 description: Coder subagent - Code implementation specialist: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
 mode: subagent
-model: opencode-go/glm-5.2
+model: opencode-go/kimi-k3
 temperature: 0.2
 tools:
   write: true
