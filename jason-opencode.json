@@ -49,7 +49,6 @@
       "description": "Orchestrator Agent - Persistent coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, and maintains state across delegations. Works exclusively in English.",
       "mode": "subagent",
       "model": "opencode-go/kimi-k3",
-      "temperature": 0.3,
       "tools": {
         "write": true,
         "edit": true,
@@ -75,7 +74,6 @@
       "description": "Programming, bug fixes, feature implementation, refactoring",
       "mode": "subagent",
       "model": "opencode-go/kimi-k3",
-      "temperature": 0.2,
       "tools": {
         "write": true,
         "edit": true,
@@ -87,8 +85,7 @@
     "reviewer": {
       "description": "Code review, security audit, best practices, performance",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.2",
-      "temperature": 0.1,
+      "model": "opencode-go/kimi-k3",
       "tools": {
         "write": false,
         "edit": false,
@@ -113,8 +110,7 @@
     "architect": {
       "description": "System design, architecture, module boundaries, patterns",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.2",
-      "temperature": 0.3,
+      "model": "opencode-go/kimi-k3",
       "tools": {
         "write": true,
         "edit": true,

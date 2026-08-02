@@ -1,22 +1,6 @@
 # Protocol: Prompt Pre-processor (Step 0a)
 
-Deterministic keyword extraction that runs BEFORE the `interpreter` subagent (Step 0) on every non-trivial prompt. It costs zero LLM tokens and gives the interpreter a first-pass map of the prompt's terms against the project docs.
-
-## Location and invocation
-
-Script: `.opencode/scripts/extract-keywords.sh` (pure bash + `grep`/`sed`/`awk`/`tr`; no `jq`, python, or node dependency).
-
-From the repo root, via PowerShell or any POSIX shell:
-
-```powershell
-echo "arreglar lost est" | bash .opencode/scripts/extract-keywords.sh
-```
-
-```bash
-bash .opencode/scripts/extract-keywords.sh "fix the authview filters"
-```
-
-The script resolves `docs/project.md` and `docs/context/README.md` relative to its own location, so it works from any cwd.
+Deterministic keyword extraction that runs BEFORE the `interpreter` subagent (Step 0) on every prompt. It costs zero LLM tokens and gives the interpreter a first-pass map of the prompt's terms against the project docs.
 
 ## Input contract
 
@@ -71,11 +55,3 @@ Delivery runs the script, then invokes the `interpreter` subagent with the raw p
 - ASCII-only: accented characters act as separators, so a term like `señal` never reaches the docs as one token. The interpreter recovers these semantically.
 - Substring matching over-matches by design (e.g. `est` matches `test`, `request`). Recall is deterministic; precision is the interpreter's job.
 - No stemming, no typo tolerance, no semantic ranking.
-
-## Manual test
-
-```powershell
-echo "arreglar lost est" | bash .opencode/scripts/extract-keywords.sh
-```
-
-Expected: valid JSON on stdout, exit code 0, `extracted_terms` containing `arreglar`, `lost`, `est`.

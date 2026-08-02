@@ -104,6 +104,3 @@ Make sure the `instructions` array in `opencode.json` references the path you us
 
 **"`opencode.json` keeps changing on every install."**
 You are editing the auto-generated file directly. Either commit to the curated `opencode.json` shipped with the agent tree and let `install-agent.ps1` skip it, or stop editing it and let the installer regenerate it from the schema (use `-Update` to allow overwrites).
-
-**"A subagent fails to launch with `Model not found`."**
-The model name in `opencode.json` does not match what your provider exposes. Check `llm-reference.md` for the current catalog, then fix the `model` field.

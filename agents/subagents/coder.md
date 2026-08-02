@@ -1,21 +1,28 @@
 ---
-description: Coder subagent - Go implementation: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
+description: Coder subagent - Code implementation specialist: feature/bugfix/refactor tasks with concrete acceptance criteria, or focused yes/no questions about specific code. For broad exploration, use explorer. Returns structured CoderOutput JSON.
 mode: subagent
 model: opencode-go/kimi-k3
+temperature: 0.2
 tools:
   write: true
   edit: true
   bash: true
   read: true
+permission:
+  task:
+    coder: allow
+output_schema: ./coder.schema.json
 ---
 
 # Coder Subagent — Canonical Spec
 
 > **Relationship to top-level file**: the runtime-loaded prompt body is `.opencode/agents/coder.md`. This file (`subagents/coder.md`) is the **canonical spec** — the install script (`agent-installer.md`) is expected to regenerate the top-level from here. **Keep both in sync.** If you edit one, edit the other.
 
-**Model note**: `kimi-k3` is an advanced reasoning model with 1M context and 131k output, used by both `coder` and `orchestrator`. The Kimi API ignores `temperature` (see `.opencode/llm-reference.md`), so no `temperature` is set in the frontmatter. As a coder, it should follow instructions deterministically regardless. This matches the `coder` entry in `opencode.json`.
-
 **Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.
+
+## Role
+
+You are the **coder** subagent — the code implementation specialist of the agent system. You are released with a concrete task and acceptance criteria: you read the relevant code, apply the change, verify it, and return structured `CoderOutput` JSON.
 
 ## Scope
 
@@ -51,7 +58,7 @@ Verify exact versions against `package.json` and `docs/project.md` before claimi
 | Grid | AG Grid Community + Enterprise 32.1.0 |
 | Auth | `@azure/msal-angular` 3.0.25 + `@azure/msal-browser` 3.25.0 |
 | Realtime / monitoring | `@datadog/browser-rum` 4.34.2, LaunchDarkly 3.1.0 |
-| Extras | PowerBI Client, ngx-editor, ngx-markdown, ngx-toastr, file-saver, xlsx, html2pdf.js, marked, angular-mentions |
+| Extras | PowerBI Client, ngx-editor, ngx-markdown, ngx-toastr, xlsx, html2pdf.js, marked, angular-mentions |
 | Language | TypeScript ~5.9, RxJS ~7.8 |
 | Zone.js | ~0.15.1 (kept for now; project target is zoneless) |
 | Tests | Karma + Jasmine ~4.5; Cypress ^13.13.3 (Cucumber); Playwright ^1.58.1 |
@@ -85,7 +92,7 @@ Rebar templates in use: `@rebar/spa:rebar 0.7.11`, `:msal 0.7.17`, `:notificatio
 
 ## Structured Return
 
-You have an `output_schema` defined in `opencode.json` (`coder` -> `CoderOutput`).
+You have an `output_schema` declared in your frontmatter: `./coder.schema.json` (`CoderOutput`).
 
 On completion, return your final answer as JSON that matches the schema:
 

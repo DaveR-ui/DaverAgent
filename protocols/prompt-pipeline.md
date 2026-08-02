@@ -1,37 +1,20 @@
 # Protocol: Prompt Pipeline
 
-Two-stage analysis convention with a deterministic pre-pass for the Delivery agent. Every non-trivial prompt passes through the pre-pass and both stages before delegation. Trivial requests (single-line fixes, factual lookups) skip the pipeline.
+Two-stage analysis convention with a deterministic pre-pass for the Delivery agent. **Every prompt** passes through the pre-pass (Step 0a) and Step 0 (Interpret) before any handling or delegation — no prompt skips the interpreter. The trivial/non-trivial verdict is an output of the interpreter's routing packet: trivial prompts (single-line fixes, factual lookups, unambiguous doc edits) are handled directly by Delivery AFTER Step 0, without Phase 2.
 
 This protocol defines the pre-pass and the two stages conceptually; the executor of each step may vary:
 
-- **Step 0a: Pre-process** (deterministic, zero LLM cost) is executed by the [`extract-keywords.sh`](../scripts/extract-keywords.sh) script. It extracts candidate terms from the raw prompt and greps them against `docs/project.md` and `docs/context/README.md`, producing a keyword packet. See [`prompt-preprocessor.md`](./prompt-preprocessor.md).
 - **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter starts from the Step 0a keyword packet, reconciles vocabulary, captures constraints, and may ask the human one batch of clarifying questions.
 - **Phase 2: Reduce** (this protocol) is executed by `delivery` for trivial scopes, or by `orchestrator` for multi-step work.
 
 ## When to apply
 
-Apply when:
+Always. Step 0a (pre-process) and Step 0 (Interpret) run on **every prompt** — they are the entry point of the delivery turn, not an opt-in for complex work. Delivery never pre-classifies a prompt to skip the interpreter; that deliberation is the failure mode the hard gate removes.
 
-- The request is non-trivial (multi-step, vague scope, prior-chat references, multi-slice, needs vocabulary mapping).
-- The human is asking for a feature, refactor, bug fix, design, or update with more than one valid interpretation.
+The only branch happens AFTER Step 0, based on the interpreter's routing packet:
 
-Skip when:
-
-- Single-line fix, factual lookup, "how do I...", simple routing decision.
-- A pure doc edit (Delivery handles directly).
-- A trivial clarification (e.g. "what is X?" answered in one read).
-
-## Step 0a: Pre-process (deterministic)
-
-Before the interpreter LLM runs, the `delivery` agent executes:
-
-```bash
-echo "<raw prompt>" | bash .opencode/scripts/extract-keywords.sh
-```
-
-The script emits a keyword packet (JSON): extracted terms, first-pass `grep` matches against `docs/project.md` and `docs/context/README.md`, and candidate slice ids from the Slices table. It always exits 0 and costs zero LLM tokens. The full contract lives in [`.opencode/protocols/prompt-preprocessor.md`](./prompt-preprocessor.md).
-
-Delivery passes the raw prompt AND the keyword packet to the interpreter. If the script is unavailable, Step 0a is skipped and the interpreter reconciles vocabulary on its own.
+- **Packet says trivial** (single-line fix, factual lookup, "how do I...", pure doc edit with unambiguous scope) -> Delivery handles it directly per its Delegation table; Phase 2 is skipped.
+- **Packet says non-trivial** -> Phase 2 (Reduce) runs, then delegation per the Integration section below.
 
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 

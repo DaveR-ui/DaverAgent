@@ -20,7 +20,7 @@ handoff for one focused subagent, then synthesize the result.
 
 ## Core process
 
-1. **Normalize** — on non-trivial requests, call `interpreter` first to
+1. **Normalize** — on every request, call `interpreter` first to
   normalize vocabulary, reconcile any built-in VS Code memory already present,
   and extract the smallest actionable slice.
 2. **Analyze** — restate the goal in your own words, note explicit constraints,

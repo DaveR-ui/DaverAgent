@@ -156,7 +156,7 @@ You will receive a handoff prompt structured like this:
 ## Constraints
 - For permission changes, follow `docs/context/auth-identity/security-permissions.md`
 - Do NOT touch opencode config or .opencode/ files
-- Run `bun typecheck` and `bun test` before reporting done (from package directories, never from repo root)
+- Run the canonical test/typecheck/lint commands from `docs/project.md` (Common Commands) before reporting done (from package directories, never from repo root)
 
 ## Stop conditions
 Return `STATUS: DONE` | `STATUS: NEEDS_HUMAN` | `STATUS: STUCK`
@@ -212,8 +212,8 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 |---|---|---|---|
 | `coder` | `kimi-k3` | Implementation, bug fixes, refactoring | `CoderOutput` |
 | `tester` | `minimax-m3` | Tests, coverage, e2e | `TesterOutput` |
-| `reviewer` | `glm-5.2` | Code review, security, performance (same model as `architect`; diversity comes from `coder` being in a different family) | `ReviewerOutput` |
-| `architect` | `glm-5.2` | System design, patterns | `ArchitectOutput` |
+| `reviewer` | `kimi-k3` | Code review, security, performance (same model as `architect` and `coder`; the previous model-family diversity was retired on 2026-07-31) | `ReviewerOutput` |
+| `architect` | `kimi-k3` | System design, patterns | `ArchitectOutput` |
 | `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
 | `project-context` | `minimax-m3` | Read/write `docs/` | text |
 | `vision-relay` | `minimax-m3` | One image + one focused question (no fallback) | text |
@@ -224,7 +224,7 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 - Scaffold templates for the project (e.g., endpoint factory, if defined)
 
 **Agent protocols** (in `.opencode/protocols/`):
-- `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every non-trivial prompt
+- `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every prompt
 - `agent-installer` — 4-phase agent install/reconfigure
 - `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `prompt-pipeline` Phase 2.
 
@@ -232,13 +232,15 @@ Each subagent runs on a specific model — the model is part of the cost contrac
 
 _(none — all opencode runtime skills have been replaced by agent protocols or on-demand `docs/context/` reads. The "customize-opencode" skill is built into the opencode runtime itself.)_
 
-Project context (Postgres/GORM conventions, permission system, naming) is **on demand**: read the relevant `docs/context/*.md` files when the task requires it. The orchestrator and subagents look up the data when they need it; there is no preloaded protocol for it.
+Project context (security permissions, identity, LaunchDarkly flags, naming) is **on demand**: read the relevant `docs/context/*.md` files when the task requires it. The orchestrator and subagents look up the data when they need it; there is no preloaded protocol for it.
 
 ## Strategic Pauses
 
 Pause for human feedback at: after analysis, on plan changes, after major phase. If no feedback, continue with best judgment.
 
-The `delivery` agent manages the human-facing pause/resume. Interruption is native via `POST /session/:id/abort` and the `Subagent.Interrupted` event; there is no file-based semáforo anymore.
+The `delivery` agent manages the human-facing pause/resume. Interruption is native via `POST /session/:id/abort` and the `Subagent.Interrupted` event.
+
+For the full recovery flow when an orchestrator session is interrupted or STUCK (including enumerating children, aborting stuck ones, and producing a `## Resume instructions (if restart)` snapshot), see [`.opencode/protocols/session-recovery.md`](../protocols/session-recovery.md).
 
 ## Hard Limits
 
@@ -246,7 +248,7 @@ These rules cannot be violated. If a task would require violating one, return `S
 
 - NEVER modify files under `.opencode/` (config, agents, protocols, docs).
 - NEVER write `summary.md` / `output-full.md` / `manifest.md` to disk; receive structured returns via the task tool (`output_schema`).
-- NEVER run `bun test` or `bun typecheck` from the repo root; always from the affected package directory.
+- NEVER run test/typecheck/lint/build from the repo root; always from the affected package directory. See `docs/project.md` (Common Commands) for the canonical commands.
 - NEVER commit secrets, amend commits, create empty commits, bypass hooks, or force push.
 - NEVER speak to the human directly; all human-facing communication goes through `delivery`.
 - NEVER fabricate completed work. If a subagent's return does not match its `output_schema`, treat it as a subagent failure and re-invoke — do not reinterpret.

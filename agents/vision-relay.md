@@ -33,7 +33,7 @@ Example:
 
 ```
 @vision-relay inspect the screenshot at .opencode/assets/error.png
-and tell me: which HTTP status code and which Go function is shown on the error page?
+and tell me: which HTTP status code and which error message is shown on the error page?
 ```
 
 You receive the path and the question. You read the image once. You answer.

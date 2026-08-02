@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReviewerOutput",
+  "description": "Structured return for the reviewer subagent: verdict, per-finding issues, and a free-form summary report.",
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "approve",
+        "request_changes",
+        "block"
+      ],
+      "description": "Overall review verdict."
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Path of the file containing the issue."
+          },
+          "line": {
+            "type": "integer",
+            "description": "Line number of the issue."
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ],
+            "description": "Severity of the issue."
+          },
+          "message": {
+            "type": "string",
+            "description": "What is wrong and how to fix it."
+          }
+        },
+        "required": [
+          "file",
+          "line",
+          "severity",
+          "message"
+        ],
+        "additionalProperties": true
+      },
+      "description": "Per-finding issues discovered during review."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Free-form review report."
+    }
+  },
+  "required": [
+    "verdict",
+    "issues",
+    "summary"
+  ],
+  "additionalProperties": true
+}
