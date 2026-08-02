@@ -75,7 +75,8 @@
             "description": "Concrete file (and section where useful) that resolved it."
           }
         },
-        "required": ["raw", "resolved", "source"]
+        "required": ["raw", "resolved", "source"],
+        "additionalProperties": false
       },
       "description": "Terms resolved by grep/glob lookups."
     },
@@ -93,7 +94,8 @@
             "description": "Which lookups ran and why they did not settle the term."
           }
         },
-        "required": ["question", "could_not_resolve"]
+        "required": ["question", "could_not_resolve"],
+        "additionalProperties": false
       },
       "description": "Terms the lookups could not settle."
     },
@@ -122,5 +124,5 @@
     "edge_cases",
     "clarification_needed"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

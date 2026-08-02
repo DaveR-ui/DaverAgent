@@ -22,5 +22,5 @@
     }
   },
   "required": ["files_found", "summary", "confidence"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -21,60 +21,8 @@
       "description": "Agent protocols (prompt-pipeline, agent-installer, broad-investigation-template). Read on demand for convention reference."
     }
   },
-  "agent": {
-    "delivery": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.3
-    },
-    "orchestrator": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "coder-angular": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "coder-go": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "reviewer": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "architect": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "analista": {
-      "model": "opencode-go/kimi-k3"
-    },
-    "tester": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.2
-    },
-    "explorer": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.1
-    },
-    "project-context": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.2
-    },
-    "vision-relay": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.1
-    },
-    "external-scout": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.1
-    },
-    "interpreter": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.1
-    },
-    "documenter": {
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.2
-    }
-  },
   "permission": {
-    "question": "allow"
+    "question": "ask"
   },
   "instructions": [
     "docs/project.md",

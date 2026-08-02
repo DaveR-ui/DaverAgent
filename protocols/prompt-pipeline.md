@@ -1,20 +1,20 @@
 # Protocol: Prompt Pipeline
 
-Two-stage analysis convention with a deterministic pre-pass for the Delivery agent. **Every prompt** passes through the pre-pass (Step 0a) and Step 0 (Interpret) before any handling or delegation — no prompt skips the interpreter. The trivial/non-trivial verdict is an output of the interpreter's routing packet: trivial prompts (single-line fixes, factual lookups, unambiguous doc edits) are handled directly by Delivery AFTER Step 0, without Phase 2.
+Two-stage analysis convention for the Delivery agent. **Every prompt** passes through Step 0 (Interpret) before any handling or delegation — no prompt skips the interpreter. The trivial/non-trivial verdict is an output of the interpreter's routing packet: trivial prompts (single-line fixes, factual lookups, unambiguous doc edits) are handled directly by Delivery AFTER Step 0, without Phase 2.
 
-This protocol defines the pre-pass and the two stages conceptually; the executor of each step may vary:
+This protocol defines the two stages conceptually; the executor of each step may vary:
 
-- **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter starts from the Step 0a keyword packet, reconciles vocabulary, captures constraints, and may ask the human one batch of clarifying questions.
-- **Phase 2: Reduce** (this protocol) is executed by `delivery` for trivial scopes, or by `orchestrator` for multi-step work.
+- **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
+- **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce requires the reasoning quality of the orchestrator's tier (`kimi-k3`); delegating it is a one-line `task` call, and doing it on the cheap tier is the failure mode this protocol removes.
 
 ## When to apply
 
-Always. Step 0a (pre-process) and Step 0 (Interpret) run on **every prompt** — they are the entry point of the delivery turn, not an opt-in for complex work. Delivery never pre-classifies a prompt to skip the interpreter; that deliberation is the failure mode the hard gate removes.
+Always. Step 0 (Interpret) runs on **every prompt** — it is the entry point of the delivery turn, not an opt-in for complex work. Delivery never pre-classifies a prompt to skip the interpreter; that deliberation is the failure mode the hard gate removes.
 
 The only branch happens AFTER Step 0, based on the interpreter's routing packet:
 
 - **Packet says trivial** (single-line fix, factual lookup, "how do I...", pure doc edit with unambiguous scope) -> Delivery handles it directly per its Delegation table; Phase 2 is skipped.
-- **Packet says non-trivial** -> Phase 2 (Reduce) runs, then delegation per the Integration section below.
+- **Packet says non-trivial** -> Delivery delegates to `orchestrator`, which runs Phase 2 (Reduce) and then decomposes the work. Phase 2 never runs on `delivery`.
 
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 
@@ -96,20 +96,19 @@ The full process and the routing packet schema are defined in [`.opencode/agents
 The Delivery agent runs the two stages in sequence:
 
 ```
-Raw prompt -> Step 0a (extract-keywords.sh) -> keyword packet -> Step 0 (interpreter subagent) -> routing packet -> Phase 2 (Reduce) -> scope + plan -> delegate
+Raw prompt -> Step 0 (interpreter subagent) -> routing packet -> [non-trivial only] delegate to orchestrator -> Phase 2 (Reduce) -> scope + plan -> decompose
 ```
 
 The Delivery's system prompt is small on purpose. Sections in the system prompt that say "see prompt-pipeline.md" or "call interpreter first" are anchors into this protocol. This file is the source of truth.
 
-After Phase 2, Delivery picks the delegation target:
+After Step 0, Delivery picks the delegation target:
 
 - **Trivial** (post-Step 0) -> handle directly (doc edit, simple lookup).
-- **1-2 file change** (post-Phase 2) -> delegate to `coder-angular` or `coder-go` directly (match the stack from the routing packet).
-- **3+ files or multi-step** -> delegate to `orchestrator` with the routing packet + scope as the handoff.
+- **Non-trivial** (1-2 files OR multi-step) -> delegate to `orchestrator` with the routing packet as the handoff. The orchestrator runs Phase 2 (Reduce), produces the scope, and decomposes (releasing `coder-angular` / `coder-go`, `tester`, `reviewer`, etc. in parallel). Do not route 1-2 file work to a coder directly — the reduce step is the orchestrator's job.
 
 ## Notes
 
-- The interpreter runs on `minimax-m3` (cheap). Phase 2 runs on the model's tier assigned to `delivery` or `orchestrator`. Do not move Phase 2 onto a cheaper tier for cost reasons; it requires the reasoning quality the assigned tier has.
+- The interpreter runs on `minimax-m3` (cheap). Phase 2 runs **only** on the orchestrator's tier (`kimi-k3`). Do not move Phase 2 to `delivery` (minimax-m3) or any cheaper tier — Reduce requires the reasoning quality only the orchestrator's tier has.
 - Edge cases are practical, not theoretical.
 - Acceptance criteria are testable, not vague.
 - The hidden assumption is the most important thing Step 0 surfaces — it is what nobody is thinking about. Phase 2 must carry it forward.

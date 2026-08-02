@@ -1,0 +1,12 @@
+{
+  "verdict": "request_changes",
+  "issues": [
+    {
+      "file": "src/feature/foo.ts",
+      "line": 42,
+      "severity": "warning",
+      "message": "Handle the empty-array case"
+    }
+  ],
+  "summary": "One blocking issue"
+}

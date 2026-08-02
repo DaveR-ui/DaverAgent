@@ -48,6 +48,18 @@ export const plugin: Plugin = async (ctx) => {
             }
 
             const targetMessage = userMessages[messageIndex]
+
+            if (!targetMessage) {
+              return JSON.stringify({
+                status: "not_found",
+                original_language: null,
+                original_text: null,
+                translated_text: null,
+                source: "plugin:prompt-fetcher",
+                error: `Message index ${messageIndex} resolved to no message`,
+              })
+            }
+
             const textParts = targetMessage.parts.filter(
               (p) => p.type === "text"
             )

@@ -46,7 +46,7 @@
           "severity",
           "message"
         ],
-        "additionalProperties": true
+        "additionalProperties": false
       },
       "description": "Per-finding issues discovered during review."
     },
@@ -60,5 +60,5 @@
     "issues",
     "summary"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

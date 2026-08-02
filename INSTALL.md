@@ -25,13 +25,13 @@ The folder is self-contained. It includes the agent system prompts (`.opencode/a
 
 ## 2. Copy the base config to `opencode.json`
 
-`jason-opencode.json` is the **base config**: copy it to the root of your project as `opencode.json`. It defines only the **models and temperatures** per agent (plus `default_agent`, plugin, `compaction`, global `permission`, and `instructions`). Everything else about an agent lives in its `.md` file.
+`jason-opencode.json` is the **runtime base config**: copy it to the root of your project as `opencode.json`. It contains only top-level runtime settings (`default_agent`, plugin, `compaction`, `references`, global `permission`, `instructions`). Everything about an agent — `description`, `mode`, `model`, `temperature`, `permission`, `output_schema` — lives in its `.md` file under `.opencode/agents/subagents/`. There is no `agent` block in `opencode.json`.
 
 ```powershell
 Copy-Item ".\.opencode\jason-opencode.json" ".\opencode.json"
 ```
 
-> Adjust the model ids (`opencode-go/...`) in `opencode.json` if your provider differs.
+> Adjust the model ids (`opencode-go/...`) in each agent's frontmatter (`.opencode/agents/subagents/<id>.md`, field `model`) if your provider differs.
 
 ## 3. Update `.gitignore`
 
@@ -81,6 +81,16 @@ if ($?) { "opencode.json is valid" }
 (Get-Content -LiteralPath ".\opencode.json" -Raw | ConvertFrom-Json).agent.PSObject.Properties.Name
 ```
 
+## 6b. Validate the agent tree
+
+Run the full test suite (Git Bash / WSL) before moving on:
+
+```bash
+bash .opencode/tests/run-tests.sh
+```
+
+It must exit 0. It runs the integrity lint (`validate-agent.sh`), the output-schema contract tests, and the plugin typecheck. `docs/` paths reported as WARN are expected when `docs/project.md` / `docs/context/` do not exist yet — they are created in step 5 or by you.
+
 ## 7. Edit the generated stubs
 
 The installer creates stubs; you fill in the substance:
@@ -101,8 +111,8 @@ The `delivery` agent picks up these docs on the next session and starts routing 
 | Change | Command |
 |---|---|
 | Add a slice to `docs/project.md` | Edit the file directly. |
-| Add or update a subagent | Edit `.opencode/agents/subagents/<id>.md`; add `agent.<id>` (model + temperature) to `opencode.json`. |
-| Change a model / temperature | Edit `opencode.json` -> `agent.<id>` (`model` / `temperature`), then restart opencode. The agent `.md` does not declare them. |
+| Add or update a subagent | Edit `.opencode/agents/subagents/<id>.md` (frontmatter includes `model`/`temperature`). |
+| Change a model / temperature | Edit `.opencode/agents/subagents/<id>.md` -> `model` / `temperature`, then restart opencode. `opencode.json` is untouched. |
 | Add a new context doc type | Add the file under `docs/context/` and update the index in `docs/context/README.md`. |
 | Regenerate everything from scratch | Delete `docs/project.md` and the unwanted `docs/context/*.md` stubs, then re-run `install-agent.ps1`. |
 | Audit what would change | Append `-VerifyOnly` to any of the above scripts. |

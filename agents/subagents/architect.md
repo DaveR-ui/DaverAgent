@@ -1,11 +1,7 @@
 ---
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
-tools:
-  write: true
-  edit: true
-  bash: true
-  read: true
+model: opencode-go/kimi-k3
 permission:
   task:
     architect: allow
@@ -44,7 +40,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 ## Principles
 
-- Follow `docs/context/architecture.md` (Signals-first, OnPush, Standalone, `rxResource` data flow)
+- Follow `docs/context/architecture.md` (the project's documented patterns — layering, reactivity, state management as defined there)
 - Favor simplicity
 - Design for testability and maintainability
 - Document decisions with rationale
@@ -68,7 +64,7 @@ On completion, return your final answer as JSON:
   "decisions": [
     {
       "topic": "state loading",
-      "choice": "use `rxResource` for async table loading",
+      "choice": "use the project's documented async-loading pattern for the table",
       "rationale": "Signals-first standard per `docs/context/angular-reactivity-resource-api.md`"
     }
   ],

@@ -1,12 +1,10 @@
 ---
 description: Explorer subagent - Codebase exploration, file search, dependency analysis. Returns structured ExplorerOutput JSON. Recursively fans out into parallel explorer instances when the input exceeds the sample window.
 mode: subagent
-tools:
-  write: false
-  edit: false
-  bash: true
-  read: true
+model: opencode-go/minimax-m3
+temperature: 0.1
 permission:
+  edit: deny
   task:
     explorer: allow
 output_schema: ./explorer.schema.json
@@ -41,7 +39,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 - For architectural questions, consult `docs/context/architecture.md` and the `docs/project.md` Slices table
 - For business rules / feature context, consult the slice's primary doc in `docs/context/` (per the Slices table)
 - Match the task to a slice first — the Slices table's Keywords column predicts which `src/` area and which `docs/context/` doc a symbol belongs to
-- This is an Angular SPA (`DFCustomerPortal`, AIR226766): components, services, and state live under `src/app/`
+- This is a codebase with documented stack and slices — see `docs/project.md` and the Slices table's entry points for where application code lives
 - For **broad-coverage** tasks (map / inventory / audit a class of thing across the repo, where incomplete coverage is the worst failure mode), the incoming prompt is expected to follow the `broad-investigation-template` protocol (`.opencode/protocols/broad-investigation-template.md`). Honor its Search Strategy, Evidence Requirements, Coverage Checklist and Definition of Done. Do NOT apply the template to targeted lookups ("where is `X` defined?") — those stay single-pass.
 
 ## Anti-Patterns
@@ -89,9 +87,9 @@ On completion, return your final answer as JSON:
 
 ```json
 {
-  "files_found": ["path/to/file.ts", "..."],
+  "files_found": ["path/to/file.ts"],
   "summary": "one-line description of what you found",
-  "confidence": "low | medium | high"
+  "confidence": "high"
 }
 ```
 
@@ -103,4 +101,4 @@ The task tool validates your return against `ExplorerOutput`. Do not write `summ
 
 - NEVER modify code
 - All output in ENGLISH
-- Always report absolute paths from the repo root (e.g. `src/app/app.component.ts`), not relative
+- Always report absolute paths from the repo root (e.g. `src/feature/foo.ts`), not relative

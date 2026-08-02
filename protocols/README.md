@@ -8,7 +8,7 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 
 All former repo-local skills have been migrated to agent protocols. The `.opencode/skills/` directory does not exist and should not be created. If the opencode runtime lists skills in `available_skills` pointing to `.opencode/skills/*/SKILL.md`, those are phantom entries from a previous installation.
 
-Phase 1 (Normalize) is now executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent as Step 0. Phase 2 (Reduce) is described by the `prompt-pipeline` protocol (see below).
+Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. Phase 2 (Reduce) is described by the `prompt-pipeline` protocol (see below).
 
 | Former Skill / Protocol | Status |
 |---|---|
@@ -36,7 +36,7 @@ _(none — all opencode runtime skills have been replaced by agent protocols or 
 
 Some topics are **not codified as protocols** — they live as scattered info in `docs/context/` and the agent reads them on demand when the task requires it:
 
-- **Postgres / GORM best practices** — GORM conventions, indexes, soft deletes, error mapping. The relevant files are `docs/context/architecture.md` and `docs/context/rules.md`.
+- **Database / ORM best practices** — the ORM conventions, indexes, soft deletes, error mapping. The relevant files are `docs/context/architecture.md` and `docs/context/rules.md`.
 - **Permission system** — atomic permissions design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version, RequirePermission middleware). The design lives in `docs/context/permission-architecture.md`.
 
 ## How protocols relate to the rest of `.opencode/`

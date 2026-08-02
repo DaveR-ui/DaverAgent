@@ -1,16 +1,11 @@
 ---
 description: Vision Relay - Cheap image inspection for non-vision models. Receives one image plus one focused question, returns a compact textual answer.
 mode: subagent
-tools:
-  write: false
-  edit: false
-  bash: false
-  read: true
+model: opencode-go/minimax-m3
+temperature: 0.1
 permission:
-  read: allow
-  bash: deny
   edit: deny
-  write: deny
+  bash: deny
   webfetch: deny
 ---
 

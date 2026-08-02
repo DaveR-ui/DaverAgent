@@ -390,26 +390,36 @@ function Get-AgentBody {
     return $defaultBody
 }
 
+function Get-AgentModel {
+    param([string]$Id)
+    if ($Id -in @("coder-angular", "coder-go", "reviewer", "architect", "analista")) { return "opencode-go/kimi-k3" }
+    return "opencode-go/minimax-m3"
+}
+
 function Get-AgentTemp {
     param([string]$Id)
-    if ($Id -eq "reviewer") { return 0.1 }
-    if ($Id -eq "architect") { return 0.3 }
+    if ($Id -eq "delivery") { return 0.3 }
+    if ($Id -eq "tester") { return 0.2 }
     if ($Id -eq "explorer") { return 0.1 }
-    return 0.2
+    if ($Id -eq "vision-relay") { return 0.1 }
+    if ($Id -eq "external-scout") { return 0.1 }
+    if ($Id -eq "interpreter") { return 0.1 }
+    if ($Id -eq "project-context") { return 0.2 }
+    if ($Id -eq "documenter") { return 0.2 }
+    return $null
 }
 
 function Build-AgentFile {
     param([string]$Id, $Ctx)
     $body = Get-AgentBody -Id $Id
+    $model = Get-AgentModel -Id $Id
+    $temp = Get-AgentTemp -Id $Id
     $sb = New-Object System.Text.StringBuilder
     [void]$sb.AppendLine("---")
     [void]$sb.AppendLine("description: $Id subagent")
     [void]$sb.AppendLine("mode: subagent")
-    [void]$sb.AppendLine("tools:")
-    [void]$sb.AppendLine("  write: true")
-    [void]$sb.AppendLine("  edit: true")
-    [void]$sb.AppendLine("  bash: true")
-    [void]$sb.AppendLine("  read: true")
+    [void]$sb.AppendLine("model: $model")
+    if ($temp) { [void]$sb.AppendLine("temperature: $temp") }
     [void]$sb.AppendLine("---")
     [void]$sb.AppendLine("")
     [void]$sb.Append($body)
@@ -422,19 +432,13 @@ function Build-OpencodeJson {
     [void]$sb.AppendLine('{')
     [void]$sb.AppendLine('  "$schema": "https://opencode.ai/config.json",')
     [void]$sb.AppendLine("  ""default_agent"": ""$DefaultAgent"",")
-    [void]$sb.AppendLine('  "agent": {')
-    $first = $true
-    foreach ($s in @($DefaultAgent) + $Subagents) {
-        if (-not $first) { [void]$sb.AppendLine(',') }
-        $first = $false
-        $temp = Get-AgentTemp -Id $s
-        [void]$sb.AppendLine("    ""$s"": {")
-        [void]$sb.AppendLine('      "model": "opencode-go/minimax-m3",')
-        [void]$sb.AppendLine("      ""temperature"": $temp")
-        [void]$sb.AppendLine('    }')
-    }
+    [void]$sb.AppendLine('  "plugin": ["./.opencode/plugins/prompt-fetcher"],')
+    [void]$sb.AppendLine('  "compaction": {'),
+    [void]$sb.AppendLine('    "auto": true,')
+    [void]$sb.AppendLine('    "prune": true,')
+    [void]$sb.AppendLine('    "reserved": 10000')
     [void]$sb.AppendLine('  },')
-    [void]$sb.AppendLine('  "permission": { "question": "allow" },')
+    [void]$sb.AppendLine('  "permission": { "question": "ask" },')
     [void]$sb.AppendLine('  "instructions": [')
     [void]$sb.AppendLine('    "docs/project.md",')
     [void]$sb.AppendLine('    ".opencode/protocols/prompt-pipeline.md"')

@@ -30,5 +30,5 @@
     "tests_passed",
     "summary"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

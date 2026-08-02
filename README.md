@@ -2,14 +2,14 @@
 
 Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder-angular, coder-go, tester, etc.) listo para clonar/copiar como `.opencode/` en el repo que lo vaya a usar.
 
-## Fuente de verdad: dos partes, sin duplicados
+## Fuente de verdad: una sola parte, sin duplicados
 
 | Archivo | Ubicación | Rol |
 |---|---|---|
-| `jason-opencode.json` | raíz de esta tree | **Config base**. Se copia al repo destino como `opencode.json`. Define solo los **modelos y temperaturas** por agente (los knobs que cambiás seguido), más `default_agent`, `plugin`, `compaction`, `permission` global e `instructions`. |
-| `.opencode/agents/subagents/*.md` | un archivo por agente | **Definición del agente**: `description`, `mode`, `tools`, `permission`, `output_schema` y el system prompt. El runtime los carga por escaneo de `agent(s)/**/*.md`. |
+| `jason-opencode.json` | raíz de esta tree | **Config runtime base**. Se copia al repo destino como `opencode.json`. Solo top-level: `default_agent`, `plugin`, `compaction`, `references`, `permission` global e `instructions`. **No tiene bloque `agent`**. |
+| `.opencode/agents/subagents/*.md` | un archivo por agente | **Definición completa del agente**: `description`, `mode`, `model`, `temperature`, `permission`, `output_schema` y el system prompt. El runtime los carga por escaneo de `agent(s)/**/*.md`. |
 
-**Regla de oro**: modelo y temperatura viven solo en `opencode.json`; todo lo demás vive solo en el archivo del agente. No hay duplicación entre ambos. Para cambiar un modelo, editá `opencode.json` y reiniciá opencode.
+**Regla de oro**: TODO lo de un agente vive en su `.md` (incluido modelo y temperatura). `opencode.json` no tiene bloque `agent`. No hay duplicación. Para cambiar un modelo, editá el frontmatter del agente y reiniciá opencode.
 
 ## Modelos
 
@@ -20,49 +20,60 @@ Esta carpeta contiene toda la configuración del sistema de agentes (delivery, o
 
 ## Estructura
 
+> Este repo es el **tree fuente**: los archivos viven en la raíz (`agents/`, `protocols/`, ...) y se copian al repo destino como `.opencode/`. Por eso este README y los agentes referencian rutas con prefijo `.opencode/` — es la forma que tienen en el repo instalado.
+
 ```
-.opencode/
-├── jason-opencode.json                # Config base -> copiar como opencode.json en el repo destino
-├── README.md                          # Este archivo
-├── INSTALL.md                         # Cómo instalar el agente en otro repo
+DaverAgent/                     (tree fuente → se copia como .opencode/ en el repo destino)
+├── jason-opencode.json         # Config runtime base -> copiar como opencode.json en el repo destino
+│                              #  (default_agent, plugin, compaction, references, permission, instructions)
+├── README.md                  # Este archivo
+├── INSTALL.md                 # Cómo instalar el agente en otro repo
 │
 ├── agents/
-│   └── subagents/                     # Un archivo por agente (los lee el runtime de opencode)
-│       ├── delivery.md                # Interfaz con el humano
-│       ├── orchestrator.md            # Coordinador (delegable a fondo)
-│       ├── coder-angular.md           # Implementación Angular (referencia docs/context/)
-│       ├── coder-go.md                # Implementación Go (referencia docs/context/)
-│       ├── reviewer.md                # Code review
-│       ├── tester.md                  # Tests
-│       ├── architect.md               # Diseño
-│       ├── explorer.md                # Búsqueda y mapeo
-│       ├── project-context.md         # Lee/escribe docs/
-│       ├── vision-relay.md            # Inspección de imágenes
-│       ├── external-scout.md          # Docs externas vía webfetch
-│       ├── interpreter.md             # Normalización Step 0
-│       ├── analista.md                # Segunda opinión
-│       ├── documenter.md              # Documentación
-│       └── *.schema.json              # Schemas de los returns estructurados
+│   └── subagents/             # Un archivo por agente (los lee el runtime de opencode)
+│       ├── delivery.md        # Interfaz con el humano (primary)
+│       ├── orchestrator.md    # Coordinador (delegable a fondo)
+│       ├── coder-angular.md   # Implementación Angular (referencia docs/context/)
+│       ├── coder-go.md        # Implementación Go (referencia docs/context/)
+│       ├── reviewer.md        # Code review
+│       ├── tester.md          # Tests
+│       ├── architect.md       # Diseño
+│       ├── explorer.md        # Búsqueda y mapeo
+│       ├── project-context.md # Lectura de docs/ (read-only, lookups y context assembly)
+│       ├── vision-relay.md    # Inspección de imágenes
+│       ├── external-scout.md  # Docs externas vía webfetch
+│       ├── interpreter.md     # Normalización Step 0
+│       ├── analista.md        # Segunda opinión
+│       ├── documenter.md      # Documentación
+│       └── *.schema.json      # Schemas de los returns estructurados
 │
-├── agents agnostic/                    # Definiciones alternativas (referencia, no usadas)
-│
-├── protocols/                          # Convenciones operativas del agente
-│   ├── README.md                       # Índice
-│   ├── prompt-pipeline.md              # Step 0 Interpret (interpreter subagent) + Phase 2 Reduce
-│   ├── agent-installer.md              # 4 fases del installer
+├── protocols/                  # Convenciones operativas del agente
+│   ├── README.md               # Índice
+│   ├── prompt-pipeline.md      # Step 0 Interpret (interpreter subagent) + Phase 2 Reduce
+│   ├── agent-installer.md      # 4 fases del installer
 │   └── broad-investigation-template.md # Scaffold para auditorías wide-surface
 │
-├── workflows/                          # Thinking instructions
-│   └── orchestrate.md                  # Reglas que el orchestrator aplica antes de actuar
+├── workflows/                  # Thinking instructions
+│   ├── dispatch.md             # Gate interpreter-first (lo lee delivery cada turno)
+│   └── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
 │
-├── plugins/                            # Plugins del runtime
-│   └── prompt-fetcher/                 # Tool: fetch_original_prompt (lee el primer mensaje de una sesión)
+├── plugins/                    # Plugins del runtime
+│   └── prompt-fetcher/         # Tool: fetch_original_prompt (lee el primer mensaje de una sesión)
 │
-├── scripts/                            # PowerShell helpers
-│   └── install-agent.ps1               # 4 fases: regenera docs/project.md, context docs, subagents, opencode.json
+├── scripts/                    # Installer + helpers
+│   ├── install-agent.ps1       # 4 fases: regenera docs/project.md, context docs, subagents, opencode.json
+│   ├── install-agent.schema.json # Question list que guía el installer (4 fases)
+│   ├── validate-agent.sh       # Lint de integridad del tree de agentes (CI-friendly)
+│   └── session-recover.ps1     # Walk de la session API para recovery
 │
-├── .git/                               # Historial interno de .opencode/
-└── .backups/                           # Backups automáticos del installer (no commitear)
+├── tests/                      # Test suite del tree de agentes
+│   ├── run-tests.sh            # Runner maestro: validator + schemas + typecheck del plugin
+│   ├── schema_check.py         # Mini-validador JSON Schema (stdlib, sin deps)
+│   ├── test-output-schemas.py  # Contratos schema <-> fixtures <-> ejemplos de los .md
+│   ├── test-validate-agent.sh  # Corre validate-agent.sh y afirma que pasa
+│   └── fixtures/               # Fixtures de outputs y routing packets dorados
+│
+└── .github/workflows/          # CI (corre run-tests.sh en cada push/PR)
 ```
 
 ## Subagents disponibles
@@ -72,7 +83,7 @@ Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan des
 | Agente | Modelo | Propósito |
 |---|---|---|
 | `delivery` | minimax-m3 | Interfaz con el humano. NO delega trabajo técnico. |
-| `orchestrator` | kimi-k3 | Coordina trabajo multi-paso, hace fan-out de subagentes. |
+| `orchestrator` | kimi-k3 | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
 | `coder-angular` | kimi-k3 | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
 | `coder-go` | kimi-k3 | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
 | `tester` | minimax-m3 | Tests. Devuelve `TesterOutput`. |
@@ -80,17 +91,17 @@ Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan des
 | `architect` | kimi-k3 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
 | `analista` | kimi-k3 | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
 | `explorer` | minimax-m3 | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
-| `project-context` | minimax-m3 | Lee/escribe `docs/`. |
+| `project-context` | minimax-m3 | Lookups y context assembly de `docs/` (read-only). El único escritor de `docs/` es `documenter`. |
 | `vision-relay` | minimax-m3 | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
 | `external-scout` | minimax-m3 | Trae docs de librerías externas vía webfetch. |
 | `interpreter` | minimax-m3 | Normaliza el prompt (Step 0 del pipeline). |
 | `documenter` | minimax-m3 | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
 
-Los modelos y temperaturas de la columna "Modelo" viven en `opencode.json` (→ `agent.<id>`); la definición de cada agente vive en su `.md`. Cambiar un modelo = editar `opencode.json` + reiniciar opencode.
+Los modelos y temperaturas viven en el **frontmatter de cada agente** (`.opencode/agents/subagents/<id>.md`). Cambiar un modelo = editar el frontmatter del agente + reiniciar opencode.
 
 ## Protocolos (cómo piensa el agente)
 
-Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más importante es [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), que define el análisis en 2 fases que el `delivery` aplica a cada prompt, sin excepción. El `delivery.md` lo referencia por anchor en vez de duplicar el contenido.
+Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más importante es [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), que define el análisis en 2 fases que se aplica a cada prompt, sin excepción: Step 0 (Interpret) lo ejecuta el `interpreter`; Phase 2 (Reduce) la ejecuta el `orchestrator`. El `delivery.md` lo referencia por anchor en vez de duplicar el contenido.
 
 ## Permisos de los agentes
 
@@ -99,9 +110,9 @@ Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más
 
 ## Actualizar la config
 
-- **Cambiar modelo/temperatura** de un agente → editá `opencode.json` (`agent.<id>`) y reiniciá opencode. Nada más.
+- **Cambiar modelo/temperatura** de un agente → editá el frontmatter de `.opencode/agents/subagents/<id>.md` (`model` / `temperature`) y reiniciá opencode. Nada más.
 - **Cambiar la definición de un agente** (prompt, tools, permisos, schema) → editá `.opencode/agents/subagents/<id>.md`.
-- **Agregar un agente** → creá `.opencode/agents/subagents/<id>.md` y sumá `agent.<id>` (model + temperature) a `opencode.json`.
+- **Agregar un agente** → creá `.opencode/agents/subagents/<id>.md` con su frontmatter completo (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema`). No toques `opencode.json`.
 - Para regenerar `docs/project.md`, los context docs y los subagents desde el schema del installer:
 
 ```powershell
@@ -110,6 +121,20 @@ Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más
 ```
 
 El installer hace backup automático en `.opencode/.backups/<timestamp>/` antes de sobrescribir.
+
+## Validar la config
+
+Antes de commitear cambios a `.opencode/`, corré el test suite completo (Git Bash / WSL):
+
+```bash
+bash .opencode/tests/run-tests.sh
+```
+
+Incluye tres suites, todas con exit code 0/1 (listas para CI):
+
+1. **`validate-agent.sh`** (lint de integridad): que `opencode.json` sea JSON válido, que cada agente `.md` declare `model` en su frontmatter y no use el campo deprecated `tools:` (usa `permission:`), que cada `output_schema` apunte a un archivo existente, que los `permission.task` de `delivery`/`orchestrator` apunten a subagentes reales, y que el frontmatter obligatorio (`description`/`mode`) exista. Los paths `docs/` (del repo destino) se reportan como WARN, no como error.
+2. **`test-output-schemas.py`** (contratos de salida): cada fixture válido en `tests/fixtures/outputs/` valida contra su schema, cada fixture inválido es rechazado, los routing packets dorados en `tests/fixtures/prompts/` validan contra `interpreter.schema.json`, y los ejemplos JSON documentados en los `.md` se mantienen en sync con sus schemas.
+3. **Typecheck del plugin** (`tsc --noEmit` en `plugins/prompt-fetcher`).
 
 ## Solución de problemas
 

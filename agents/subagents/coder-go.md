@@ -1,11 +1,7 @@
 ---
 description: Coder Go - implementation for the Go backend. Thin adapter: reads the Go docs in docs/context/ and the matched slice, applies them, returns CoderOutput JSON. For Angular work use coder-angular.
 mode: subagent
-tools:
-  write: true
-  edit: true
-  bash: true
-  read: true
+model: opencode-go/kimi-k3
 permission:
   task:
     coder-go: allow
@@ -19,7 +15,7 @@ Go implementation specialist. Implements features, bug fixes, and refactors for 
 ## Stack / Context
 
 - Read `docs/project.md` first: stack, commands, and the **Slices table** (the routing source).
-- The **Go docs in `docs/context/` are the source of truth** (architecture, project rules, permission system, GORM / Postgres best practices) — not `src/`, which may contain legacy patterns.
+- The **Go docs in `docs/context/` are the source of truth** (architecture, project rules, backend best practices) — not `src/`, which may contain legacy patterns.
 - Match the task to a slice and follow that slice's primary doc.
 
 ## Rules

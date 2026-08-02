@@ -31,5 +31,5 @@
     "tests_passed",
     "failures"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

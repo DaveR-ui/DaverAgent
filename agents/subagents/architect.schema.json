@@ -22,7 +22,8 @@
             "description": "Why this choice, citing the canonical doc when relevant."
           }
         },
-        "required": ["topic", "choice", "rationale"]
+        "required": ["topic", "choice", "rationale"],
+        "additionalProperties": false
       },
       "description": "Design decisions with rationale."
     },
@@ -39,5 +40,5 @@
     }
   },
   "required": ["decisions", "files_to_touch", "summary"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

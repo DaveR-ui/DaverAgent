@@ -38,5 +38,5 @@
     }
   },
   "required": ["files_changed", "files_added", "files_removed", "summary"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

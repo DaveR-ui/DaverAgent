@@ -5,10 +5,7 @@ Conventions for installing and reconfiguring the opencode agent system in a repo
 ## Source of truth
 
 - **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer
-- **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list
-- **Question reference**: `docs/context/agent-installer-questions.md` — what each question means (currently does not exist; create if needed or remove this reference)
-- **Update protocol**: `docs/context/agent-update-protocol.md` — what gets preserved/overwritten (currently does not exist; create if needed or remove this reference)
-- **Script**: `.opencode/scripts/install-agent.ps1` — the actual installer, currently driven by inline questions and manual update logic.
+- **Schema**: `.opencode/scripts/install-agent.schema.json` — data-driven question list (drives the 4 phases below)
 
 ## The 4 phases
 
@@ -66,7 +63,7 @@ Do NOT use this for:
 ### Add a subagent
 
 1. If the new subagent matches an existing pattern (e.g. a new `*-expert` reader), add a body in `Get-AgentBody` in `install-agent.ps1` and re-run.
-2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). All per-agent config lives in the new agent's frontmatter — including `output_schema: ./<id>.schema.json` plus the sibling schema file if the subagent returns structured JSON (the spec documents the bridge). The only thing that goes in `opencode.json` is the new agent's `model` + `temperature` under `agent.<id>`.
+2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). All per-agent config lives in the new agent's frontmatter — `description`, `mode`, `model`, `temperature`, `permission`, and `output_schema: ./<id>.schema.json` plus the sibling schema file if the subagent returns structured JSON (the spec documents the bridge). Nothing goes in `opencode.json` — there is no `agent` block.
 3. Re-run `install-agent.ps1 -VerifyOnly` to confirm the new agent shows up.
 
 ## Backup discipline

@@ -1,12 +1,9 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-tools:
-  write: false
-  edit: false
-  bash: true
-  read: true
+model: opencode-go/kimi-k3
 permission:
+  edit: deny
   task:
     reviewer: allow
 output_schema: ./reviewer.schema.json
@@ -48,7 +45,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 3. Permission system (`docs/context/security-permissions.md`) for auth changes
 5. Security - secrets, auth, input validation
 6. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
-7. Anti-patterns - `any` types, NGRX-first when signals suffice, `setTimeout` for state sync, copying legacy `src/` patterns against `docs/`
+7. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
 8. Testing - coverage, proper mocking, tests run from package dirs (never root)
 
 ## Anti-Patterns
@@ -109,12 +106,12 @@ The free-form review report goes inside the `summary` field of the JSON envelope
 
 ```json
 {
-  "verdict": "approve | request_changes | block",
+  "verdict": "request_changes",
   "issues": [
     {
       "file": "path/to/file.ts",
       "line": 42,
-      "severity": "critical | warning | info",
+      "severity": "warning",
       "message": "what is wrong and how to fix it"
     }
   ],

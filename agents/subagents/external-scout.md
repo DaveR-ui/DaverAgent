@@ -1,17 +1,11 @@
 ---
 description: External Scout - Fetches live documentation for external libraries/packages on demand. Receives a package name, version, and one focused question, returns a compact textual answer.
 mode: subagent
-tools:
-  write: false
-  edit: false
-  bash: false
-  read: true
-  webfetch: true
+model: opencode-go/minimax-m3
+temperature: 0.1
 permission:
-  read: allow
-  bash: deny
   edit: deny
-  write: deny
+  bash: deny
   webfetch: allow
 ---
 

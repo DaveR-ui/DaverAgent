@@ -1,0 +1,23 @@
+{
+  "prompt": "the grid shows nothing when there are no rows",
+  "packet": {
+    "normalized_goal": "Fix the empty state on the data requests grid",
+    "type": "bug",
+    "confidence": "high",
+    "modules": ["data-requests"],
+    "constraints": [],
+    "non_goals": [],
+    "hidden_assumption": "This plan assumes the grid renders client-side. If it is server-rendered, the fix point changes.",
+    "acceptance_criteria": ["Empty state renders when the list is empty"],
+    "edge_cases": ["Empty list after applying a filter"],
+    "resolved_by_lookup": [
+      {
+        "raw": "lost est",
+        "resolved": "tests",
+        "source": "docs/project.md Slices table"
+      }
+    ],
+    "unresolved_questions": [],
+    "clarification_needed": "no"
+  }
+}

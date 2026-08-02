@@ -1,0 +1,6 @@
+{
+  "tests_run": 12,
+  "tests_passed": 11,
+  "failures": ["src/feature/foo.spec.ts: should render empty state"],
+  "coverage": 0.85
+}

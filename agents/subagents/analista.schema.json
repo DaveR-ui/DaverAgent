@@ -47,5 +47,5 @@
     "reasoning",
     "summary"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

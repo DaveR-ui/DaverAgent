@@ -14,8 +14,9 @@ termination), the work it was doing does not disappear — it is still addressab
 via the opencode session API. This protocol defines how to inspect a failed
 session, clean up its still-running children, and produce a handoff snapshot
 that a fresh orchestrator instance can consume through the
-`## Resume instructions (if restart)` block of `.opencode/agents/subagents/orchestrator.md`
-(L199-206). Without this protocol, an interrupted orchestrator forces the human
+`## Resume instructions (if restart)` block of
+`.opencode/agents/subagents/orchestrator.md#resume-instructions-if-restart`.
+Without this protocol, an interrupted orchestrator forces the human
 to reconstruct context by hand; with it, recovery is a mechanical API walk.
 
 ## When to apply
@@ -106,7 +107,7 @@ child failures are managed by the existing `STATUS: STUCK` path.
 
 The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the four
 fields of the `## Resume instructions (if restart)` block in
-`.opencode/agents/subagents/orchestrator.md` (L199-206):
+`.opencode/agents/subagents/orchestrator.md#resume-instructions-if-restart`:
 
 - **Original task** ← recovered from `GET /session/:id` title or the first
   user message.
@@ -129,8 +130,8 @@ orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
 
 - `.opencode/agents/subagents/orchestrator.md` — Strategic Pauses section: existing
   `POST /session/:id/abort` mention.
-- `.opencode/agents/subagents/orchestrator.md` L199-206 — `## Resume instructions (if
-  restart)` block: consumer of this protocol's output.
+- `.opencode/agents/subagents/orchestrator.md#resume-instructions-if-restart` — `## Resume
+  instructions (if restart)` block: consumer of this protocol's output.
 - `.opencode/agents/subagents/delivery.md` — Session Preflight / Interrupted Session
   Recovery note.
 - <https://opencode.ai/docs/server/#sessions> (English) /
