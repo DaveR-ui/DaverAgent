@@ -1,50 +1,48 @@
-# Agente Opencode — `goland-api`
+# Agente Opencode — DaverAgent
 
-Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) que opera sobre el repo `goland-api` (Go 1.24, Gin, GORM, PostgreSQL).
+Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder-angular, coder-go, tester, etc.) listo para clonar/copiar como `.opencode/` en el repo que lo vaya a usar.
 
-## Fuente de verdad: una sola
+## Fuente de verdad: dos partes, sin duplicados
 
 | Archivo | Ubicación | Rol |
 |---|---|---|
-| `opencode.json` | raíz del repo | **Única fuente de verdad** de la config. El runtime de opencode la lee al arrancar. La mantiene el `install-agent.ps1` (con `-Update`) o se edita a mano. |
+| `jason-opencode.json` | raíz de esta tree | **Config base**. Se copia al repo destino como `opencode.json`. Define solo los **modelos y temperaturas** por agente (los knobs que cambiás seguido), más `default_agent`, `plugin`, `compaction`, `permission` global e `instructions`. |
+| `.opencode/agents/subagents/*.md` | un archivo por agente | **Definición del agente**: `description`, `mode`, `tools`, `permission`, `output_schema` y el system prompt. El runtime los carga por escaneo de `agent(s)/**/*.md`. |
 
-No hay `jason-opencode.json` ni otra copia duplicada. Si querés cambiar un modelo, un permiso o un agente, editá `opencode.json` directamente.
+**Regla de oro**: modelo y temperatura viven solo en `opencode.json`; todo lo demás vive solo en el archivo del agente. No hay duplicación entre ambos. Para cambiar un modelo, editá `opencode.json` y reiniciá opencode.
 
 ## Modelos
 
 | Modelo | Carácter | Agentes |
 |---|---|---|
-| `opencode-go/minimax-m3` | El más barato | `delivery`, `explorer`, `project-context`, `vision-relay`, `tester`, `external-scout` |
-| `opencode-go/kimi-k3` | El más inteligente (No acepta temperaturas) | `coder`, `orchestrator`, `architect`, `reviewer` |
-
-**Prioridad**: si un agente declara `model:` en su frontmatter `.md` y otro valor en `opencode.json`, **gana `opencode.json`**. El frontmatter es documentación, no runtime.
+| `opencode-go/minimax-m3` | El más barato | `delivery`, `explorer`, `project-context`, `vision-relay`, `tester`, `external-scout`, `interpreter`, `documenter` |
+| `opencode-go/kimi-k3` | El más inteligente (No acepta temperaturas) | `coder-angular`, `coder-go`, `orchestrator`, `architect`, `reviewer`, `analista` |
 
 ## Estructura
 
 ```
 .opencode/
-├── opencode (config) ───────────────────
-├── opencode.json                       # Config del runtime (única fuente)
-├── README.md                           # Este archivo
-├── INSTALL.md                          # Cómo instalar el agente en otro repo
+├── jason-opencode.json                # Config base -> copiar como opencode.json en el repo destino
+├── README.md                          # Este archivo
+├── INSTALL.md                         # Cómo instalar el agente en otro repo
 │
-├── agents/                             # System prompts por agente
-│   ├── delivery.md                     # Interfaz con el humano
-│   ├── orchestrator.md                 # Coordinador (delegable a fondo)
-│   ├── coder.md                        # Implementación
-│   ├── reviewer.md                     # Code review
-│   ├── vision-relay.md                 # Inspección de imágenes
-│   ├── architect.md                    # Wrapper -> subagents/architect.md
-│   └── subagents/                      # Specs canónicos (los lee opencode runtime)
-│       ├── architect.md
-│       ├── coder.md
-│       ├── tester.md
-│       ├── reviewer.md
-│       ├── explorer.md
-│       ├── project-context.md
-│       ├── documenter.md
-│       ├── external-scout.md
-│       └── vision-relay.md
+├── agents/
+│   └── subagents/                     # Un archivo por agente (los lee el runtime de opencode)
+│       ├── delivery.md                # Interfaz con el humano
+│       ├── orchestrator.md            # Coordinador (delegable a fondo)
+│       ├── coder-angular.md           # Implementación Angular (referencia docs/context/)
+│       ├── coder-go.md                # Implementación Go (referencia docs/context/)
+│       ├── reviewer.md                # Code review
+│       ├── tester.md                  # Tests
+│       ├── architect.md               # Diseño
+│       ├── explorer.md                # Búsqueda y mapeo
+│       ├── project-context.md         # Lee/escribe docs/
+│       ├── vision-relay.md            # Inspección de imágenes
+│       ├── external-scout.md          # Docs externas vía webfetch
+│       ├── interpreter.md             # Normalización Step 0
+│       ├── analista.md                # Segunda opinión
+│       ├── documenter.md              # Documentación
+│       └── *.schema.json              # Schemas de los returns estructurados
 │
 ├── agents agnostic/                    # Definiciones alternativas (referencia, no usadas)
 │
@@ -69,20 +67,26 @@ No hay `jason-opencode.json` ni otra copia duplicada. Si querés cambiar un mode
 
 ## Subagents disponibles
 
-Definidos en `opencode.json` (modo `subagent`). Se invocan desde `delivery` u `orchestrator` con el `task` tool.
+Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan desde `delivery` u `orchestrator` con el `task` tool.
 
 | Agente | Modelo | Propósito |
 |---|---|---|
 | `delivery` | minimax-m3 | Interfaz con el humano. NO delega trabajo técnico. |
 | `orchestrator` | kimi-k3 | Coordina trabajo multi-paso, hace fan-out de subagentes. |
-| `coder` | kimi-k3 | Implementa features, fixes, refactors. Devuelve `CoderOutput`. |
+| `coder-angular` | kimi-k3 | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
+| `coder-go` | kimi-k3 | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
 | `tester` | minimax-m3 | Tests. Devuelve `TesterOutput`. |
 | `reviewer` | kimi-k3 | Code review, security, performance. Devuelve `ReviewerOutput`. |
 | `architect` | kimi-k3 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
+| `analista` | kimi-k3 | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
 | `explorer` | minimax-m3 | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
 | `project-context` | minimax-m3 | Lee/escribe `docs/`. |
 | `vision-relay` | minimax-m3 | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
-| `external-scout` | minimax-m3 | Trae docs de libs Go externas vía webfetch. |
+| `external-scout` | minimax-m3 | Trae docs de librerías externas vía webfetch. |
+| `interpreter` | minimax-m3 | Normaliza el prompt (Step 0 del pipeline). |
+| `documenter` | minimax-m3 | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
+
+Los modelos y temperaturas de la columna "Modelo" viven en `opencode.json` (→ `agent.<id>`); la definición de cada agente vive en su `.md`. Cambiar un modelo = editar `opencode.json` + reiniciar opencode.
 
 ## Protocolos (cómo piensa el agente)
 
@@ -95,7 +99,10 @@ Los protocolos viven en [`.opencode/protocols/`](./protocols/README.md). El más
 
 ## Actualizar la config
 
-Si tocás `opencode.json` (agregás un subagente, cambiás un modelo, etc.), no necesitás correr nada más — opencode lo relee al próximo arranque. Si en cambio querés regenerar todo desde el schema del installer:
+- **Cambiar modelo/temperatura** de un agente → editá `opencode.json` (`agent.<id>`) y reiniciá opencode. Nada más.
+- **Cambiar la definición de un agente** (prompt, tools, permisos, schema) → editá `.opencode/agents/subagents/<id>.md`.
+- **Agregar un agente** → creá `.opencode/agents/subagents/<id>.md` y sumá `agent.<id>` (model + temperature) a `opencode.json`.
+- Para regenerar `docs/project.md`, los context docs y los subagents desde el schema del installer:
 
 ```powershell
 & ".\.opencode\scripts\install-agent.ps1" -VerifyOnly   # ver qué cambiaría

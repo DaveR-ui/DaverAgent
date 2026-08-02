@@ -1,7 +1,6 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-model: opencode-go/kimi-k3
 tools:
   write: false
   edit: false
@@ -30,7 +29,7 @@ Accept:
 - Focused audits (security, performance, standards) over a defined scope.
 
 Decline and re-route:
-- Implementing the fixes you find — report them as `issues`; re-route to `coder`.
+- Implementing the fixes you find — report them as `issues`; re-route to `coder-angular` / `coder-go` (match the stack).
 - Writing or repairing tests -> `tester`.
 - Open-ended design questions -> `architect`.
 

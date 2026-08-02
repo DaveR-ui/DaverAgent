@@ -23,166 +23,54 @@
   },
   "agent": {
     "delivery": {
-      "description": "Delivery Agent - Sole interface between human and agent system. Translates, writes documentation directly, and delegates ALL technical work to subagents.",
-      "mode": "primary",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.3,
-      "permission": {
-        "task": {
-          "interpreter": "allow",
-          "orchestrator": "allow",
-          "coder": "allow",
-          "tester": "allow",
-          "reviewer": "allow",
-          "architect": "allow",
-          "explorer": "allow",
-          "project-context": "allow",
-          "vision-relay": "allow",
-          "external-scout": "allow"
-        },
-        "external_directory": {
-          "~/.config/opencode/**": "allow"
-        }
-      }
+      "temperature": 0.3
     },
     "orchestrator": {
-      "description": "Orchestrator Agent - Persistent coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, and maintains state across delegations. Works exclusively in English.",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k3",
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "read": true,
-        "task": true
-      },
-      "permission": {
-        "task": {
-          "interpreter": "allow",
-          "coder": "allow",
-          "tester": "allow",
-          "reviewer": "allow",
-          "architect": "allow",
-          "explorer": "allow",
-          "project-context": "allow",
-          "vision-relay": "allow",
-          "external-scout": "allow"
-        }
-      }
+      "model": "opencode-go/kimi-k3"
     },
-    "coder": {
-      "description": "Programming, bug fixes, feature implementation, refactoring",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k3",
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "read": true
-      },
-      "output_schema": "coder"
+    "coder-angular": {
+      "model": "opencode-go/kimi-k3"
+    },
+    "coder-go": {
+      "model": "opencode-go/kimi-k3"
     },
     "reviewer": {
-      "description": "Code review, security audit, best practices, performance",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k3",
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "read": true
-      },
-      "output_schema": "reviewer"
-    },
-    "tester": {
-      "description": "Unit tests, integration tests, test coverage, e2e",
-      "mode": "subagent",
-      "model": "opencode-go/minimax-m3",
-      "temperature": 0.2,
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "read": true
-      },
-      "output_schema": "tester"
+      "model": "opencode-go/kimi-k3"
     },
     "architect": {
-      "description": "System design, architecture, module boundaries, patterns",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k3",
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true,
-        "read": true
-      },
-      "output_schema": "architect"
+      "model": "opencode-go/kimi-k3"
+    },
+    "analista": {
+      "model": "opencode-go/kimi-k3"
+    },
+    "tester": {
+      "model": "opencode-go/minimax-m3",
+      "temperature": 0.2
     },
     "explorer": {
-      "description": "Codebase exploration, file search, dependency analysis",
-      "mode": "subagent",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.1,
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": true,
-        "read": true
-      },
-      "output_schema": "explorer"
+      "temperature": 0.1
     },
     "project-context": {
-      "description": "Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.",
-      "mode": "subagent",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.2,
-      "tools": {
-        "write": true,
-        "edit": true,
-        "read": true,
-        "glob": true,
-        "grep": true
-      }
+      "temperature": 0.2
     },
     "vision-relay": {
-      "description": "Vision Relay - Cheap image inspection for non-vision models. Receives one image plus one focused question, returns a compact textual answer. Does NOT explore, does NOT chain of thought, does NOT touch files.",
-      "mode": "subagent",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.1,
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "read": true
-      }
+      "temperature": 0.1
     },
     "external-scout": {
-      "description": "External Scout - Fetches live documentation for external Go libraries on demand. Receives a library path, version, and one focused question, returns a compact textual answer. Read-only plus webfetch.",
-      "mode": "subagent",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.1,
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "read": true,
-        "webfetch": true
-      }
+      "temperature": 0.1
     },
     "interpreter": {
-      "description": "Interpreter - Lightweight normalization helper invoked as Step 0 by delivery. Reconciles vocabulary, captures constraints, may ask the user one batch of clarifying questions via the question tool, and returns a compact routing packet.",
-      "mode": "subagent",
       "model": "opencode-go/minimax-m3",
-      "temperature": 0.1,
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false,
-        "read": true,
-        "grep": true,
-        "question": true
-      }
+      "temperature": 0.1
+    },
+    "documenter": {
+      "model": "opencode-go/minimax-m3",
+      "temperature": 0.2
     }
   },
   "permission": {

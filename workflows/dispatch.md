@@ -23,5 +23,5 @@ If you catch yourself about to ask the human a clarifying question, STOP. That u
 With the routing packet in hand:
 
 - Trivial (per the packet: factual lookup, one-line fix, pure doc edit with unambiguous scope) -> handle directly per the delivery `## Delegation` table.
-- 1-2 file change -> run Phase 2 (Reduce) per `.opencode/protocols/prompt-pipeline.md`, then delegate to `coder` with the routing packet + scope.
+- 1-2 file change -> run Phase 2 (Reduce) per `.opencode/protocols/prompt-pipeline.md`, then delegate to `coder-angular` or `coder-go` (match the stack) with the routing packet + scope.
 - 3+ files or multi-step -> run Phase 2 (Reduce), then delegate to `orchestrator` with the routing packet + scope as the handoff.

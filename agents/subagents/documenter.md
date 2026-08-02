@@ -1,8 +1,6 @@
 ﻿---
 description: Documenter subagent - Writes and maintains project documentation. Reads and writes docs/ on demand. Returns structured DocumenterOutput JSON.
 mode: subagent
-model: opencode-go/minimax-m3
-temperature: 0.2
 tools:
   write: true
   edit: true

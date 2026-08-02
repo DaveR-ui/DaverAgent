@@ -370,15 +370,17 @@ $rows
 
 function Get-AgentBody {
     param([string]$Id)
-    $coderBody = "# Coder Subagent`n`nImplement features, fix bugs, refactor code.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Rules`n`n- Follow `docs/context/architecture/architecture.md` for layering`n- Follow `docs/context/conventions/project-rules.md` for development standards`n- All comments and docs in ENGLISH`n- Never commit without explicit instruction"
+    $coderAngularBody = "# Coder Angular Subagent`n`nAngular implementation. Implement features, fix bugs, refactor the Angular frontend.`n`n**Project context**: read `docs/project.md` (entry point, Slices table) and the Angular docs in `docs/context/` (source of truth).`n`n## Rules`n`n- Follow the matched slice's primary doc in `docs/context/` for the Angular stack`n- All comments and docs in ENGLISH`n- Run the canonical test/lint/build commands from `docs/project.md` before reporting done`n- Never commit without explicit instruction"
+    $coderGoBody = "# Coder Go Subagent`n`nGo implementation. Implement features, fix bugs, refactor the Go backend.`n`n**Project context**: read `docs/project.md` (entry point, Slices table) and the Go docs in `docs/context/` (source of truth).`n`n## Rules`n`n- Follow the matched slice's primary doc in `docs/context/` for the Go stack`n- All comments and docs in ENGLISH`n- Run the canonical test/lint/build commands from `docs/project.md` before reporting done`n- Never commit without explicit instruction"
     $testerBody = "# Tester Subagent`n`nWrite and run tests.`n`n**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/conventions/project-rules.md`.`n`n## Rules`n`n- Tests next to source files`n- Mock external deps`n- All test names and comments in ENGLISH"
-    $reviewerBody = "# Reviewer Subagent`n`nAnalyze code - never modify it.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Checklist`n`n1. Architecture compliance (see `docs/context/architecture/architecture.md`)`n2. Development standards (see `docs/context/conventions/project-rules.md`)`n3. Security`n4. Performance`n5. Anti-patterns`n6. Testing`n`n## Output`n`nSee `.opencode/docs/agent-output-protocol.md` for the full format."
-    $architectBody = "# Architect Subagent`n`nDesign system architecture, define module boundaries, establish patterns.`n`n**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture/architecture.md`.`n`n## Principles`n`n- Favor simplicity`n- Design for testability and maintainability`n- Document decisions with rationale`n- All documentation in ENGLISH"
-    $explorerBody = "# Explorer Subagent`n`nRead and analyze the codebase - never modify code.`n`n**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant source paths.`n`n## Approach`n`n- Use grep/glob/read effectively`n- Report file paths and line numbers`n- For architectural questions, consult `docs/context/architecture/architecture.md`"
+    $reviewerBody = "# Reviewer Subagent`n`nAnalyze code - never modify it.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Checklist`n`n1. Architecture compliance (see `docs/context/architecture.md`)`n2. Development standards (see `docs/context/project-rules.md`)`n3. Security`n4. Performance`n5. Anti-patterns`n6. Testing`n`n## Output`n`nReturn structured `ReviewerOutput` JSON (see `.opencode/agents/subagents/reviewer.md`)."
+    $architectBody = "# Architect Subagent`n`nDesign system architecture, define module boundaries, establish patterns.`n`n**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md`.`n`n## Principles`n`n- Favor simplicity`n- Design for testability and maintainability`n- Document decisions with rationale`n- All documentation in ENGLISH"
+    $explorerBody = "# Explorer Subagent`n`nRead and analyze the codebase - never modify code.`n`n**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant source paths.`n`n## Approach`n`n- Use grep/glob/read effectively`n- Report file paths and line numbers`n- For architectural questions, consult `docs/context/architecture.md`"
     $documenterBody = "# Documenter Subagent`n`nWrite and maintain documentation.`n`n**Project context**: read `docs/project.md` and the relevant files in `docs/context/`.`n`n## Rules`n`n- One topic per file`n- Reference, do not duplicate`n- All documentation in ENGLISH"
     $projectContextBody = "# Project Context Subagent`n`nReads and writes `docs/` on demand.`n`n## Read Workflow`n`n1. Read `docs/project.md` for orientation`n2. Read `docs/context/README.md` to find the relevant context file`n3. If unclear, use grep/glob to search `docs/` and the codebase`n4. Return: relevant excerpt + file path + line numbers`n`n## Write Workflow`n`n1. Identify the target doc (existing in `docs/project.md`, `docs/context/`, or new)`n2. Read the doc to understand its structure`n3. Edit or create the doc, keeping the tone consistent`n4. If a new context file is created, add an entry to `docs/context/README.md`"
     $defaultBody = "# $Id Subagent`n`nGenerated by install-agent.ps1. Fill in the agent's responsibilities here.`n`n**Project context**: read `docs/project.md` (entry point)."
-    if ($Id -eq "coder") { return $coderBody }
+    if ($Id -eq "coder-angular") { return $coderAngularBody }
+    if ($Id -eq "coder-go") { return $coderGoBody }
     if ($Id -eq "tester") { return $testerBody }
     if ($Id -eq "reviewer") { return $reviewerBody }
     if ($Id -eq "architect") { return $architectBody }
@@ -399,12 +401,10 @@ function Get-AgentTemp {
 function Build-AgentFile {
     param([string]$Id, $Ctx)
     $body = Get-AgentBody -Id $Id
-    $temp = Get-AgentTemp -Id $Id
     $sb = New-Object System.Text.StringBuilder
     [void]$sb.AppendLine("---")
     [void]$sb.AppendLine("description: $Id subagent")
     [void]$sb.AppendLine("mode: subagent")
-    [void]$sb.AppendLine("temperature: $temp")
     [void]$sb.AppendLine("tools:")
     [void]$sb.AppendLine("  write: true")
     [void]$sb.AppendLine("  edit: true")
@@ -423,34 +423,20 @@ function Build-OpencodeJson {
     [void]$sb.AppendLine('  "$schema": "https://opencode.ai/config.json",')
     [void]$sb.AppendLine("  ""default_agent"": ""$DefaultAgent"",")
     [void]$sb.AppendLine('  "agent": {')
-    [void]$sb.AppendLine("    ""$DefaultAgent"": {")
-    [void]$sb.AppendLine('      "description": "Primary agent - sole interface between human and agent system.",')
-    [void]$sb.AppendLine('      "mode": "primary",')
-    [void]$sb.AppendLine('      "temperature": 0.3,')
-    [void]$sb.AppendLine('      "permission": {')
-    [void]$sb.AppendLine('        "skill": {},')
-    [void]$sb.AppendLine('        "task": {')
-    $taskLines = @()
-    foreach ($s in $Subagents) { $taskLines += "          ""$s"": ""allow""" }
-    if ($taskLines.Count -gt 0) { [void]$sb.AppendLine(($taskLines -join ",`n")) }
-    [void]$sb.AppendLine('        }')
-    [void]$sb.AppendLine('      }')
-    [void]$sb.AppendLine('    }')
-    foreach ($s in $Subagents) {
-        [void]$sb.AppendLine(',')
+    $first = $true
+    foreach ($s in @($DefaultAgent) + $Subagents) {
+        if (-not $first) { [void]$sb.AppendLine(',') }
+        $first = $false
+        $temp = Get-AgentTemp -Id $s
         [void]$sb.AppendLine("    ""$s"": {")
-        [void]$sb.AppendLine("      ""description"": ""$s subagent"",")
-        [void]$sb.AppendLine('      "mode": "subagent",')
-        [void]$sb.AppendLine('      "temperature": 0.2')
+        [void]$sb.AppendLine('      "model": "opencode-go/minimax-m3",')
+        [void]$sb.AppendLine("      ""temperature"": $temp")
         [void]$sb.AppendLine('    }')
     }
     [void]$sb.AppendLine('  },')
-    [void]$sb.AppendLine('  "permission": { "skill": { "*": "allow" } },')
+    [void]$sb.AppendLine('  "permission": { "question": "allow" },')
     [void]$sb.AppendLine('  "instructions": [')
     [void]$sb.AppendLine('    "docs/project.md",')
-    [void]$sb.AppendLine('    "docs/context/README.md",')
-    [void]$sb.AppendLine('    "docs/protocols/README.md",')
-    [void]$sb.AppendLine('    ".opencode/protocols/README.md",')
     [void]$sb.AppendLine('    ".opencode/protocols/prompt-pipeline.md"')
     [void]$sb.AppendLine('  ]')
     [void]$sb.AppendLine('}')

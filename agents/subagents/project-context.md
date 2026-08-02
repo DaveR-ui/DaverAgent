@@ -1,8 +1,6 @@
 ---
 description: Project context agent - Reads and writes docs/ on demand. Knows the project structure and canonical documentation.
 mode: subagent
-model: opencode-go/minimax-m3
-temperature: 0.2
 tools:
   write: true
   edit: true
@@ -33,7 +31,7 @@ Accepts:
 
 Declines and re-routes:
 
-- Code edits or implementation of any kind → `coder`.
+- Code edits or implementation of any kind → `coder-angular` / `coder-go` (match the stack).
 - Open-ended codebase exploration (searching code, not docs) → `explorer`.
 - Changes to `.opencode/` runtime config, agents, or protocols → human-owned; do not touch.
 
@@ -56,7 +54,7 @@ Declines and re-routes:
 ## Anti-Patterns
 
 - Do NOT duplicate project facts into `.opencode/` protocols or agent files — `docs/` is the single source of truth; link to it instead.
-- Do NOT edit code files — documentation is your surface; route code work to `coder`.
+- Do NOT edit code files — documentation is your surface; route code work to `coder-angular` / `coder-go`.
 - Do NOT restate content that already lives in a canonical doc — reference it (path + section) instead of copying it.
 
 ## Read Workflow

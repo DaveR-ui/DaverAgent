@@ -36,7 +36,7 @@ The full process and the routing packet schema are defined in [`.opencode/agents
 ### Inputs
 
 1. Routing packet from Step 0 (produced by the `interpreter` subagent).
-2. Project context from `docs/project.md` and relevant `docs/context/*.md` (read on demand via the `docs-context` reference, or directly).
+2. Project context from `docs/project.md` and relevant `docs/context/*.md` (read on demand).
 
 ### Process
 
@@ -104,7 +104,7 @@ The Delivery's system prompt is small on purpose. Sections in the system prompt 
 After Phase 2, Delivery picks the delegation target:
 
 - **Trivial** (post-Step 0) -> handle directly (doc edit, simple lookup).
-- **1-2 file change** (post-Phase 2) -> delegate to `coder` directly.
+- **1-2 file change** (post-Phase 2) -> delegate to `coder-angular` or `coder-go` directly (match the stack from the routing packet).
 - **3+ files or multi-step** -> delegate to `orchestrator` with the routing packet + scope as the handoff.
 
 ## Notes

@@ -21,9 +21,19 @@ git clone https://github.com/<owner>/<agent-repo>.git .opencode
 Copy-Item -Recurse -Force "..\other-project\.opencode" ".\.opencode"
 ```
 
-The folder is self-contained. It includes the JSON config (`opencode.json`), the install/upgrade scripts, the agent system prompts, the protocols, and the plugins.
+The folder is self-contained. It includes the agent system prompts (`.opencode/agents/subagents/*.md`), the protocols, the plugins, and the base config `jason-opencode.json`.
 
-## 2. Update `.gitignore`
+## 2. Copy the base config to `opencode.json`
+
+`jason-opencode.json` is the **base config**: copy it to the root of your project as `opencode.json`. It defines only the **models and temperatures** per agent (plus `default_agent`, plugin, `compaction`, global `permission`, and `instructions`). Everything else about an agent lives in its `.md` file.
+
+```powershell
+Copy-Item ".\.opencode\jason-opencode.json" ".\opencode.json"
+```
+
+> Adjust the model ids (`opencode-go/...`) in `opencode.json` if your provider differs.
+
+## 3. Update `.gitignore`
 
 Append these lines to your `.gitignore` (idempotent — re-add is safe):
 
@@ -35,7 +45,7 @@ Append these lines to your `.gitignore` (idempotent — re-add is safe):
 
 `opencode.json` at the repo root is **version-controlled** — it is the canonical config. Do NOT add it to `.gitignore`.
 
-## 3. Verify the installer plan (no writes yet)
+## 4. Verify the installer plan (no writes yet)
 
 From the project root, in PowerShell:
 
@@ -51,7 +61,7 @@ You should see a list of files the installer would create, update, or skip. Read
 
 If the schema is missing a context doc, subagent, or protocol you need, extend it before continuing.
 
-## 4. Apply the installer (writes files)
+## 5. Apply the installer (writes files)
 
 ```powershell
 & ".\.opencode\scripts\install-agent.ps1" -NonInteractive
@@ -59,9 +69,9 @@ If the schema is missing a context doc, subagent, or protocol you need, extend i
 
 The script is **non-destructive by default**: it never overwrites an existing file unless you pass `-Update`. It creates files that are missing and skips files that already match.
 
-## 5. Verify `opencode.json`
+## 6. Verify `opencode.json`
 
-`opencode.json` is part of the agent tree. After the install, confirm it is valid and has the right agents:
+`opencode.json` is the config you copied in step 2. Confirm it is valid and has the right agents:
 
 ```powershell
 Get-Content -LiteralPath ".\opencode.json" -Raw | ConvertFrom-Json | Out-Null
@@ -71,7 +81,7 @@ if ($?) { "opencode.json is valid" }
 (Get-Content -LiteralPath ".\opencode.json" -Raw | ConvertFrom-Json).agent.PSObject.Properties.Name
 ```
 
-## 6. Edit the generated stubs
+## 7. Edit the generated stubs
 
 The installer creates stubs; you fill in the substance:
 
@@ -91,8 +101,8 @@ The `delivery` agent picks up these docs on the next session and starts routing 
 | Change | Command |
 |---|---|
 | Add a slice to `docs/project.md` | Edit the file directly. |
-| Add or update a subagent | Edit `.opencode/agents/subagents/<id>.md`; ensure the agent is in `opencode.json`'s `agent.<id>` block. |
-| Change a model | Edit `opencode.json` -> `agent.<id>.model`. The frontmatter `model:` in the agent's `.md` is documentation; `opencode.json` wins. |
+| Add or update a subagent | Edit `.opencode/agents/subagents/<id>.md`; add `agent.<id>` (model + temperature) to `opencode.json`. |
+| Change a model / temperature | Edit `opencode.json` -> `agent.<id>` (`model` / `temperature`), then restart opencode. The agent `.md` does not declare them. |
 | Add a new context doc type | Add the file under `docs/context/` and update the index in `docs/context/README.md`. |
 | Regenerate everything from scratch | Delete `docs/project.md` and the unwanted `docs/context/*.md` stubs, then re-run `install-agent.ps1`. |
 | Audit what would change | Append `-VerifyOnly` to any of the above scripts. |

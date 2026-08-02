@@ -41,9 +41,9 @@ Rationale: a future `explorer.typescript` fans out exactly like the base `explor
 | Field | Status | Notes |
 |---|---|---|
 | `description` | **required** | One line, routing-oriented — the orchestrator reads this to decide delegation. Name the discipline, the accepted task shapes, and the structured return if any. |
-| `mode: subagent` | **required** | Literal value. |
-| `model` | **required** | Fully qualified (`<provider>/<model>`). Part of the cost contract — see the orchestrator's subagent table. |
-| `temperature` | optional | Omit when the model ignores it (e.g. `kimi-k3`, kimi family). |
+| `mode` | **required** | Literal value (`primary` for delivery, `subagent` for everything else). |
+| `model` | **moved to `opencode.json`** | Fully qualified (`<provider>/<model>`). Declared in `opencode.json` → `agent.<id>.model`, **not** in frontmatter. Part of the cost contract — see the orchestrator's subagent table. |
+| `temperature` | **moved to `opencode.json`** | Declared in `opencode.json` → `agent.<id>.temperature`. Omit when the model ignores it (e.g. `kimi-k3`, kimi family). |
 | `tools` | optional | Tool allow/deny map. |
 | `permission` | optional | Permission rules (e.g. read-only adapters, `task` fan-out grants). |
 | `output_schema` | optional | Relative path to the sibling JSON Schema (`./<id>.schema.json`) — see the bridge below. |
@@ -76,57 +76,52 @@ Current minimal-shape subagents: `vision-relay`, `external-scout`. The minimal s
 
 ## The `output_schema` ↔ sibling schema bridge
 
-- The schema lives in a **sibling file** `.opencode/agents/subagents/<id>.schema.json`, referenced from the subagent's frontmatter via `output_schema: ./<id>.schema.json`. The `.md` frontmatter is the single source of truth — `opencode.json` carries no per-agent config.
+- The schema lives in a **sibling file** `.opencode/agents/subagents/<id>.schema.json`, referenced from the subagent's frontmatter via `output_schema: ./<id>.schema.json`. The `.md` frontmatter is the single source of truth for the return contract — `opencode.json` carries only `model` + `temperature` per agent (see the "opencode.json" section above).
 - The subagent's `## Structured Return` section documents the JSON shape, names the schema, shows an example, and points at the sibling file.
 - The two MUST stay in sync: change one, change the other. The installer (Phase 4) generates both from the same answer set.
 - Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal shape) describes the expected return in prose. Current subagents without a schema: `project-context`, `vision-relay`, `external-scout`.
 - The task tool validates the return against the schema; on mismatch it prepends a validation warning and keeps the raw text. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
 
-## `opencode.json` — reduced role (top-level runtime config only)
+## `opencode.json` — runtime knobs only (model + temperature)
 
-Per the 2026-07-29 centralization, `opencode.json` carries **top-level runtime config only**: `$schema`, `default_agent`, `subagent_depth`, `small_model`, `compaction`, `plugin`, global `permission`, `instructions`. The `agent` block is removed.
+Since the 2026-07-29 centralization and the simplification ratified 2026-08-02, `opencode.json` carries **top-level runtime config plus the per-agent runtime knobs**: `$schema`, `default_agent`, `plugin`, `permission` (global), `instructions`, and an `agent` block limited to `model` + `temperature` per agent.
 
-Every per-agent field lives in the agent's `.md` frontmatter instead:
+Every other per-agent field lives in the agent's `.md` frontmatter:
 
 | Field | Home |
 |---|---|
-| `description`, `mode`, `model`, `temperature`, `tools`, per-agent `permission` | The agent `.md` frontmatter |
+| `description`, `mode`, `tools`, per-agent `permission` | The agent `.md` frontmatter |
+| `model`, `temperature` | `opencode.json` → `agent.<id>` (the two knobs you change most often) |
 | `output_schema` | Frontmatter path → sibling `<id>.schema.json` |
 | `permission.task` fan-out (which subagents `delivery` / `orchestrator` may call) | Frontmatter of `delivery.md` / `orchestrator.md` |
 | Global `permission` rules | Stay in `opencode.json` |
 
-Rationale: the `.md` is the canonical artifact the runtime loads; one source of truth eliminates frontmatter↔JSON drift, and a self-contained agent folder drops into any compatible runtime.
+**To change a model or temperature**: edit `opencode.json` → `agent.<id>`, then restart opencode. The agent file is untouched.
+
+Rationale: the `.md` is the canonical artifact the runtime loads; keeping the model/temperature in `opencode.json` makes model changes a one-file edit and eliminates frontmatter↔JSON drift on the two fields that change most.
 
 ## Naming convention for specializations
 
-- Parent keeps the plain role name: `coder.md`.
-- Template / specialization: `<role>.<specialization>.md` — e.g. `coder.typescript.md`, `reviewer.python.md`.
+- Parent keeps the plain role name (e.g. `coder.md`).
+- Template / specialization: `<role>.<specialization>.md` — e.g. `coder-angular.md`, `coder-go.md`.
 
-## Worked example: `coder.md` + `coder.typescript.md` (documented future — no template file exists yet)
+## Realized example: `coder-angular.md` + `coder-go.md` (2026-08-02)
 
-```
-coder.md (parent — structural)           coder.typescript.md (template — variable)
-────────────────────────────────         ──────────────────────────────────────────────
-frontmatter: model, tools, mode          ## Stack / Context   → TypeScript ~5.9, Angular 21,
-## Role      — implementation specialist    RxJS 7.8, docs/context/architecture.md
-## Scope     — 2 accepted task shapes    ## Standards         → Signals-first, OnPush,
-## Structured Return — CoderOutput          standalone, rxResource for loading
-## Rules                                 ## Anti-Patterns     → any, setTimeout-for-sync,
-                                             NGRX-first, skipping debugName
-```
-
-Composed `coder.typescript` subagent (one file), sections in canonical order:
+The first specialization landed on 2026-08-02 as **thin adapters** — each file is small, self-contained, and delegates stack knowledge to `docs/context/` instead of embedding it:
 
 ```
-frontmatter (parent's; model/temperature may be overridden)
-## Role                  (verbatim from parent)
-## Scope                 (verbatim from parent)
-## Stack / Context       (from template)
-## Standards             (from template)
-## Anti-Patterns         (from template)
-## Structured Return     (verbatim from parent; schema in sibling <id>.schema.json)
-## Rules                 (verbatim from parent)
+coder-angular.md                        coder-go.md
+────────────────────────────           ─────────────────────────────
+frontmatter: mode, tools,              frontmatter: mode, tools,
+  permission, output_schema              permission, output_schema
+## Stack / Context  → "Angular docs in ## Stack / Context  → "Go docs in
+   docs/context/ are the source of truth" docs/context/ are the source of truth"
+## Rules            → follow docs,       ## Rules            → follow docs,
+   canonical commands, English            gofmt, canonical commands, English
+## Structured Return → CoderOutput       ## Structured Return → CoderOutput
 ```
+
+Both share the sibling schema `coder.schema.json` (`CoderOutput`). Model + temperature come from `opencode.json` (`agent.coder-angular` / `agent.coder-go`). The full parent/template **composition mechanism** (verbatim inheritance, runtime merge) remains documented future work — the thin-adapter form is the pattern used today.
 
 ## Composition rules (documented future)
 
@@ -135,9 +130,9 @@ frontmatter (parent's; model/temperature may be overridden)
 3. Template resolution: `<role>.<specialization>.md` composes with `<role>.md`. **No runtime implementation exists yet** — this protocol fixes only the boundary. When the first template is introduced, decide storage (suggestion: `.opencode/agents/templates/`, not auto-loaded) and the composition mechanism (installer Phase 4 is the natural place).
 4. Frontmatter composition: the child template's frontmatter **wins over the parent's for any field it declares**; undeclared fields are inherited from the parent. (`mode: subagent` and the `output_schema` bridge are normally inherited, not overridden.)
 
-## Dual-file convention (pre-existing, not unified by this protocol)
+## Dual-file convention (retired 2026-08-02)
 
-Some subagents declare a runtime-loaded twin at `.opencode/agents/<id>.md` (twins currently exist for `coder`, `architect`, `interpreter`, `vision-relay`). The declared relationship varies per file (e.g. `subagents/coder.md` claims to be the canonical spec from which the installer regenerates the top level; `subagents/vision-relay.md` declares the top level canonical). When editing a `subagents/` file that declares a twin, **check the twin and keep them consistent**; flag drift to the human instead of silently propagating.
+The old top-level twins at `.opencode/agents/<id>.md` (previously `coder`, `architect`, `interpreter`, `vision-relay`) were **deleted**. Every agent now has exactly **one** definition file under `.opencode/agents/subagents/` — the runtime loads it directly (opencode scans `agent(s)/**/*.md`). Do not recreate a twin: a second file with the same agent name creates a duplicate agent.
 
 ## Audit results — 2026-07-29
 
@@ -158,22 +153,22 @@ Status of the 10 subagents under `.opencode/agents/subagents/` after the canonic
 
 ## Audit results — 2026-07-29 (centralization)
 
-Frontmatter is now the single source of truth for per-agent config; `output_schema` moved from `opencode.json` name-strings into frontmatter paths pointing at sibling `<id>.schema.json` files; the `agent` block was removed from `opencode.json`; the `permission.task` fan-out for `delivery` / `orchestrator` lives in their frontmatter.
+Frontmatter is the source of truth for per-agent config; `output_schema` lives in frontmatter as a path pointing at a sibling `<id>.schema.json` file; `opencode.json` carries only `model` + `temperature` per agent (simplification ratified 2026-08-02); the `permission.task` fan-out for `delivery` / `orchestrator` lives in their frontmatter.
 
 | Subagent | `permission` in frontmatter | `output_schema` in frontmatter | Sibling schema file |
 |---|---|---|---|
-| `coder` | ✅ | `./coder.schema.json` | batch 1 |
-| `tester` | ✅ | `./tester.schema.json` | batch 1 |
-| `reviewer` | ✅ | `./reviewer.schema.json` | batch 1 |
-| `architect` | ✅ | `./architect.schema.json` | batch 2 |
-| `explorer` | ✅ | `./explorer.schema.json` | batch 2 |
-| `documenter` | ✅ | `./documenter.schema.json` (net-new) | batch 2 |
-| `interpreter` | ✅ | `./interpreter.schema.json` (net-new) | batch 2 |
+| `coder-angular` | ✅ | `./coder.schema.json` | ✅ |
+| `coder-go` | ✅ | `./coder.schema.json` | ✅ |
+| `tester` | ✅ | `./tester.schema.json` | ✅ |
+| `reviewer` | ✅ | `./reviewer.schema.json` | ✅ |
+| `architect` | ✅ | `./architect.schema.json` | ✅ |
+| `explorer` | ✅ | `./explorer.schema.json` | ✅ |
+| `analista` | ✅ | `./analista.schema.json` | ✅ |
+| `documenter` | ✅ | `./documenter.schema.json` | ✅ |
+| `interpreter` | ✅ | `./interpreter.schema.json` | ✅ |
 | `project-context` | ✅ | — (text return) | — |
 | `vision-relay` | ✅ (tool allow/deny map) | — (text return) | — |
 | `external-scout` | ✅ (tool allow/deny map) | — (text return) | — |
-
-(Sibling schema files are generated in two batches — `coder`/`tester`/`reviewer` first for ratification, then `architect`/`explorer`/`documenter`/`interpreter`. Flip the "batch N" markers to ✅ once the files land.)
 
 ## Rules
 

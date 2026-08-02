@@ -4,7 +4,7 @@
 > `delivery` → `orchestrator` → subagent hierarchy. This protocol is the
 > **fallback** for when an orchestrator session itself dies; intra-orchestrator
 > child failures are already handled by the existing `STATUS: STUCK` path in
-> `.opencode/agents/orchestrator.md`.
+> `.opencode/agents/subagents/orchestrator.md`.
 
 ## Purpose
 
@@ -14,8 +14,8 @@ termination), the work it was doing does not disappear — it is still addressab
 via the opencode session API. This protocol defines how to inspect a failed
 session, clean up its still-running children, and produce a handoff snapshot
 that a fresh orchestrator instance can consume through the
-`## Resume instructions (if restart)` block of `.opencode/agents/orchestrator.md`
-(L194-201). Without this protocol, an interrupted orchestrator forces the human
+`## Resume instructions (if restart)` block of `.opencode/agents/subagents/orchestrator.md`
+(L199-206). Without this protocol, an interrupted orchestrator forces the human
 to reconstruct context by hand; with it, recovery is a mechanical API walk.
 
 ## When to apply
@@ -24,10 +24,10 @@ Apply this protocol when you observe any of the following:
 
 - `STATUS: STUCK` returned by an orchestrator.
 - A `Subagent.Interrupted` event on the EventV2 bus (see
-  `.opencode/agents/orchestrator.md` — Subagent outcomes block and interruption
+  `.opencode/agents/subagents/orchestrator.md` — Subagent outcomes block and interruption
   notes).
 - `POST /session/:id/abort` triggered by `delivery` (see
-  `.opencode/agents/orchestrator.md` — Strategic Pauses).
+  `.opencode/agents/subagents/orchestrator.md` — Strategic Pauses).
 - A human pastes a session URI like
   `oc://renderer/server/c2lkZWNhcg/session/ses_xxx...`.
 - HTTP timeout, credit exhaustion, or unexpected termination mid-flight.
@@ -98,7 +98,7 @@ Walk the opencode session API in this order:
 
 ### Mode 3 — subagent child interrupted inside a LIVE orchestrator
 
-Already handled by `STATUS: STUCK` in `.opencode/agents/orchestrator.md`. This
+Already handled by `STATUS: STUCK` in `.opencode/agents/subagents/orchestrator.md`. This
 protocol is the fallback for when the orchestrator itself died; intra-orchestrator
 child failures are managed by the existing `STATUS: STUCK` path.
 
@@ -106,7 +106,7 @@ child failures are managed by the existing `STATUS: STUCK` path.
 
 The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the four
 fields of the `## Resume instructions (if restart)` block in
-`.opencode/agents/orchestrator.md` (L194-201):
+`.opencode/agents/subagents/orchestrator.md` (L199-206):
 
 - **Original task** ← recovered from `GET /session/:id` title or the first
   user message.
@@ -127,11 +127,11 @@ orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
 
 ## Cross-references
 
-- `.opencode/agents/orchestrator.md` — Strategic Pauses section: existing
+- `.opencode/agents/subagents/orchestrator.md` — Strategic Pauses section: existing
   `POST /session/:id/abort` mention.
-- `.opencode/agents/orchestrator.md` L194-201 — `## Resume instructions (if
+- `.opencode/agents/subagents/orchestrator.md` L199-206 — `## Resume instructions (if
   restart)` block: consumer of this protocol's output.
-- `.opencode/agents/delivery.md` — Session Preflight / Interrupted Session
+- `.opencode/agents/subagents/delivery.md` — Session Preflight / Interrupted Session
   Recovery note.
 - <https://opencode.ai/docs/server/#sessions> (English) /
   <https://opencode.ai/docs/es/server/#sesiones> (Spanish).

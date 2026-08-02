@@ -34,7 +34,7 @@ The human wants to:
 
 Do NOT use this for:
 
-- Day-to-day coding tasks (delegate to `coder` directly)
+- Day-to-day coding tasks (delegate to `coder-angular` / `coder-go` directly)
 - Documentation edits (delegate to `documenter` or `project-context`)
 - Just running the agent (use `delivery`)
 
@@ -66,7 +66,7 @@ Do NOT use this for:
 ### Add a subagent
 
 1. If the new subagent matches an existing pattern (e.g. a new `*-expert` reader), add a body in `Get-AgentBody` in `install-agent.ps1` and re-run.
-2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). Per the centralization, all per-agent config lives in the new agent's frontmatter — including `output_schema: ./<id>.schema.json` plus the sibling schema file if the subagent returns structured JSON (the spec documents the bridge); `opencode.json` carries no `agent` block.
+2. If it is genuinely new, write the file at `.opencode/agents/subagents/<id>.md` manually, following the canonical shape in [`subagent-spec-template.md`](./subagent-spec-template.md) (full or minimal shape). All per-agent config lives in the new agent's frontmatter — including `output_schema: ./<id>.schema.json` plus the sibling schema file if the subagent returns structured JSON (the spec documents the bridge). The only thing that goes in `opencode.json` is the new agent's `model` + `temperature` under `agent.<id>`.
 3. Re-run `install-agent.ps1 -VerifyOnly` to confirm the new agent shows up.
 
 ## Backup discipline
@@ -85,7 +85,7 @@ If the human is unsure, these defaults cover the most common cases:
 | Primary language | go |
 | Context docs | architecture, project-rules |
 | Default agent | delivery |
-| Subagents | coder, tester, reviewer, architect, explorer, documenter |
+| Subagents | coder-angular, coder-go, tester, reviewer, architect, explorer, documenter |
 | Doc language | en |
 
 > **Important for this repo (DaverCode fork of `sst/opencode`)**: the defaults above are the installer's *generic* defaults. They do **not** describe this repo. The actual values for this repo are:
@@ -99,7 +99,7 @@ If the human is unsure, these defaults cover the most common cases:
 > | ORM | drizzle-orm |
 > | Auth | `@openauthjs/openauth` + AWS SSO |
 > | Default agent | delivery |
-> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, vision-relay, documenter |
+> | Subagents | delivery, orchestrator, coder-angular, coder-go, tester, reviewer, architect, explorer, project-context, vision-relay, documenter |
 > | Doc language | es (for `docs/`) / en (for `.opencode/`, code) |
 >
 > If a future run of the installer reuses the generic defaults, **the installer's stub output must be replaced** before the agent system is usable. See `docs/project.md` (Slices, Backend Structure, Domain Entities) for the canonical content.

@@ -1,8 +1,6 @@
 ---
 description: External Scout - Fetches live documentation for external libraries/packages on demand. Receives a package name, version, and one focused question, returns a compact textual answer.
 mode: subagent
-model: opencode-go/minimax-m3
-temperature: 0.1
 tools:
   write: false
   edit: false
