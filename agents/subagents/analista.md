@@ -1,7 +1,7 @@
 ---
 description: Analista subagent - Second-opinion advisor for delivery and orchestrator. Accepts "second opinion" / "I'm stuck" / "critique this plan" / "what should I do?" queries. Read-only; returns structured AnalystOutput JSON. Re-routes implementation, review, design, tests, and exploration to the owning subagents.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/deepseek-v4-flash
 permission:
   edit: deny
   bash: deny

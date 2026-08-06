@@ -28,6 +28,28 @@ Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/in
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 | [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
 
+## IA orchestration pipeline (transformed from `p3-ia-*` skills)
+
+The 13 protocols below document the original IA orchestration pipeline stages (analyzer → explorer → supplier → proposer → verifier → learner, plus the supporting catalog / doc-gen / pruner / sync / search / skill-creator / dev roles). They are **transformed, additive references** — the opencode runtime now provides native equivalents for several of these roles (interpreter subagent ≈ analyzer, explorer subagent ≈ explorer, tester/reviewer ≈ verifier, prompt-pipeline ≈ proposer). When a protocol conflicts with an opencode native agent or protocol, the native one wins; otherwise these files remain the detailed reference for the original pipeline stage.
+
+> These protocols were transformed on 2026-08-06 from the retired frontend skill tree at `frontend/.agents/skills/p3-ia-*/SKILL.md`. The retired skill runtime (`.agents/skills/`) is being decommissioned; references to it in legacy docs are stale.
+
+| Protocol | Purpose | Source skill |
+|---|---|---|
+| [`ia-analyzer.md`](./ia-analyzer.md) | Mandatory first stage of the IA pipeline. Validates the prompt is actionable, extracts language / version / frameworks / cited files, identifies reproduction steps and success criteria, and includes the LLM-reasoning quality guidelines (observation vs interpretation, competing hypotheses, calibration). | `p3-ia-analyzer` |
+| [`ia-explorer.md`](./ia-explorer.md) | Exploration phase. Locates assets and dependencies, classifies components as Complex (has authoritative docs) or Simple (no docs), and runs a logic-density check on Simple components to surface documentation debt before coding. | `p3-ia-explorer` |
+| [`ia-supplier.md`](./ia-supplier.md) | Knowledge middleware. Filters the canonical docs by task type (Bug / Feature / Test) and delivers only the delta, flagging technical debt before any code is written. | `p3-ia-supplier` |
+| [`ia-proposer.md`](./ia-proposer.md) | Proposal phase. Turns the explorer + supplier output into a step-by-step action plan and surfaces Hot Spots (state-ownership pivot, breaking refactor, ambiguous data flow, standard-supremacy violation, compute guard, security/guardrail bypass) that require mandatory user validation. | `p3-ia-proposer` |
+| [`ia-verifier.md`](./ia-verifier.md) | Verification and memory phase. Runs the verification plan, produces a Solution Memory on success, and runs a failure analysis with user feedback on error. | `p3-ia-verifier` |
+| [`ia-learner.md`](./ia-learner.md) | Long-term learning. Converts session data (fixes, pivots, errors) into persistent architectural rules and learning logs, with a strict relevance filter that discards noise. | `p3-ia-learner` |
+| [`ia-catalog-manager.md`](./ia-catalog-manager.md) | Unified CRUD for `docs/context/`, `docs/protocols/`, and `.opencode/protocols/`. Create, read, update, move/rename, or delete docs with automatic registry sync and link validation. | `p3-ia-catalog-manager` |
+| [`ia-docs-gen.md`](./ia-docs-gen.md) | Standards for creating AI-optimized documentation: required frontmatter, the component-doc format, the skill-to-doc reference rule, and the index-registration checklist. | `p3-ia-docs-gen` |
+| [`ia-pruner.md`](./ia-pruner.md) | Maintenance. Prevents context drift and instruction bloat by archiving obsolete data and promoting useful patterns into the canonical standards. | `p3-ia-pruner` |
+| [`ia-sync-checker.md`](./ia-sync-checker.md) | Q3 closure audit. Validates routing-table synchronization, date freshness, and link integrity after any documentation change. | `p3-ia-sync-checker` |
+| [`ia-search.md`](./ia-search.md) | Delegate live web searches and URL fetches to a connected subagent when the orchestrator is on an offline or restricted model. | `p3-ia-search` |
+| [`ia-skill-creator.md`](./ia-skill-creator.md) | Meta-protocol. Scaffolds a new agent protocol file under `.opencode/protocols/` and registers it in the index. | `p3-ia-skill-creator` |
+| [`ia-dev.md`](./ia-dev.md) | Guidelines for designing and managing autonomous agents: triggering conditions, system-prompt structure, file layout, and the canonical subagent spec. Carries the original Claude-Code-derived reference material under [`references/p3-ia-dev/`](./references/p3-ia-dev/). | `p3-ia-dev` |
+
 ## Built-in protocols (from opencode runtime)
 
 _(none — all opencode runtime skills have been replaced by agent protocols or on-demand `docs/context/` reads. The "customize-opencode" skill is built into the opencode runtime itself.)_

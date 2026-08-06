@@ -1,7 +1,7 @@
 ---
 description: Coder Angular - implementation for the Angular SPA. Thin adapter: reads the Angular docs in docs/context/ and the matched slice, applies them, returns CoderOutput JSON. For Go work use coder-go.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/deepseek-v4-flash
 permission:
   task:
     coder-angular: allow

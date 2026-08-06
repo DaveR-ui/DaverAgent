@@ -1,7 +1,7 @@
 ---
 description: "Delivery Agent - Sole interface between the human and the agent system. Translates, writes documentation directly, and delegates ALL technical work to subagents."
 mode: primary
-model: opencode-go/minimax-m3
+model: opencode-go/deepseek-v4-flash
 temperature: 0.3
 permission:
   webfetch: deny

@@ -1,7 +1,7 @@
 ---
 description: Coder Go - implementation for the Go backend. Thin adapter: reads the Go docs in docs/context/ and the matched slice, applies them, returns CoderOutput JSON. For Angular work use coder-angular.
 mode: subagent
-model: opencode-go/kimi-k3
+model: opencode-go/deepseek-v4-flash
 permission:
   task:
     coder-go: allow
