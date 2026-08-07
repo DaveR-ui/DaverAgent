@@ -1,7 +1,6 @@
 ---
 description: Project context agent - READ-ONLY doc lookup and context assembly for the project's canonical docs/. Knows the project structure and documentation tree. For doc writes, use documenter.
 mode: subagent
-model: opencode-go/minimax-m3
 temperature: 0.2
 permission:
   edit: deny

@@ -5,7 +5,7 @@ Two-stage analysis convention for the Delivery agent. **Every prompt** passes th
 This protocol defines the two stages conceptually; the executor of each step may vary:
 
 - **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
-- **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce requires the reasoning quality of the orchestrator's tier (`kimi-k3`); delegating it is a one-line `task` call, and doing it on the cheap tier is the failure mode this protocol removes.
+- **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce delegating it is a one-line `task` call, and doing it on the cheap tier is the failure mode this protocol removes.
 
 ## When to apply
 
@@ -108,7 +108,6 @@ After Step 0, Delivery picks the delegation target:
 
 ## Notes
 
-- The interpreter runs on `minimax-m3` (cheap). Phase 2 runs **only** on the orchestrator's tier (`kimi-k3`). Do not move Phase 2 to `delivery` (minimax-m3) or any cheaper tier — Reduce requires the reasoning quality only the orchestrator's tier has.
 - Edge cases are practical, not theoretical.
 - Acceptance criteria are testable, not vague.
 - The hidden assumption is the most important thing Step 0 surfaces — it is what nobody is thinking about. Phase 2 must carry it forward.

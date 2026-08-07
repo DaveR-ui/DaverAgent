@@ -11,13 +11,6 @@ Esta carpeta contiene toda la configuración del sistema de agentes (delivery, o
 
 **Regla de oro**: TODO lo de un agente vive en su `.md` (incluido modelo y temperatura). `opencode.json` no tiene bloque `agent`. No hay duplicación. Para cambiar un modelo, editá el frontmatter del agente y reiniciá opencode.
 
-## Modelos
-
-| Modelo | Carácter | Agentes |
-|---|---|---|
-| `opencode-go/minimax-m3` | El más barato | `delivery`, `explorer`, `project-context`, `vision-relay`, `tester`, `external-scout`, `interpreter`, `documenter` |
-| `opencode-go/kimi-k3` | El más inteligente (No acepta temperaturas) | `coder-angular`, `coder-go`, `orchestrator`, `architect`, `reviewer`, `analista` |
-
 ## Estructura
 
 > Este repo es el **tree fuente**: los archivos viven en la raíz (`agents/`, `protocols/`, ...) y se copian al repo destino como `.opencode/`. Por eso este README y los agentes referencian rutas con prefijo `.opencode/` — es la forma que tienen en el repo instalado.
@@ -82,20 +75,20 @@ Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan des
 
 | Agente | Modelo | Propósito |
 |---|---|---|
-| `delivery` | minimax-m3 | Interfaz con el humano. NO delega trabajo técnico. |
-| `orchestrator` | kimi-k3 | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
-| `coder-angular` | kimi-k3 | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
-| `coder-go` | kimi-k3 | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
-| `tester` | minimax-m3 | Tests. Devuelve `TesterOutput`. |
-| `reviewer` | kimi-k3 | Code review, security, performance. Devuelve `ReviewerOutput`. |
-| `architect` | kimi-k3 | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
-| `analista` | kimi-k3 | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
-| `explorer` | minimax-m3 | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
-| `project-context` | minimax-m3 | Lookups y context assembly de `docs/` (read-only). El único escritor de `docs/` es `documenter`. |
-| `vision-relay` | minimax-m3 | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
-| `external-scout` | minimax-m3 | Trae docs de librerías externas vía webfetch. |
-| `interpreter` | minimax-m3 | Normaliza el prompt (Step 0 del pipeline). |
-| `documenter` | minimax-m3 | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
+| `delivery` | deepseek-v4-flash | Interfaz con el humano. NO delega trabajo técnico. |
+| `orchestrator` | deepseek-v4-flash | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
+| `coder-angular` | deepseek-v4-flash | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
+| `coder-go` | deepseek-v4-flash | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
+| `tester` | deepseek-v4-flash | Tests. Devuelve `TesterOutput`. |
+| `reviewer` | deepseek-v4-flash | Code review, security, performance. Devuelve `ReviewerOutput`. |
+| `architect` | deepseek-v4-flash | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
+| `analista` | deepseek-v4-flash | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
+| `explorer` | deepseek-v4-flash | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
+| `project-context` | deepseek-v4-flash | Lookups y context assembly de `docs/` (read-only). El único escritor de `docs/` es `documenter`. |
+| `vision-relay` | deepseek-v4-flash | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
+| `external-scout` | deepseek-v4-flash | Trae docs de librerías externas vía webfetch. |
+| `interpreter` | deepseek-v4-flash | Normaliza el prompt (Step 0 del pipeline). |
+| `documenter` | deepseek-v4-flash | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
 
 Los modelos y temperaturas viven en el **frontmatter de cada agente** (`.opencode/agents/subagents/<id>.md`). Cambiar un modelo = editar el frontmatter del agente + reiniciar opencode.
 

@@ -1,7 +1,6 @@
 ---
 description: External Scout - Fetches live documentation for external libraries/packages on demand. Receives a package name, version, and one focused question, returns a compact textual answer.
 mode: subagent
-model: opencode-go/minimax-m3
 temperature: 0.1
 permission:
   edit: deny
@@ -38,9 +37,6 @@ Fetch only what is needed to answer the question. Do not crawl.
 
 ## Model
 
-- Primary: `opencode-go/minimax-m3` (cheap, webfetch-capable, matches
-  the rest of the project's cheap-tier agents and the live vision-relay
-  config).
 - No fallback configured; if the primary is unavailable, the runtime
   surfaces the error.
 - Do not escalate further on your own.

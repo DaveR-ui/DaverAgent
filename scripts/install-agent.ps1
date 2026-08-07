@@ -390,12 +390,6 @@ function Get-AgentBody {
     return $defaultBody
 }
 
-function Get-AgentModel {
-    param([string]$Id)
-    if ($Id -in @("coder-angular", "coder-go", "reviewer", "architect", "analista")) { return "opencode-go/kimi-k3" }
-    return "opencode-go/minimax-m3"
-}
-
 function Get-AgentTemp {
     param([string]$Id)
     if ($Id -eq "delivery") { return 0.3 }

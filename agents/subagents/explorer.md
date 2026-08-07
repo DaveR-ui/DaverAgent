@@ -1,7 +1,6 @@
 ---
 description: Explorer subagent - Codebase exploration, file search, dependency analysis. Returns structured ExplorerOutput JSON. Recursively fans out into parallel explorer instances when the input exceeds the sample window.
 mode: subagent
-model: opencode-go/minimax-m3
 temperature: 0.1
 permission:
   edit: deny

@@ -226,20 +226,20 @@ The **Subagent outcomes** block cites `Event.ID` values from the EventV2 bus. Su
 
 Each subagent runs on a specific model — the model is part of the cost contract when you fan out. See each subagent's frontmatter (`model` field) for the model assigned to it. Default to the cheap tier; escalate by complexity, not by default.
 
-| Subagent | Model | Purpose | Returns |
+| Subagent | Purpose | Returns |
 |---|---|---|---|
-| `coder-angular` | `kimi-k3` | Implementation for the Angular frontend (reads Angular docs in `docs/context/`) | `CoderOutput` |
-| `coder-go` | `kimi-k3` | Implementation for the Go backend (reads Go docs in `docs/context/`) | `CoderOutput` |
-| `tester` | `minimax-m3` | Tests, coverage, e2e | `TesterOutput` |
-| `reviewer` | `kimi-k3` | Code review, security, performance (same model as `architect` and the coders; the previous model-family diversity was retired on 2026-07-31) | `ReviewerOutput` |
-| `architect` | `kimi-k3` | System design, patterns | `ArchitectOutput` |
-| `analista` | `kimi-k3` | Second-opinion analysis, plan critique, stuck recovery | `AnalystOutput` |
-| `explorer` | `minimax-m3` | Codebase exploration, read-only | `ExplorerOutput` |
-| `project-context` | `minimax-m3` | Read-only doc lookups / context assembly (`docs/`) | text |
-| `vision-relay` | `minimax-m3` | One image + one focused question (no fallback) | text |
-| `external-scout` | `minimax-m3` | Live docs for external libraries via webfetch | text |
-| `interpreter` | `minimax-m3` | Step 0 normalization — produces the routing packet | `InterpreterOutput` |
-| `documenter` | `minimax-m3` | Writes/maintains `docs/` | `DocumenterOutput` |
+| `coder-angular` | Implementation for the Angular frontend (reads Angular docs in `docs/context/`) | `CoderOutput` |
+| `coder-go` | Implementation for the Go backend (reads Go docs in `docs/context/`) | `CoderOutput` |
+| `tester` | Tests, coverage, e2e | `TesterOutput` |
+| `reviewer` | Code review, security, performance (same model as `architect` and the coders; the previous model-family diversity was retired on 2026-07-31) | `ReviewerOutput` |
+| `architect` | System design, patterns | `ArchitectOutput` |
+| `analista` | Second-opinion analysis, plan critique, stuck recovery | `AnalystOutput` |
+| `explorer` | Codebase exploration, read-only | `ExplorerOutput` |
+| `project-context` | Read-only doc lookups / context assembly (`docs/`) | text |
+| `vision-relay` | One image + one focused question (no fallback) | text |
+| `external-scout` | Live docs for external libraries via webfetch | text |
+| `interpreter` | Step 0 normalization — produces the routing packet | `InterpreterOutput` |
+| `documenter` | Writes/maintains `docs/` | `DocumenterOutput` |
 
 ## Available Protocols and Skills
 

@@ -1,7 +1,6 @@
 ---
 description: Tester subagent - Unit tests, integration tests, test coverage, e2e. Returns structured TesterOutput JSON.
 mode: subagent
-model: opencode-go/minimax-m3
 temperature: 0.2
 permission:
   task:
