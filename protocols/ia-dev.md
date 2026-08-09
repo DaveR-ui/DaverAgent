@@ -22,7 +22,7 @@ Agents are autonomous subprocesses that handle complex, multi-step tasks indepen
 
 ## Mandatory startup step
 
-Every newly created subagent must begin by applying the [analyzer](./ia-analyzer.md) (or, in the opencode runtime, the [interpreter subagent](../agents/subagents/interpreter.md) as Step 0 of [prompt-pipeline.md](./prompt-pipeline.md)) before any analysis or implementation.
+Every newly created subagent must begin by applying the [interpreter subagent](../agents/subagents/interpreter.md) as Step 0 of [prompt-pipeline.md](./prompt-pipeline.md) before any analysis or implementation.
 
 The startup check must verify:
 

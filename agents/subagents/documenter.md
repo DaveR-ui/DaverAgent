@@ -43,6 +43,16 @@ Do **not** modify:
 - A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice.
 - Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change.
 
+## Post-change documentation audit
+
+After any documentation change, run a three-dimension consistency audit (formerly the `ia-sync-checker` protocol, removed 2026-08-09) and report a **Sync Audit Report** with a PASS/FAIL status per dimension:
+
+1. **Routing-table synchronization** — if the change touched any routing document (`docs/project.md` Slices, `docs/context/README.md`, `docs/protocols/README.md`, or `docs/_TAG-INDEX.md` when it exists), verify the others still reflect the same intent-to-route mapping (same target agent / doc path, no entry missing without reason). **Never auto-fix routing discrepancies** — present the alert to the user and ask which version is correct.
+2. **Date freshness** — for every `.md` file with `last_updated` in its frontmatter: older than 30 days → stale warning; older than 90 days → flag for review or removal. Auto-fix allowed only when the content is confirmed valid (update `last_updated`). Exempt: per-session cache contents.
+3. **Link integrity** — for every relative markdown link in the touched files (ignore `http://`/`https://`), resolve the target and confirm it exists. A broken link in a routing document is critical — fix it or flag immediately.
+
+Also run this audit as a smoke-test before declaring any documentation milestone complete.
+
 ## Rules
 
 - **One topic per file** in `docs/context/`. Cross-reference instead of duplicating.

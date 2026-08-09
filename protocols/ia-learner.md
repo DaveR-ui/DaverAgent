@@ -6,13 +6,13 @@ Orchestration and learning: convert ephemeral session data (fixes, pivots, error
 
 ## When to apply
 
-Immediately after [verifier](./ia-verifier.md) confirms a success or after a failure has been recorded. The learner is responsible for the long-term intelligence of the ecosystem: it ensures the system evolves and avoids repeating past mistakes.
+Immediately after the [tester](../agents/subagents/tester.md) or [reviewer](../agents/subagents/reviewer.md) subagent confirms a success or after a failure has been recorded. The learner is responsible for the long-term intelligence of the ecosystem: it ensures the system evolves and avoids repeating past mistakes.
 
 ## Information capture
 
 - **From successes** — extract the "Learning Point" from the Solution Memory.
 - **From failures** — capture the "Intuitive Clue" provided by the user and the root cause of the failure.
-- **From Hot Spots** — document the architectural pivot validated by the user in [proposer](./ia-proposer.md).
+- **From Hot Spots** — document the architectural pivot validated by the user in Phase 2 of [prompt-pipeline.md](./prompt-pipeline.md).
 
 ## Management of orchestrator rules
 
@@ -90,4 +90,4 @@ Return a Knowledge Update Summary:
 
 ## Integration
 
-The learner is the most "maturity"-oriented protocol in this set. It complements [documenter](../agents/subagents/documenter.md) (which writes the docs) and [verifier](./ia-verifier.md) (which produces the Solution Memory). In the opencode runtime, the [orchestrator](../agents/subagents/orchestrator.md) decides when to invoke the learner (typically after a verified success or a Hot-Spot pivot), and the [pruner](./ia-pruner.md) handles the long-term memory maintenance. The relevance filter above is the durable value of this protocol — it should be applied even when the doc target is `docs/context/` rather than the original skill target.
+The learner is the most "maturity"-oriented protocol in this set. It complements [documenter](../agents/subagents/documenter.md) (which writes the docs) and the [tester](../agents/subagents/tester.md) / [reviewer](../agents/subagents/reviewer.md) subagents (which verify work). In the opencode runtime, the [orchestrator](../agents/subagents/orchestrator.md) decides when to invoke the learner (typically after a verified success or a Hot-Spot pivot), and periodic pruning (see the Pruning mechanism section above) handles the long-term memory maintenance. The relevance filter above is the durable value of this protocol — it should be applied even when the doc target is `docs/context/` rather than the original skill target.

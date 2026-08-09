@@ -16,7 +16,7 @@ Any time a doc needs to be added, moved, renamed, or removed in the canonical do
 | **Project protocols** | `docs/protocols/` | `api-endpoint-factory.md` (this workspace) |
 | **Index / entry point** | `docs/project.md` (Slices), `docs/context/README.md`, `docs/_TAG-INDEX.md` | — |
 
-> **Note**: this workspace does not keep a separate skill tree. The retired skill's "Skills / Workflows" categories collapse into `docs/protocols/` and `.opencode/protocols/`. Operations targeting agent-system docs (e.g. `.opencode/agents/`, `.opencode/protocols/`) follow the same CRUD flow but use a different registry (see [ia-dev](./ia-dev.md) and [subagent-spec-template.md](./subagent-spec-template.md)).
+> **Note**: the former skill tree at `frontend/.agents/skills/` was removed on 2026-08-09; its "Skills / Workflows" categories collapsed into `docs/protocols/` and `.opencode/protocols/`. Operations targeting agent-system docs (e.g. `.opencode/agents/`, `.opencode/protocols/`) follow the same CRUD flow but use a different registry (see [ia-dev](./ia-dev.md) and [subagent-spec-template.md](./subagent-spec-template.md)).
 
 ## Registry files (must stay in sync)
 
@@ -67,7 +67,7 @@ Before any destructive or structural operation, validate:
 
 ### Create an agent protocol
 
-Follow [ia-skill-creator](./ia-skill-creator.md) for the template, then register in `.opencode/protocols/README.md`.
+Follow [subagent-spec-template.md](./subagent-spec-template.md) for the template, then register in `.opencode/protocols/README.md`.
 
 ## Read
 
@@ -114,7 +114,7 @@ After any Create, Move/Rename, or Delete:
 
 ## Decision rules
 
-- **Single entry point** — if the user asks to create, rename, move, or delete anything under `docs/context/`, `docs/protocols/`, or `.opencode/protocols/`, use this protocol. Do not delegate to [ia-skill-creator](./ia-skill-creator.md) or [ia-pruner](./ia-pruner.md) unless the operation is a bulk prune / archive (which remains the pruner's domain).
+- **Single entry point** — if the user asks to create, rename, move, or delete anything under `docs/context/`, `docs/protocols/`, or `.opencode/protocols/`, use this protocol. Bulk prune / archive operations follow the Delete flow above with user confirmation (the dedicated skill-creator / pruner protocols were removed on 2026-08-09).
 - **Atomic operations** — one CRUD operation at a time. Do not batch multiple creates / deletes unless explicitly requested.
 - **Registry-first** — the registry files are the source of truth for discoverability. An unregistered asset is invisible to agents.
 - **English only** — all generated content must be in English (per `docs/project.md` → `doc_language`).
@@ -152,4 +152,4 @@ Return an **Operation Report** after every CRUD action:
 
 ## Integration
 
-In the opencode runtime, the canonical doc writer is the [documenter](../agents/subagents/documenter.md) subagent. Use the catalog-manager protocol when the operation spans multiple indexes or registries (e.g. rename a doc that appears in `docs/context/README.md`, `docs/_TAG-INDEX.md`, AND `docs/project.md` Slices). The [ia-pruner](./ia-pruner.md) protocol owns bulk archive / cleanup, and [ia-skill-creator](./ia-skill-creator.md) owns the boilerplate for new agent protocols.
+In the opencode runtime, the canonical doc writer is the [documenter](../agents/subagents/documenter.md) subagent. Use the catalog-manager protocol when the operation spans multiple indexes or registries (e.g. rename a doc that appears in `docs/context/README.md`, `docs/_TAG-INDEX.md`, AND `docs/project.md` Slices). Bulk archive / cleanup follows the Delete flow with user confirmation; new agent protocols follow [subagent-spec-template.md](./subagent-spec-template.md).
