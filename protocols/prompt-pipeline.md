@@ -20,12 +20,12 @@ The only branch happens AFTER Step 0, based on the interpreter's routing packet:
 
 The `delivery` agent invokes the `interpreter` subagent with the raw prompt. The interpreter:
 
-1. Reads the prompt verbatim (keeps the human's language).
+1. Reads the prompt verbatim (the raw prompt arrives in the human's language).
 2. Normalizes vocabulary and aliases against the codebase (`grep`) and `docs/project.md`.
 3. Captures hard constraints and explicit non-goals.
 4. Identifies the smallest actionable slice, the hidden assumption, and expected output.
 5. Optionally calls the `question` tool ONCE, with a batch of all blocking questions, if the route would materially change based on the answer.
-6. Returns a compact routing packet (see [`interpreter.md`](../agents/subagents/interpreter.md) for the full shape).
+6. Returns a compact routing packet written entirely in English (see [`interpreter.md`](../agents/subagents/interpreter.md) for the full shape).
 
 The full process and the routing packet schema are defined in [`.opencode/agents/subagents/interpreter.md`](../agents/subagents/interpreter.md). Do not duplicate it here.
 

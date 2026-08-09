@@ -6,7 +6,7 @@
   "properties": {
     "normalized_goal": {
       "type": "string",
-      "description": "One-sentence description of what the human actually wants, in the human's original language."
+      "description": "One-sentence description of what the human actually wants, written in English (the packet is produced entirely in English)."
     },
     "type": {
       "type": "string",
