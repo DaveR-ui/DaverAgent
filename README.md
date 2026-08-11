@@ -6,7 +6,7 @@ Esta carpeta contiene toda la configuración del sistema de agentes (delivery, o
 
 | Archivo | Ubicación | Rol |
 |---|---|---|
-| `jason-opencode.json` | raíz de esta tree | **Config runtime base**. Se copia al repo destino como `opencode.json`. Solo top-level: `default_agent`, `plugin`, `compaction`, `references`, `permission` global e `instructions`. **No tiene bloque `agent`**. |
+| `jason-opencode.json` | raíz de esta tree | **Config runtime base**. Se copia al repo destino como `opencode.json`. Solo top-level: `default_agent`, `compaction`, `references`, `permission` global e `instructions`. **No tiene bloque `agent`**. |
 | `.opencode/agents/subagents/*.md` | un archivo por agente | **Definición completa del agente**: `description`, `mode`, `model`, `temperature`, `permission`, `output_schema` y el system prompt. El runtime los carga por escaneo de `agent(s)/**/*.md`. |
 
 **Regla de oro**: TODO lo de un agente vive en su `.md` (incluido modelo y temperatura). `opencode.json` no tiene bloque `agent`. No hay duplicación. Para cambiar un modelo, editá el frontmatter del agente y reiniciá opencode.
@@ -18,7 +18,7 @@ Esta carpeta contiene toda la configuración del sistema de agentes (delivery, o
 ```
 DaverAgent/                     (tree fuente → se copia como .opencode/ en el repo destino)
 ├── jason-opencode.json         # Config runtime base -> copiar como opencode.json en el repo destino
-│                              #  (default_agent, plugin, compaction, references, permission, instructions)
+│                              #  (default_agent, compaction, references, permission, instructions)
 ├── README.md                  # Este archivo
 ├── INSTALL.md                 # Cómo instalar el agente en otro repo
 │
@@ -50,9 +50,6 @@ DaverAgent/                     (tree fuente → se copia como .opencode/ en el 
 │   ├── dispatch.md             # Gate interpreter-first (lo lee delivery cada turno)
 │   └── orchestrate.md          # Reglas que el orchestrator aplica antes de actuar
 │
-├── plugins/                    # Plugins del runtime
-│   └── prompt-fetcher/         # Tool: fetch_original_prompt (lee el primer mensaje de una sesión)
-│
 ├── scripts/                    # Installer + helpers
 │   ├── install-agent.ps1       # 4 fases: regenera docs/project.md, context docs, subagents, opencode.json
 │   ├── install-agent.schema.json # Question list que guía el installer (4 fases)
@@ -60,7 +57,7 @@ DaverAgent/                     (tree fuente → se copia como .opencode/ en el 
 │   └── session-recover.ps1     # Walk de la session API para recovery
 │
 ├── tests/                      # Test suite del tree de agentes
-│   ├── run-tests.sh            # Runner maestro: validator + schemas + typecheck del plugin
+│   ├── run-tests.sh            # Runner maestro: validator + schemas
 │   ├── schema_check.py         # Mini-validador JSON Schema (stdlib, sin deps)
 │   ├── test-output-schemas.py  # Contratos schema <-> fixtures <-> ejemplos de los .md
 │   ├── test-validate-agent.sh  # Corre validate-agent.sh y afirma que pasa
@@ -123,11 +120,10 @@ Antes de commitear cambios a `.opencode/`, corré el test suite completo (Git Ba
 bash .opencode/tests/run-tests.sh
 ```
 
-Incluye tres suites, todas con exit code 0/1 (listas para CI):
+Incluye dos suites, todas con exit code 0/1 (listas para CI):
 
 1. **`validate-agent.sh`** (lint de integridad): que `opencode.json` sea JSON válido, que cada agente `.md` declare `model` en su frontmatter y no use el campo deprecated `tools:` (usa `permission:`), que cada `output_schema` apunte a un archivo existente, que los `permission.task` de `delivery`/`orchestrator` apunten a subagentes reales, y que el frontmatter obligatorio (`description`/`mode`) exista. Los paths `docs/` (del repo destino) se reportan como WARN, no como error.
 2. **`test-output-schemas.py`** (contratos de salida): cada fixture válido en `tests/fixtures/outputs/` valida contra su schema, cada fixture inválido es rechazado, los routing packets dorados en `tests/fixtures/prompts/` validan contra `interpreter.schema.json`, y los ejemplos JSON documentados en los `.md` se mantienen en sync con sus schemas.
-3. **Typecheck del plugin** (`tsc --noEmit` en `plugins/prompt-fetcher`).
 
 ## Solución de problemas
 

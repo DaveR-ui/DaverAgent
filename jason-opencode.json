@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "delivery",
-  "plugin": ["./.opencode/plugins/prompt-fetcher"],
   "compaction": {
     "auto": true,
     "prune": true,

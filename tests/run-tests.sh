@@ -4,7 +4,6 @@
 # Runs, in order:
 #   1. validate-agent.sh          - static integrity of the agent tree (CI-friendly)
 #   2. test-output-schemas.py     - schema <-> fixture <-> doc-example contract tests
-#   3. plugin typecheck           - tsc --noEmit on plugins/prompt-fetcher
 #
 # Exit 0 = all pass, 1 = any failure.
 set -u
@@ -25,13 +24,6 @@ run() {
 
 run "validate-agent.sh"    bash "${ROOT}/scripts/validate-agent.sh"
 run "output-schemas"       python3 "${ROOT}/tests/test-output-schemas.py"
-
-if command -v bun >/dev/null 2>&1; then
-  run "plugin typecheck" bash -c "cd '${ROOT}/plugins/prompt-fetcher' && bun run typecheck"
-else
-  echo ""
-  echo "  [skip] plugin typecheck (bun not installed)"
-fi
 
 echo ""
 if [ "${PASS}" -eq 1 ]; then

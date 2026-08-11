@@ -21,11 +21,11 @@ git clone https://github.com/<owner>/<agent-repo>.git .opencode
 Copy-Item -Recurse -Force "..\other-project\.opencode" ".\.opencode"
 ```
 
-The folder is self-contained. It includes the agent system prompts (`.opencode/agents/subagents/*.md`), the protocols, the plugins, and the base config `jason-opencode.json`.
+The folder is self-contained. It includes the agent system prompts (`.opencode/agents/subagents/*.md`), the protocols, and the base config `jason-opencode.json`.
 
 ## 2. Copy the base config to `opencode.json`
 
-`jason-opencode.json` is the **runtime base config**: copy it to the root of your project as `opencode.json`. It contains only top-level runtime settings (`default_agent`, plugin, `compaction`, `references`, global `permission`, `instructions`). Everything about an agent — `description`, `mode`, `model`, `temperature`, `permission`, `output_schema` — lives in its `.md` file under `.opencode/agents/subagents/`. There is no `agent` block in `opencode.json`.
+`jason-opencode.json` is the **runtime base config**: copy it to the root of your project as `opencode.json`. It contains only top-level runtime settings (`default_agent`, `compaction`, `references`, global `permission`, `instructions`). Everything about an agent — `description`, `mode`, `model`, `temperature`, `permission`, `output_schema` — lives in its `.md` file under `.opencode/agents/subagents/`. There is no `agent` block in `opencode.json`.
 
 ```powershell
 Copy-Item ".\.opencode\jason-opencode.json" ".\opencode.json"
@@ -89,7 +89,7 @@ Run the full test suite (Git Bash / WSL) before moving on:
 bash .opencode/tests/run-tests.sh
 ```
 
-It must exit 0. It runs the integrity lint (`validate-agent.sh`), the output-schema contract tests, and the plugin typecheck. `docs/` paths reported as WARN are expected when `docs/project.md` / `docs/context/` do not exist yet — they are created in step 5 or by you.
+It must exit 0. It runs the integrity lint (`validate-agent.sh`) and the output-schema contract tests. `docs/` paths reported as WARN are expected when `docs/project.md` / `docs/context/` do not exist yet — they are created in step 5 or by you.
 
 ## 7. Edit the generated stubs
 

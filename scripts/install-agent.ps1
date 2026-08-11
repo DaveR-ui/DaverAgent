@@ -426,7 +426,6 @@ function Build-OpencodeJson {
     [void]$sb.AppendLine('{')
     [void]$sb.AppendLine('  "$schema": "https://opencode.ai/config.json",')
     [void]$sb.AppendLine("  ""default_agent"": ""$DefaultAgent"",")
-    [void]$sb.AppendLine('  "plugin": ["./.opencode/plugins/prompt-fetcher"],')
     [void]$sb.AppendLine('  "compaction": {'),
     [void]$sb.AppendLine('    "auto": true,')
     [void]$sb.AppendLine('    "prune": true,')
