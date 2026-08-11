@@ -1,7 +1,6 @@
 ---
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
 permission:
   task:
     architect: allow

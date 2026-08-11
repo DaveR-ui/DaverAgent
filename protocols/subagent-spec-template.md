@@ -42,7 +42,7 @@ Rationale: a future `explorer.typescript` fans out exactly like the base `explor
 |---|---|---|
 | `description` | **required** | One line, routing-oriented — the orchestrator reads this to decide delegation. Name the discipline, the accepted task shapes, and the structured return if any. |
 | `mode` | **required** | Literal value (`primary` for delivery, `subagent` for everything else). |
-| `model` | **required** | Fully qualified (`<provider>/<model>`). Declared in the agent's frontmatter. Part of the cost contract — see the orchestrator's subagent table. |
+| `model` | optional | Fully qualified (`<provider>/<model>`). Declared in the agent's frontmatter as an explicit override; when omitted, the subagent inherits the invoking primary agent's model (per opencode docs). Part of the cost contract — see the orchestrator's subagent table. |
 | `temperature` | optional | Declared in the agent's frontmatter. Omit when the model ignores it (e.g. `kimi-k3`, kimi family). |
 | `tools` | optional | Tool allow/deny map. |
 | `permission` | optional | Permission rules (e.g. read-only adapters, `task` fan-out grants). |
@@ -84,7 +84,7 @@ Current minimal-shape subagents: `vision-relay`, `external-scout`. The minimal s
 
 ## `opencode.json` — top-level runtime knobs only
 
-Since the 2026-07-29 centralization and the simplification ratified 2026-08-02, `opencode.json` carries **top-level runtime config only**: `$schema`, `default_agent`, `plugin`, `permission` (global), `instructions`, `references`, `compaction`. There is **no `agent` block** — every per-agent field (including `model` and `temperature`) lives in the agent's `.md` frontmatter.
+Since the 2026-07-29 centralization and the simplification ratified 2026-08-02, `opencode.json` carries **top-level runtime config only**: `$schema`, `default_agent`, `permission` (global), `instructions`, `references`, `compaction`. There is **no `agent` block** — every per-agent field (including `model` and `temperature`) lives in the agent's `.md` frontmatter.
 
 Every per-agent field lives in the agent's `.md` frontmatter:
 

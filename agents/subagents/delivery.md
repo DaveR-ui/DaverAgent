@@ -77,7 +77,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
 | **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities, Slices table |
 | **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
-| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `plugin`, `compaction`, global `permission`, `instructions`. **No per-agent config** — each agent's `model`, `temperature`, `description`, `mode`, `permission` and `output_schema` live in its `.md` frontmatter. |
+| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permission`, `instructions`. **No per-agent config** — each agent's `model`, `temperature`, `description`, `mode`, `permission` and `output_schema` live in its `.md` frontmatter. |
 | **Agent definitions** | `.opencode/agents/subagents/` | System prompts per agent (the runtime loads one file per agent). `model` and `temperature` live in each agent's frontmatter |
 | **Agent protocols** | `.opencode/protocols/` | Conventions the agent system operates by (this folder) |
 | **Agent workflows** | `.opencode/workflows/` | Thinking instructions the agent applies before acting |
@@ -98,7 +98,7 @@ Changes to the agent system itself (`.opencode/agents/*.md`, `.opencode/protocol
 1. **Draft, don't apply.** Prepare the proposed change (or a diff) without editing the canonical file yet.
 2. **Get a review.** For non-trivial changes, run `reviewer` (consistency, contradictions with existing protocols/agents, cross-references) or `analista` (design / conceptual changes). Fix what the review surfaces.
 3. **Apply** only after the review passes.
-4. **Verify integrity.** After applying, delegate `bash tests/run-tests.sh` to `tester` (or `orchestrator`) so the validator, schema contracts, and plugin typecheck confirm no drift.
+4. **Verify integrity.** After applying, delegate `bash tests/run-tests.sh` to `tester` (or `orchestrator`) so the validator and schema contracts confirm no drift.
 
 **Exceptions:** a single-line doc fix (typo, stale path in a comment) may be applied directly. Anything that changes behavior, scope, permissions, schemas, or routing requires the loop.
 

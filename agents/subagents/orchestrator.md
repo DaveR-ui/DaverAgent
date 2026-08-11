@@ -1,7 +1,6 @@
 ---
 description: Orchestrator Agent - Persistent coordinator. Receives handoff from delivery, decomposes tasks, releases subagents, and maintains state across delegations. Works exclusively in English.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
 permission:
   task:
     interpreter: allow

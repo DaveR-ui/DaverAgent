@@ -5,8 +5,9 @@
 # fail loudly instead of silently degrading the system:
 #
 #   1. opencode.json / jason-opencode.json is valid JSON
-#   2. every subagent .md declares a model in its frontmatter, and no agent
-#      uses the deprecated `tools:` frontmatter field (use `permission:`)
+#   2. no agent uses the deprecated `tools:` frontmatter field (use
+#      `permission:`); `model:` is optional (omission inherits the invoking
+#      primary agent's model, per opencode docs)
 #   3. every output_schema frontmatter path resolves to an existing schema file
 #   4. every permission.task entry in delivery/orchestrator maps to a subagent
 #   5. required frontmatter (description, mode) on every agent file
@@ -93,11 +94,13 @@ fi
 
 # --- 2. agent <-> config cross-check ----------------------------------------
 # NOTE: model/temperature live in the agent frontmatter now, not in
-# opencode.json's agent block. Check 2 verifies frontmatter integrity instead:
-# every subagent .md declares a model, and no agent uses the deprecated
-# `tools:` frontmatter field (use `permission:` with allow/deny/ask instead).
+# opencode.json's agent block. Check 2 verifies frontmatter integrity:
+# `model:` is an OPTIONAL per-agent override — omission means the subagent
+# inherits the invoking primary agent's model (per opencode docs). The only
+# hard error here is the deprecated `tools:` frontmatter field (use
+# `permission:` with allow/deny/ask instead).
 
-echo "== [2/7] agent frontmatter (model + permission format) =="
+echo "== [2/7] agent frontmatter (model optional; tools: check) =="
 if [ ! -d "${AGENTS_DIR}" ]; then
   err "agents directory not found: ${AGENTS_DIR}"
 else
@@ -105,18 +108,14 @@ else
   if [ -z "${AGENT_FILES}" ]; then
     err "no *.md agent files found in ${AGENTS_DIR}"
   fi
-  for md in ${AGENT_FILES}; do
+  while IFS= read -r md; do
     name="$(basename "${md}")"
     fm="$(frontmatter "${md}")"
-    model="$(echo "${fm}" | awk -F': *' '/^model:/{gsub(/ /,"",$2); print $2; exit}')"
-    if [ -z "${model}" ]; then
-      err "${name} is missing 'model' in frontmatter"
-    fi
     if echo "${fm}" | grep -q '^tools:'; then
       err "${name} uses deprecated 'tools:' frontmatter; use 'permission:' with allow/deny/ask instead"
     fi
-  done
-  echo "ok: frontmatter model + permission format scanned"
+  done <<< "${AGENT_FILES}"
+  echo "ok: frontmatter scanned (model optional; tools: check)"
 fi
 
 # --- 3. output_schema resolution ---------------------------------------------

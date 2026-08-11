@@ -108,7 +108,7 @@ Defines when the host assistant should trigger this subagent. **This is the most
 - Explain reasoning in commentary.
 - Be specific about when NOT to use the agent.
 
-### model (required)
+### model (optional)
 
 Which model the subagent should use. Match the model to the task type:
 
@@ -116,7 +116,7 @@ Which model the subagent should use. Match the model to the task type:
 - **Coding work** (implementation, code-heavy review, refactoring) — use a code-specialized model.
 - **Cheap fast read-only** (lookup, documentation discovery) — use a fast low-cost model.
 
-> **Recommendation**: prefer explicit model routing for predictable cost and capability. Do not use legacy aliases or implicit inheritance in new shared agents.
+> **Default**: omission is valid — the subagent inherits the invoking primary agent's model (per opencode docs). Prefer an explicit `model:` override for predictable cost and capability; do not rely on legacy aliases.
 
 ### color (required)
 

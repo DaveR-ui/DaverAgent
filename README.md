@@ -73,21 +73,23 @@ Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan des
 | Agente | Modelo | Propósito |
 |---|---|---|
 | `delivery` | deepseek-v4-flash | Interfaz con el humano. NO delega trabajo técnico. |
-| `orchestrator` | deepseek-v4-flash | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
+| `orchestrator` | heredado (*) | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
 | `coder-angular` | deepseek-v4-flash | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
 | `coder-go` | deepseek-v4-flash | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
 | `tester` | deepseek-v4-flash | Tests. Devuelve `TesterOutput`. |
 | `reviewer` | deepseek-v4-flash | Code review, security, performance. Devuelve `ReviewerOutput`. |
-| `architect` | deepseek-v4-flash | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
-| `analista` | deepseek-v4-flash | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
+| `architect` | heredado (*) | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
+| `analista` | heredado (*) | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
 | `explorer` | deepseek-v4-flash | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
 | `project-context` | deepseek-v4-flash | Lookups y context assembly de `docs/` (read-only). El único escritor de `docs/` es `documenter`. |
 | `vision-relay` | deepseek-v4-flash | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
 | `external-scout` | deepseek-v4-flash | Trae docs de librerías externas vía webfetch. |
-| `interpreter` | deepseek-v4-flash | Normaliza el prompt (Step 0 del pipeline). |
+| `interpreter` | heredado (*) | Normaliza el prompt (Step 0 del pipeline). |
 | `documenter` | deepseek-v4-flash | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
 
 Los modelos y temperaturas viven en el **frontmatter de cada agente** (`.opencode/agents/subagents/<id>.md`). Cambiar un modelo = editar el frontmatter del agente + reiniciar opencode.
+
+(*) Sin `model:` declarado: el subagente hereda el modelo del agente primary que lo invoca (default de opencode). `model:` es un override opcional.
 
 ## Protocolos (cómo piensa el agente)
 

@@ -31,7 +31,7 @@ The folder is self-contained. It includes the agent system prompts (`.opencode/a
 Copy-Item ".\.opencode\jason-opencode.json" ".\opencode.json"
 ```
 
-> Adjust the model ids (`opencode-go/...`) in each agent's frontmatter (`.opencode/agents/subagents/<id>.md`, field `model`) if your provider differs.
+> `model:` in each agent's frontmatter (`.opencode/agents/subagents/<id>.md`) is optional — adjust the ids (`opencode-go/...`) if your provider differs; when omitted, the subagent inherits the invoking primary agent's model (per opencode docs).
 
 ## 3. Update `.gitignore`
 
