@@ -1,0 +1,6 @@
+{
+  "files_changed": ["src/feature/foo.ts"],
+  "tests_run": true,
+  "tests_passed": true,
+  "summary": "Implemented the feature"
+}
