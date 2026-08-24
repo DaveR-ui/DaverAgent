@@ -74,8 +74,8 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
 | **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities, Slices table |
 | **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
-| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permission`, `instructions`. **No per-agent config** — each agent's `model`, `temperature`, `description`, `mode`, `permission` and `output_schema` live in its `.md` frontmatter. |
-| **Agent definitions** | `.opencode/agents/subagents/` | System prompts per agent (the runtime loads one file per agent). `model` and `temperature` live in each agent's frontmatter |
+| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permission`, `instructions`. **No per-agent config** — each agent's `temperature`, `description`, `mode`, `permission` and `output_schema` live in its `.md` frontmatter; `model` is optional and when omitted the subagent inherits the invoking primary agent's model. |
+| **Agent definitions** | `.opencode/agents/subagents/` | System prompts per agent (the runtime loads one file per agent). `temperature` lives in each agent's frontmatter; `model` is optional (omitted = inherited from primary) |
 | **Agent protocols** | `.opencode/protocols/` | Conventions the agent system operates by (this folder) |
 | **Agent workflows** | `.opencode/workflows/` | Thinking instructions the agent applies before acting |
 
@@ -86,7 +86,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 - "Need project context" -> read `docs/project.md` + `docs/context/` (or delegate a lookup to `project-context`, which is read-only).
 - "Image attached and I need to describe / OCR / read it" -> delegate to `interpreter` (one image, one focused question).
 
-**Model priority:** `model` and `temperature` live in **each agent's frontmatter** (`.opencode/agents/subagents/<id>.md`). `opencode.json` carries no per-agent model/temperature. To change a model or temperature, edit the agent's frontmatter and restart opencode.
+**Model priority:** `temperature` lives in each agent's frontmatter (`.opencode/agents/subagents/<id>.md`); `model` is optional — when omitted the subagent inherits the invoking primary agent's model (per `validate-agent.sh` and `subagent-spec-template.md`). `opencode.json` carries no per-agent model/temperature. To change a model or temperature, edit the agent's frontmatter and restart opencode.
 
 ## Agent-system changes (`.opencode/`) require review
 

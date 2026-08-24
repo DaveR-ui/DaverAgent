@@ -203,13 +203,13 @@ Two sanctioned variants:
 
 | Variant | Shell sections used | Sub-headings present | Example files | Lines | When to use | Must contain |
 |---|---|---|---|---|---:|---|
-| Variant A: Stack/Context-delegating coder | 1 (partial) + 3 | Sec1: only `### Stack / Context`; Sec2: omitted or only slot; Sec3: `### Rules` + `### Structured Return` | `coder.md` (43–80L) | 43–80 | Coder/specialist with `docs/context/` delegation (knowledge lives in `docs/context/`, not in spec) | `Stack / Context` pointing to `docs/context/` as truth, `Rules`, `Structured Return` (CoderOutput via sibling schema), frontmatter with `output_schema` |
+| Variant A: Stack/Context-delegating coder/tester | 1 (partial) + 3 | Sec1: only `### Stack / Context`; Sec2: omitted or only slot; Sec3: `### Rules` + `### Structured Return` | `coder.md`, `tester.md` (43–80L) | 43–80 | Coder/test specialist with `docs/context/` delegation (knowledge lives in `docs/context/`, not in spec) | `Stack / Context` pointing to `docs/context/` as truth, `Rules`, `Structured Return` (CoderOutput/TesterOutput via sibling schema), frontmatter with `output_schema` |
 | Variant B: Contract minimal relay | 1 (merged) + 2/3 (partial) | `### Contract` (Role+Scope merged) + `### When to use` / `### When NOT to use` (+ `### Model` if needed) inside Sec1 or Sec2; Sec3 may be omitted if text return | `external-scout.md` (61L) | 61 | Single-capability relay/scout: one package+version lookup, no `output_schema`, text return, deny `edit`/`bash` | `Contract` (one capability), `When to use`, `When NOT to use`, `Model`; permission deny as needed |
 
 Rules for thin variants:
 - Variant A is explicitly exempt from `### Role` and `### Scope` in Sec1 — it delegates identity/scope to the `docs/context/` slice table. Do not add empty `Role`/`Scope` to satisfy the shell.
 - Variant B's `### Contract` is the merged Role+Scope; it is NOT an alias for `### Structured Return` — the return is prose/text described in the contract.
-- Both variants remain valid inside the 3-section shell via omitted macros + alias annotations where needed; the full shape (3 macros, all H3s) remains the default for all other subagents (`architect`, `explorer`, `reviewer`, `tester`, `documenter`, `analista`, `interpreter`, `project-context`).
+- Both variants remain valid inside the 3-section shell via omitted macros + alias annotations where needed; the full shape (3 macros, all H3s) remains the default for all other subagents (`architect`, `explorer`, `reviewer`, `documenter`, `analista`, `interpreter`, `project-context`) — `tester` is now Variant A (framework-parameterized thin adapter, 2026-08-25) alongside `coder`.
 - Legacy term `Minimal shape (thin adapters)` is retained as an alias for this section — six external cross-refs still use it (`agent-installer.md` lines 19/66, `ia-dev.md`, `protocols/README.md` line 29). Update those cross-refs in a follow-up pass.
 
 ## The `output_schema` ↔ sibling schema bridge
@@ -328,6 +328,14 @@ Frontmatter is the source of truth for per-agent config; `output_schema` lives i
 | `coder-go` | **deleted** |
 | `vision-relay` | **deleted**; image inspection absorbed by `interpreter` (adds `read: allow`, image path + one focused question → compact textual answer) |
 | `interpreter` | Absorbed vision-relay; still `./interpreter.schema.json` (`InterpreterOutput`) |
+
+## Audit results — 2026-08-25 (tester framework-parameterization)
+
+`tester` moved from full shape (80L) to thin Variant A framework-parameterized adapter (66L), branching by `framework=vitest|karma-jasmine|playwright|go` plus conditional `linter=eslint|biome`, reusing `failures[]` for lint and explicit not-run `tests_run=0, failures=["no framework informed — test ignored"]`.
+
+| Subagent | Change |
+|---|---|
+| `tester` | Thin adapter (Variant A) replacing full shape; branches by `framework=vitest\|karma-jasmine\|playwright\|go` via task payload plus conditional `linter=eslint\|biome`; reuses `./tester.schema.json` (`TesterOutput`) unchanged; coverage tri-state documented |
 
 ## Rules
 

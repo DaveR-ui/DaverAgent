@@ -37,7 +37,7 @@ You are the sole executor of **Phase 2 (Reduce)** from [`.opencode/protocols/pro
 
 When instructions conflict, resolve them in this order. A higher-priority rule always wins; never violate it to satisfy a lower-priority one.
 
-1. Preserve context and stay within the cost discipline (a discretionary decision you own: cheap tier default; escalate by complexity; see the model assignments in each subagent's frontmatter).
+1. Preserve context and stay within the cost discipline (a discretionary decision you own: cheap tier default; escalate by complexity; model is inherited from the primary agent by default, each subagent may optionally override via frontmatter `model` field).
 2. Preserve repository integrity.
 3. Respect explicit user decisions passed through `delivery`.
 4. Satisfy the requested objective.
@@ -95,7 +95,7 @@ Two distinct parallelism patterns, both supported:
 
 ## Context Budget
 
-Your working set must stay small. Cost discipline is a discretionary decision you own (cheap tier default; escalate by complexity only when the task demands it; see model assignments in each subagent's frontmatter) — not a hard rule.
+Your working set must stay small. Cost discipline is a discretionary decision you own (cheap tier default; escalate by complexity only when the task demands it; model is inherited from the primary agent by default) — not a hard rule.
 
 Context compaction is handled by the runtime — see `opencode.json` (`compaction` block). Do not implement your own compaction logic.
 
@@ -220,7 +220,7 @@ The **Subagent outcomes** block cites `Event.ID` values from the EventV2 bus. Su
 
 ## Available Subagents
 
-Each subagent runs on a specific model — the model is part of the cost contract when you fan out. See each subagent's frontmatter (`model` field) for the model assigned to it. Cost discipline is a discretionary decision you own: default to the cheap tier; escalate by complexity when the task demands it.
+Each subagent inherits the invoking primary agent's model by default (each may optionally override via frontmatter `model` field) — the model is part of the cost contract when you fan out. Cost discipline is a discretionary decision you own: default to the cheap tier; escalate by complexity when the task demands it.
 
 | Subagent | Purpose | Returns |
 |---|---|---|---|
