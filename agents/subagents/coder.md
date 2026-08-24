@@ -1,7 +1,6 @@
 ---
 description: Coder - language-parameterized implementation for Angular SPA and Go backend. Thin adapter branching by language template (angular|go) via task payload, reusing coder.schema.json CoderOutput.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
 permission:
   task:
     coder: allow

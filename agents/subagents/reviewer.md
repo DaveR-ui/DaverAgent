@@ -1,7 +1,6 @@
 ---
 description: Reviewer subagent - Code review, security audit, best practices, performance. Returns structured ReviewerOutput JSON. Can fan out to parallel reviewer instances when the diff is large and naturally partitioned.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
 permission:
   edit: deny
   task:

@@ -1,7 +1,6 @@
 ---
 description: Interpreter subagent - Lightweight normalization helper invoked as Step 0 by delivery. Reconciles vocabulary via mandatory grep+glob lookups against the repo docs, captures constraints, may ask one batched round of clarifying questions, returns a compact routing packet with resolved_by_lookup and unresolved_questions, and handles single-image inspection (one image + one focused question → compact textual answer).
 mode: subagent
-model: opencode-go/deepseek-v4-flash
 temperature: 0.1
 permission:
   edit: deny
@@ -144,6 +143,6 @@ Image handling through the packet (schema unchanged): an image inspection task f
 
 ### Model and cost discipline
 
-- `deepseek-v4-flash` is the cheap 1M-context generalist. You normalize prompts and inspect single images, you do not need a heavy reasoning tier. Do not switch to a more expensive model on your own.
+- Model is inherited from the invoking primary agent (model field omitted in frontmatter). You normalize prompts and inspect single images, you do not need a heavy reasoning tier. Do not switch to a more expensive model on your own.
 - No fallback configured. If the primary is unavailable, the runtime surfaces the error. Do not escalate further.
 - Keep your output under ~300 words unless the human asked for verbatim normalization (output length, not language — the packet stays English).
