@@ -38,11 +38,13 @@ DaverAgent/                     (tree fuente → se copia como .opencode/ en el 
 │       ├── documenter.md      # Documentación
 │       └── *.schema.json      # Schemas de los returns estructurados
 │
-├── protocols/                  # Convenciones operativas del agente
+├── protocols/                  # Convenciones operativas del agente (5 + README)
 │   ├── README.md               # Índice
 │   ├── prompt-pipeline.md      # Step 0 Interpret (interpreter subagent) + Phase 2 Reduce
+│   ├── session-recovery.md     # Recovery for interrupted/STUCK sessions
+│   ├── broad-investigation-template.md # Scaffold para auditorías wide-surface
 │   ├── agent-installer.md      # 4 fases del installer
-│   └── broad-investigation-template.md # Scaffold para auditorías wide-surface
+│   └── subagent-spec-template.md # Canonical subagent shape + output_schema bridge
 │
 ├── workflows/                  # Thinking instructions
 │   ├── dispatch.md             # Gate interpreter-first (lo lee delivery cada turno)

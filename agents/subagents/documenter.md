@@ -35,13 +35,13 @@ Do **not** modify:
 - `docs/project.md` is the canonical entry point: project metadata, stack, commands, and the **Slices table** that routes every change to its primary doc.
 - Strategic docs live in `docs/context/` — one topic per file — indexed by `docs/context/README.md`; fast tag lookup in `docs/_TAG-INDEX.md`.
 - Source-of-truth hierarchy: `docs/context/*.md` > `docs/project.md` > `docs/_TAG-INDEX.md` > `src/`. Code may be legacy or mid-refactor — document the target pattern, never the anti-pattern.
-- Project protocols live in `docs/protocols/`; agent protocols live in `.opencode/protocols/` (out of scope for this agent).
+- Project protocols live in `docs/protocols/`; agent protocols live in `.opencode/protocols/` (catalog registry out of scope — see documenter salvage note below). Canonical doc format is `docs/context/doc-conventions.md` - learner relevance filter retired (superseded by `prompt-pipeline.md` hot spots).
 
 ## Standards
 
 - Every `docs/` page carries a frontmatter block: `last_updated`, `status`, `description`, `tags` (pattern: `docs/project.md`).
-- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice.
-- Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change.
+- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md` (and `.opencode/protocols/README.md` for agent protocols — via review loop).
+- Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change. AI-optimized principles (salvaged from retired ia-docs-gen): concise over verbose, patterns over prose, max 3 nesting levels, include real project code/examples, status markers `(WIP)`/`(TODO)`/`(DEPRECATED)`, English only.
 
 ## Post-change documentation audit
 
@@ -61,6 +61,7 @@ Also run this audit as a smoke-test before declaring any documentation milestone
 - **Reference, do not repeat** — if a fact is already in `AGENTS.md` or another canonical doc, link to it.
 - **Update `docs/context/README.md`** whenever you add or remove a context file.
 - **Never delete files** — deletion is a human action. To replace a file, write the new version and let the human remove the old one.
+- **Safety guard (salvaged from retired ia-catalog-manager):** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `.opencode/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.
 
 ## Structured Return
 

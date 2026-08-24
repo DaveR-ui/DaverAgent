@@ -28,18 +28,9 @@ Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/in
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 | [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
 
-## IA orchestration pipeline (transformed from `p3-ia-*` skills)
+## Former IA pipeline protocols (retired 2026-08-24)
 
-The 4 protocols below document the supporting roles of the original IA orchestration pipeline (catalog-manager, docs-gen, learner, dev). The core pipeline stages (analyzer → explorer → supplier → proposer → verifier) and the supporting pruner / search / skill-creator / sync-checker protocols were **removed on 2026-08-09** — the opencode runtime now provides native equivalents (interpreter subagent ≈ analyzer, explorer subagent ≈ explorer, tester/reviewer ≈ verifier, prompt-pipeline Phase 2 ≈ proposer, project-context ≈ supplier). When a remaining protocol conflicts with an opencode native agent or protocol, the native one wins.
-
-> These protocols were transformed on 2026-08-06 from the frontend skill tree at `frontend/.agents/skills/p3-ia-*/SKILL.md`. The entire `frontend/.agents/` tree (skills + legacy strategy) was removed on 2026-08-09; references to it in legacy docs are stale.
-
-| Protocol | Purpose | Source skill |
-|---|---|---|
-| [`ia-learner.md`](./ia-learner.md) | Long-term learning. Converts session data (fixes, pivots, errors) into persistent architectural rules and learning logs, with a strict relevance filter that discards noise. | `p3-ia-learner` |
-| [`ia-catalog-manager.md`](./ia-catalog-manager.md) | Unified CRUD for `docs/context/`, `docs/protocols/`, and `.opencode/protocols/`. Create, read, update, move/rename, or delete docs with automatic registry sync and link validation. | `p3-ia-catalog-manager` |
-| [`ia-docs-gen.md`](./ia-docs-gen.md) | Standards for creating AI-optimized documentation: required frontmatter, the component-doc format, the skill-to-doc reference rule, and the index-registration checklist. | `p3-ia-docs-gen` |
-| [`ia-dev.md`](./ia-dev.md) | Guidelines for designing and managing autonomous agents: triggering conditions, system-prompt structure, file layout, and the canonical subagent spec. Carries the original Claude-Code-derived reference material under [`references/p3-ia-dev/`](./references/p3-ia-dev/). | `p3-ia-dev` |
+The 4 retired protocols (`ia-learner`, `ia-catalog-manager`, `ia-docs-gen`, `ia-dev`) and their `references/p3-ia-dev/` material were consolidated on 2026-08-24. The core pipeline stages they documented (analyzer → explorer → supplier → proposer → verifier) and the supporting pruner/search/skill-creator/sync-checker were already removed on 2026-08-09 — native equivalents now cover them (interpreter ≈ analyzer, explorer ≈ explorer, tester/reviewer ≈ verifier, prompt-pipeline Phase 2 ≈ proposer, project-context ≈ supplier). Durable content was salvaged: catalog registry/Safety Guard/link-validation → `documenter` subagent, docs-gen frontmatter/component format → `docs/context/doc-conventions.md`; learner relevance filter retired (superseded by prompt-pipeline hot spots). Canonical shape is `subagent-spec-template.md`.
 
 ## Built-in protocols (from opencode runtime)
 
