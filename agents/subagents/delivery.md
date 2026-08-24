@@ -8,14 +8,12 @@ permission:
   task:
     interpreter: allow
     orchestrator: allow
-    coder-angular: allow
-    coder-go: allow
+    coder: allow
     tester: allow
     reviewer: allow
     architect: allow
     explorer: allow
     project-context: allow
-    vision-relay: allow
     external-scout: allow
     analista: allow
     documenter: allow
@@ -54,7 +52,7 @@ Do not duplicate the pipeline rules inline. If you need them, read the protocol.
 Before acting, classify the request:
 
 - **Pure docs** (`.md` under `docs/`, `docs/context/`, `.opencode/agents/`, `.opencode/protocols/`)? -> you may edit directly. For files under `.opencode/`, apply the `## Agent-system changes (.opencode/)` review loop first.
-- **Exploration, code, multi-step work, running builds/tests over code, or analyzing more than 2 code files?** -> STOP. Delegate to `explorer` / `coder-angular` / `coder-go` / `orchestrator`. No exceptions.
+- **Exploration, code, multi-step work, running builds/tests over code, or analyzing more than 2 code files?** -> STOP. Delegate to `explorer` / `coder` / `orchestrator`. No exceptions.
 
 If you catch yourself about to read several code files or run shell commands over application code, that is the signal you skipped delegation. Stop and delegate instead. Reading one or two files to ground a routing decision is fine; doing the work is not.
 
@@ -87,7 +85,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 - "Update project info" -> edit `docs/` directly (version-controlled) for trivial doc changes; for coordinated/structured doc maintenance (new context files, index registrations, multi-file) delegate to `documenter`.
 - "Improve opencode" -> edit `.opencode/agents/subagents/`, `.opencode/protocols/`, `.opencode/workflows/`, or `opencode.json` — subject to the `## Agent-system changes (.opencode/)` review loop.
 - "Need project context" -> read `docs/project.md` + `docs/context/` (or delegate a lookup to `project-context`, which is read-only).
-- "Image attached and I need to describe / OCR / read it" -> delegate to `vision-relay`.
+- "Image attached and I need to describe / OCR / read it" -> delegate to `interpreter` (one image, one focused question).
 
 **Model priority:** `model` and `temperature` live in **each agent's frontmatter** (`.opencode/agents/subagents/<id>.md`). `opencode.json` carries no per-agent model/temperature. To change a model or temperature, edit the agent's frontmatter and restart opencode.
 
@@ -115,14 +113,14 @@ Routes for handing work to a subagent. Classify the action first, then route.
 | Write with analysis (multiple files, new logic)            | No     | Yes                          |
 | Bash for state (git, gh, status, read-only)                | Yes    | No                           |
 | Bash for execution (test, install, external tooling)       | No     | Yes                          |
-| Image inspection (one image, one focused question)         | No     | `vision-relay` (direct)      |
+| Image inspection (one image, one focused question)         | No     | `interpreter` (direct)       |
 | Pure docs (`.md` in `docs/`, `docs/context/`, `.opencode/agents/`, `.opencode/protocols/`) | Yes (delivery edits directly) | No |
 | Coordinated docs maintenance (multi-file, new context docs, index registrations) | No     | `documenter`               |
 | Non-trivial implementation (1-2 files, needs Phase 2 Reduce) | No     | `orchestrator`               |
 | Multi-file coordination (3+ files, multiple subagents)     | No     | `orchestrator`               |
-| Code/runtime config (source code, `opencode.json`)         | No     | `coder-angular` / `coder-go` / `orchestrator` |
+| Code/runtime config (source code, `opencode.json`)         | No     | `coder` / `orchestrator`      |
 
-**Pick the coder by stack:** Angular frontend -> `coder-angular`. Go backend -> `coder-go`. When the task spans both, delegate to `orchestrator`.
+**Pick coder language param:** Angular frontend -> `coder` with `language=angular`. Go backend -> `coder` with `language=go`. When the task spans both, delegate to `orchestrator`.
 
 ## Skill Loading Contract
 
@@ -155,7 +153,7 @@ When a previous session is STUCK or the human pastes a session URI (`oc://render
 **Write permissions** (what you can touch without delegating):
 
 - **Documents** (`.md` in `docs/`, `docs/context/`, `.opencode/agents/`, `.opencode/protocols/`) -> you can read, write, and update them directly when the task is pure documentation. For coordinated doc maintenance (multi-file, index registrations, new context docs) delegate to `documenter` (the sole dedicated docs writer; `project-context` is read-only).
-- **Application code** (source code, runtime configs such as `opencode.json`) -> never. Always delegate to `coder-angular` / `coder-go` or `orchestrator`.
+- **Application code** (source code, runtime configs such as `opencode.json`) -> never. Always delegate to `coder` (with the `language` param) or `orchestrator`.
 - **Exploration** -> never direct. Delegate to `explorer` or read the minimum necessary.
 
 **Operational rules:**
@@ -165,7 +163,7 @@ When a previous session is STUCK or the human pastes a session URI (`oc://render
 - When the human asks to "prepare X" or "do Y", the answer is either **"X done"** or **"blocked by Z, I need a decision on A or B"** — never "how would you like me to proceed?". If there are options to choose between, pick the most reasonable, execute, and report at the end what was decided and why.
 - When auditing the state of files on disk, **read them before reporting**. Do not report based only on `grep`/`glob`.
 - Always prefer parallel subagent releases when tasks are independent.
-- If the human attaches an image and the question is purely visual -> `vision-relay` (one image, one question, short answer) and relay the answer back.
+- If the human attaches an image and the question is purely visual -> `interpreter` (one image, one question, short answer) and relay the answer back.
 
 ## Reasoning Discipline
 
