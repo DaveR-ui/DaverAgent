@@ -28,6 +28,27 @@ Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/in
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
 | [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
 
+## Per-agent protocol scrolls (Branch B — flat)
+
+Branch B (flat fallback) confirmed in Phase 0 probe (validate-agent.sh flat scan ignores nested `.opencode/agents/subagents/_probe/probe.md`) and applied in Phase 1 — see [`docs/plans/rpg-agent-organization-plan.md`](../../docs/plans/rpg-agent-organization-plan.md) Phase 1. Agents remain flat at `.opencode/agents/subagents/<id>.md` (12 actual); per-agent scrolls live under `.opencode/protocols/<id>/`. Shared protocols above stay unchanged. Each scroll is presentation-only, derived from `refined-source/rules.json` / `permission` and the RPG race mapping (Herald, Diviner, Ranger, Artificer, Sentinel, Inquisitor, Lorekeeper) — never duplicating rule semantics.
+
+| Agent (group → Race) | Scroll(s) | Flavor |
+|---|---|---|
+| [`delivery`](./delivery/delivery-routing.md) (coordination → Herald) | [`delivery-routing.md`](./delivery/delivery-routing.md) + [README](./delivery/README.md) | Voice of the party — takes quests, never strikes |
+| [`orchestrator`](./orchestrator/orchestrator-fanout.md) (coordination → Herald) | [`orchestrator-fanout.md`](./orchestrator/orchestrator-fanout.md) + [README](./orchestrator/README.md) | Organizes the company after the Diviner points |
+| [`interpreter`](./interpreter/interpreter-lexicon.md) (analysis → Diviner) | [`interpreter-lexicon.md`](./interpreter/interpreter-lexicon.md) + [README](./interpreter/README.md) | Reads intent, dispels ambiguity, never walks the path |
+| [`explorer`](./explorer/explorer-scout.md) (exploration → Ranger) | [`explorer-scout.md`](./explorer/explorer-scout.md) + [README](./explorer/README.md) | Scouts terrain; touches nothing |
+| [`project-context`](./project-context/project-context-lore.md) (exploration → Ranger) | [`project-context-lore.md`](./project-context/project-context-lore.md) + [README](./project-context/README.md) | Knows where lore lives |
+| [`external-scout`](./external-scout/external-scout-fetch.md) (exploration → Ranger) | [`external-scout-fetch.md`](./external-scout/external-scout-fetch.md) + [README](./external-scout/README.md) | Far scout, brings distant knowledge |
+| [`coder`](./coder/coder-toolkit.md) (coders → Artificer) | [`coder-toolkit.md`](./coder/coder-toolkit.md) + [README](./coder/README.md) | Single crafter, two toolkits (`language=angular\|go`) |
+| [`reviewer`](./reviewer/reviewer-judgement.md) (guardians → Sentinel) | [`reviewer-judgement.md`](./reviewer/reviewer-judgement.md) + [README](./reviewer/README.md) | Read-only judge |
+| [`architect`](./architect/architect-blueprint.md) (guardians → Sentinel) | [`architect-blueprint.md`](./architect/architect-blueprint.md) + [README](./architect/README.md) | Draws blueprints, never builds |
+| [`analista`](./analista/analista-counsel.md) (guardians → Sentinel) | [`analista-counsel.md`](./analista/analista-counsel.md) + [README](./analista/README.md) | Counsel with calibrated confidence |
+| [`tester`](./tester/tester-trials.md) (quality → Inquisitor) | [`tester-trials.md`](./tester/tester-trials.md) + [README](./tester/README.md) | Trials artifacts until they break |
+| [`documenter`](./documenter/documenter-chronicle.md) (writers → Lorekeeper) | [`documenter-chronicle.md`](./documenter/documenter-chronicle.md) + [README](./documenter/README.md) | Chronicler in the common tongue (English) |
+
+Drafts staged under `.opencode/.draft/phase1/<id>/` per review loop (Draft → Review → Apply → Verify); final location is `.opencode/protocols/<id>/`.
+
 ## Former IA pipeline protocols (retired 2026-08-24)
 
 The 4 retired protocols (`ia-learner`, `ia-catalog-manager`, `ia-docs-gen`, `ia-dev`) and their `references/p3-ia-dev/` material were consolidated on 2026-08-24. The core pipeline stages they documented (analyzer → explorer → supplier → proposer → verifier) and the supporting pruner/search/skill-creator/sync-checker were already removed on 2026-08-09 — native equivalents now cover them (interpreter ≈ analyzer, explorer ≈ explorer, tester/reviewer ≈ verifier, prompt-pipeline Phase 2 ≈ proposer, project-context ≈ supplier). Durable content was salvaged: catalog registry/Safety Guard/link-validation → `documenter` subagent, docs-gen frontmatter/component format → `docs/context/doc-conventions.md`; learner relevance filter retired (superseded by prompt-pipeline hot spots). Canonical shape is `subagent-spec-template.md`.
