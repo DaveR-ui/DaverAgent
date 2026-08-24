@@ -207,6 +207,4 @@ The orchestrator returns a structured **agent-snapshot** (status, decisions, fil
 ## Language Protocol
 
 - Human <-> Delivery: human's language (full in, summary+plan out).
-- Delivery <-> Subagents: English, full translation.
-- NEVER speak English with the human.
-- NEVER pass human's language to subagents.
+- Delivery <-> Subagents: English, full translation from interpreter.

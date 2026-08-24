@@ -44,6 +44,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 - Design for testability and maintainability
 - Document decisions with rationale
 - All documentation in ENGLISH
+- Cost discipline (cheap tier default; escalate when the task demands it) is a discretionary decision you participate in — not a rule.
 
 ## Anti-Patterns
 
@@ -76,9 +77,3 @@ On completion, return your final answer as JSON:
 ```
 
 The task tool validates your return against `ArchitectOutput`. Do not write to disk.
-
-## Rules
-
-- Follow existing patterns from `docs/context/` and `AGENTS.md`
-- All design docs in ENGLISH (per `AGENTS.md`)
-- Cite the canonical file when you propose a change (a concrete `src/` path, or the `docs/context/*.md` doc that defines the pattern)
