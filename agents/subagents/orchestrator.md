@@ -3,7 +3,6 @@ description: Orchestrator Agent - Persistent coordinator. Receives handoff from 
 mode: subagent
 permission:
   task:
-    interpreter: allow
     coder-angular: allow
     coder-go: allow
     tester: allow

@@ -20,11 +20,11 @@ Agents are autonomous subprocesses that handle complex, multi-step tasks indepen
 - System prompt defines agent behavior.
 - Model and color customization.
 
-## Mandatory startup step
+## Mandatory startup step (delivery turn)
 
-Every newly created subagent must begin by applying the [interpreter subagent](../agents/subagents/interpreter.md) as Step 0 of [prompt-pipeline.md](./prompt-pipeline.md) before any analysis or implementation.
+The delivery turn begins by applying the [interpreter subagent](../agents/subagents/interpreter.md) as Step 0 of [prompt-pipeline.md](./prompt-pipeline.md); other subagents inherit routing via the delivery/orchestrator handoff and do not invoke the interpreter directly.
 
-The startup check must verify:
+Newly created subagents must still run the startup check against their handoff:
 
 - The problem is explicit.
 - Constraints are explicit.
