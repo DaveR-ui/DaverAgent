@@ -104,7 +104,7 @@ The Delivery's system prompt is small on purpose. Sections in the system prompt 
 After Step 0, Delivery picks the delegation target:
 
 - **Trivial** (post-Step 0) -> handle directly (doc edit, simple lookup).
-- **Non-trivial** (1-2 files OR multi-step) -> delegate to `orchestrator` with the routing packet as the handoff. The orchestrator runs Phase 2 (Reduce), produces the scope, and decomposes (releasing `coder-angular` / `coder-go`, `tester`, `reviewer`, etc. in parallel). Do not route 1-2 file work to a coder directly — the reduce step is the orchestrator's job.
+- **Non-trivial** (1-2 files OR multi-step) -> delegate to `orchestrator` with the routing packet as the handoff. The orchestrator runs Phase 2 (Reduce), produces the scope, and decomposes (releasing `coder` (language=angular|go), `tester`, `reviewer`, etc. in parallel). Do not route 1-2 file work to a coder directly — the reduce step is the orchestrator's job.
 
 ## Notes
 

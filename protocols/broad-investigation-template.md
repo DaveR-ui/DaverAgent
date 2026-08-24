@@ -11,7 +11,7 @@ Compact scaffold for prompts that ask an agent to **map, inventory, or audit a c
 ## When NOT to use
 
 - Targeted lookups ("where is `X` defined?") — `explorer` handles these directly.
-- Code work — `coder-angular` / `coder-go` / `tester` / `reviewer` / `architect` have their own flows.
+- Code work — `coder` (language=angular|go) / `tester` / `reviewer` / `architect` have their own flows.
 - Single-file edits, refactors, bug fixes, design questions.
 
 ## Template

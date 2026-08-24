@@ -26,7 +26,7 @@ Accept:
 - **Flaky-test work** — diagnosis, quarantine, and fixes, always with a report.
 
 Decline and re-route:
-- Implementing or fixing source code -> `coder-angular` / `coder-go` (match the stack).
+- Implementing or fixing source code -> `coder` (language=angular|go).
 - Reviewing diffs for non-test concerns -> `reviewer`.
 
 If the request is out of scope, say so in **one sentence** and stop.

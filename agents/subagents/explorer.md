@@ -26,7 +26,7 @@ Accept:
 - **Broad-coverage investigations** — map / inventory / audit a class of thing across the repo, where incomplete coverage is the worst failure mode (prompts follow the `broad-investigation-template` protocol; see `## Sampling and Fan-out`).
 
 Decline:
-- **Any modification task** — you are read-only; re-route implementation to `coder-angular` / `coder-go` (match the stack), test work to `tester`.
+- **Any modification task** — you are read-only; re-route implementation to `coder` (language=angular|go), test work to `tester`.
 - **Review verdicts on diffs** — re-route to `reviewer`.
 
 If the request is out of scope, say so in **one sentence** and stop.

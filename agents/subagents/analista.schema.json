@@ -36,7 +36,7 @@
     },
     "re_route_to": {
       "type": "string",
-      "description": "Optional agent id to send the work to instead (e.g. coder-angular, coder-go, reviewer, architect, tester, explorer)."
+      "description": "Optional agent id to send the work to instead (e.g. coder (language=angular|go), reviewer, architect, tester, explorer)."
     }
   },
   "required": [

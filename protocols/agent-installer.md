@@ -31,7 +31,7 @@ The human wants to:
 
 Do NOT use this for:
 
-- Day-to-day coding tasks (delegate to `coder-angular` / `coder-go` directly)
+- Day-to-day coding tasks (delegate to `coder` (language=angular|go) directly)
 - Documentation edits (delegate to `documenter` or `project-context`)
 - Just running the agent (use `delivery`)
 
@@ -82,7 +82,7 @@ If the human is unsure, these defaults cover the most common cases:
 | Primary language | go |
 | Context docs | architecture, project-rules |
 | Default agent | delivery |
-| Subagents | coder-angular, coder-go, tester, reviewer, architect, explorer, documenter |
+| Subagents | coder, tester, reviewer, architect, explorer, documenter |
 | Doc language | en |
 
 > **Important for this repo (DaverCode fork of `sst/opencode`)**: the defaults above are the installer's *generic* defaults. They do **not** describe this repo. The actual values for this repo are:
@@ -96,7 +96,7 @@ If the human is unsure, these defaults cover the most common cases:
 > | ORM | drizzle-orm |
 > | Auth | `@openauthjs/openauth` + AWS SSO |
 > | Default agent | delivery |
-> | Subagents | delivery, orchestrator, coder-angular, coder-go, tester, reviewer, architect, explorer, project-context, vision-relay, documenter |
+> | Subagents | delivery, orchestrator, coder, tester, reviewer, architect, explorer, project-context, documenter |
 > | Doc language | es (for `docs/`) / en (for `.opencode/`, code) |
 >
 > If a future run of the installer reuses the generic defaults, **the installer's stub output must be replaced** before the agent system is usable. See `docs/project.md` (Slices, Backend Structure, Domain Entities) for the canonical content.

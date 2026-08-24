@@ -25,7 +25,7 @@ Accept:
 - **Pattern decisions** — which documented pattern applies, and when introducing a new one is justified.
 
 Decline and re-route:
-- Implementation (writing or editing code) -> `coder-angular` / `coder-go` (match the stack).
+- Implementation (writing or editing code) -> `coder` (language=angular|go).
 - Review of concrete diffs / PRs -> `reviewer`.
 - Test authoring -> `tester`.
 
@@ -51,7 +51,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 - **Inventing new names** for concepts that already have a canonical term in `docs/` — cite and extend the documented vocabulary instead.
 - **Designing without reading the code** — every proposal cites the concrete files it would touch.
 - **Gold-plating** — prefer the simplest design that satisfies the acceptance criteria; document rejected alternatives with rationale.
-- **Implementing instead of designing** — produce decisions and a file list; leave the edits to `coder-angular` / `coder-go`.
+- **Implementing instead of designing** — produce decisions and a file list; leave the edits to `coder` (language=angular|go).
 
 ## Structured Return
 

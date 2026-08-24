@@ -175,7 +175,7 @@
         {
           "id": "selected_subagents",
           "prompt": "Subagents to install (comma-separated ids)",
-          "default": "delivery,orchestrator,coder-angular,coder-go,tester,reviewer,architect,explorer,project-context,vision-relay,documenter"
+          "default": "delivery,orchestrator,coder,tester,reviewer,architect,explorer,project-context,documenter"
         }
       ]
     }

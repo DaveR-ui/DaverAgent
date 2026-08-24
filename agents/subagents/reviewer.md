@@ -26,7 +26,7 @@ Accept:
 - Focused audits (security, performance, standards) over a defined scope.
 
 Decline and re-route:
-- Implementing the fixes you find — report them as `issues`; re-route to `coder-angular` / `coder-go` (match the stack).
+- Implementing the fixes you find — report them as `issues`; re-route to `coder` (language=angular|go).
 - Writing or repairing tests -> `tester`.
 - Open-ended design questions -> `architect`.
 

@@ -1,6 +1,6 @@
 # Agente Opencode — DaverAgent
 
-Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder-angular, coder-go, tester, etc.) listo para clonar/copiar como `.opencode/` en el repo que lo vaya a usar.
+Esta carpeta contiene toda la configuración del sistema de agentes (delivery, orchestrator, coder, tester, etc.) listo para clonar/copiar como `.opencode/` en el repo que lo vaya a usar.
 
 ## Fuente de verdad: una sola parte, sin duplicados
 
@@ -26,14 +26,12 @@ DaverAgent/                     (tree fuente → se copia como .opencode/ en el 
 │   └── subagents/             # Un archivo por agente (los lee el runtime de opencode)
 │       ├── delivery.md        # Interfaz con el humano (primary)
 │       ├── orchestrator.md    # Coordinador (delegable a fondo)
-│       ├── coder-angular.md   # Implementación Angular (referencia docs/context/)
-│       ├── coder-go.md        # Implementación Go (referencia docs/context/)
-│       ├── reviewer.md        # Code review
-│       ├── tester.md          # Tests
-│       ├── architect.md       # Diseño
-│       ├── explorer.md        # Búsqueda y mapeo
+│       ├── coder.md         # Implementación (language=angular|go, referencia docs/context/)
+│       ├── reviewer.md      # Code review
+│       ├── tester.md        # Tests
+│       ├── architect.md     # Diseño
+│       ├── explorer.md      # Búsqueda y mapeo
 │       ├── project-context.md # Lectura de docs/ (read-only, lookups y context assembly)
-│       ├── vision-relay.md    # Inspección de imágenes
 │       ├── external-scout.md  # Docs externas vía webfetch
 │       ├── interpreter.md     # Normalización Step 0
 │       ├── analista.md        # Segunda opinión
@@ -74,15 +72,13 @@ Definidos en `.opencode/agents/subagents/*.md` (modo `subagent`). Se invocan des
 |---|---|---|
 | `delivery` | deepseek-v4-flash | Interfaz con el humano. NO delega trabajo técnico. |
 | `orchestrator` | heredado (*) | Ejecuta Phase 2 (Reduce), coordina trabajo multi-paso, hace fan-out de subagentes. |
-| `coder-angular` | deepseek-v4-flash | Implementación Angular. Referencia los docs Angular de `docs/context/`. Devuelve `CoderOutput`. |
-| `coder-go` | deepseek-v4-flash | Implementación Go. Referencia los docs Go de `docs/context/`. Devuelve `CoderOutput`. |
+| `coder` | deepseek-v4-flash | Implementación (language=angular|go). Referencia los docs del stack en `docs/context/`. Devuelve `CoderOutput`. |
 | `tester` | deepseek-v4-flash | Tests. Devuelve `TesterOutput`. |
 | `reviewer` | deepseek-v4-flash | Code review, security, performance. Devuelve `ReviewerOutput`. |
 | `architect` | heredado (*) | Diseño, boundaries, patrones. Devuelve `ArchitectOutput`. |
 | `analista` | heredado (*) | Segunda opinión, crítica de planes, stuck-recovery. Devuelve `AnalystOutput`. |
 | `explorer` | deepseek-v4-flash | Búsqueda y mapeo en el repo. Devuelve `ExplorerOutput`. |
 | `project-context` | deepseek-v4-flash | Lookups y context assembly de `docs/` (read-only). El único escritor de `docs/` es `documenter`. |
-| `vision-relay` | deepseek-v4-flash | Inspección barata de imágenes (un path + una pregunta → respuesta corta). |
 | `external-scout` | deepseek-v4-flash | Trae docs de librerías externas vía webfetch. |
 | `interpreter` | heredado (*) | Normaliza el prompt (Step 0 del pipeline). |
 | `documenter` | deepseek-v4-flash | Escribe/mantiene `docs/`. Devuelve `DocumenterOutput`. |
