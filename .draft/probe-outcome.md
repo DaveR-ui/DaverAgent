@@ -84,7 +84,7 @@ probe.md
  .opencode/agents/subagents/reviewer.schema.json    |  64 +++
  .opencode/agents/subagents/tester.md               |  66 +++
  .opencode/agents/subagents/tester.schema.json      |  35 ++
- .opencode/protocols/README.md                      |  65 +++
+ .opencode/protocols/readme.md                      |  65 +++
  .opencode/protocols/agent-installer.md             | 127 +++++
  .../protocols/broad-investigation-template.md      |  55 +++
  .opencode/protocols/prompt-pipeline.md             | 113 +++++
@@ -121,7 +121,7 @@ probe.md
  55 files changed, 4232 insertions(+)
 ```
 
-`git diff --cached --stat` before commit showed same 55 files; `git status` after commit (at b632c0a) showed unstaged docs changes and untracked `.opencode/INSTALL.md`, `README.md`, `jason-opencode.json`, `docs/plans/` — docs not committed in snapshot, honoring selective staging.
+`git diff --cached --stat` before commit showed same 55 files; `git status` after commit (at b632c0a) showed unstaged docs changes and untracked `.opencode/install.md`, `readme.md`, `jason-opencode.json`, `docs/plans/` — docs not committed in snapshot, honoring selective staging.
 
 ## Final outcome — Branch B confirmed (Phase 1, 2026-08-24)
 
@@ -143,6 +143,6 @@ probe.md
 ```
 On branch master (behind origin/master by 1 — origin has extra docs commit 9d88c42)
 Changes not staged: docs/_TAG-INDEX.md, docs/context/doc-conventions.md, docs/project.md
-Untracked: .opencode/INSTALL.md, .opencode/README.md, .opencode/jason-opencode.json, docs/plans/, .opencode/agents/subagents/_probe/ (scratch)
+Untracked: .opencode/install.md, .opencode/readme.md, .opencode/jason-opencode.json, docs/plans/, .opencode/agents/subagents/_probe/ (scratch)
 Ignored: .angular/, node_modules/, .opencode/tests/__pycache__/, .opencode/node_modules/ (via .opencode/.gitignore), .opencode/.draft/ (via appended entry)
 ```

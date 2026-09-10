@@ -40,7 +40,7 @@ Do **not** modify:
 ## Standards
 
 - Every `docs/` page carries a frontmatter block: `last_updated`, `status`, `description`, `tags` (pattern: `docs/project.md`).
-- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md` (and `.opencode/protocols/README.md` for agent protocols — via review loop).
+- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md` (and `.opencode/protocols/readme.md` for agent protocols — via review loop).
 - Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change. AI-optimized principles (salvaged from retired ia-docs-gen): concise over verbose, patterns over prose, max 3 nesting levels, include real project code/examples, status markers `(WIP)`/`(TODO)`/`(DEPRECATED)`, English only.
 
 ## Post-change documentation audit

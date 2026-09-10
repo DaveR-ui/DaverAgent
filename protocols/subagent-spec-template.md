@@ -101,7 +101,7 @@ During one cycle (30 days from this spec's `last_updated`), tolerant aliases are
 Notes:
 - `### Approach` is NOT an alias for `### Rules`. `explorer.md` has both `## Approach` (operational, grep/glob + fan-out) and `## Rules` (hard rules) — `Approach` belongs to the operational slot inside Section 2.
 - `### Contract` is NOT an alias for `### Structured Return`. In thin Variant B, `### Contract` means Role+Scope merged (the prose return is described inside `### Structured Return` or the contract itself for text-return adapters). Document its dual role explicitly; do not alias it to Structured Return.
-- `Minimal shape` remains a legacy term for thin adapters — six external cross-refs (`agent-installer.md`, `ia-dev.md`, `protocols/README.md`, etc.) still use it; treat it as an alias for "thin variants" during migration.
+- `Minimal shape` remains a legacy term for thin adapters — six external cross-refs (`agent-installer.md`, `ia-dev.md`, `protocols/readme.md`, etc.) still use it; treat it as an alias for "thin variants" during migration.
 
 ### Ordering lint examples
 
@@ -210,7 +210,7 @@ Rules for thin variants:
 - Variant A is explicitly exempt from `### Role` and `### Scope` in Sec1 — it delegates identity/scope to the `docs/context/` slice table. Do not add empty `Role`/`Scope` to satisfy the shell.
 - Variant B's `### Contract` is the merged Role+Scope; it is NOT an alias for `### Structured Return` — the return is prose/text described in the contract.
 - Both variants remain valid inside the 3-section shell via omitted macros + alias annotations where needed; the full shape (3 macros, all H3s) remains the default for all other subagents (`architect`, `explorer`, `reviewer`, `documenter`, `analista`, `interpreter`, `project-context`) — `tester` is now Variant A (framework-parameterized thin adapter, 2026-08-25) alongside `coder`.
-- Legacy term `Minimal shape (thin adapters)` is retained as an alias for this section — six external cross-refs still use it (`agent-installer.md` lines 19/66, `ia-dev.md`, `protocols/README.md` line 29). Update those cross-refs in a follow-up pass.
+- Legacy term `Minimal shape (thin adapters)` is retained as an alias for this section — six external cross-refs still use it (`agent-installer.md` lines 19/66, `ia-dev.md`, `protocols/readme.md` line 29). Update those cross-refs in a follow-up pass.
 
 ## The `output_schema` ↔ sibling schema bridge
 

@@ -19,8 +19,8 @@ This folder contains the entire configuration of the agent system (delivery, orc
 DaverAgent/                     (source tree → copied as .opencode/ into the destination repo)
 ├── jason-opencode.json         # Base runtime config -> copy as opencode.json in the destination repo
 │                              #  (default_agent, compaction, references, permission, instructions)
-├── README.md                  # This file
-├── INSTALL.md                 # How to install the agent into another repo
+├── readme.md                  # This file
+├── install.md                 # How to install the agent into another repo
 │
 ├── agents/
 │   └── subagents/             # One file per agent (read by the opencode runtime)
@@ -39,7 +39,7 @@ DaverAgent/                     (source tree → copied as .opencode/ into the d
 │       └── *.schema.json      # Schemas of the structured returns
 │
 ├── protocols/                  # Agent operating conventions (5 + README)
-│   ├── README.md               # Index
+│   ├── readme.md               # Index
 │   ├── prompt-pipeline.md      # Step 0 Interpret (interpreter subagent) + Phase 2 Reduce
 │   ├── session-recovery.md     # Recovery for interrupted/STUCK sessions
 │   ├── broad-investigation-template.md # Scaffold for wide-surface audits
@@ -91,7 +91,7 @@ Models and temperatures live in **each agent's frontmatter** (`.opencode/agents/
 
 ## Protocols (how the agent thinks)
 
-The protocols live in [`.opencode/protocols/`](./protocols/README.md). The most important is [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), which defines the 2-stage analysis applied to every prompt without exception: Step 0 (Interpret) is executed by the `interpreter`; Phase 2 (Reduce) is executed by the `orchestrator`. `delivery.md` references it by anchor instead of duplicating the content.
+The protocols live in [`.opencode/protocols/`](./protocols/readme.md). The most important is [`.opencode/protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md), which defines the 2-stage analysis applied to every prompt without exception: Step 0 (Interpret) is executed by the `interpreter`; Phase 2 (Reduce) is executed by the `orchestrator`. `delivery.md` references it by anchor instead of duplicating the content.
 
 ## Agent permissions
 
