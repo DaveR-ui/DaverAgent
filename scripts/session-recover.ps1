@@ -4,7 +4,7 @@
 .DESCRIPTION
     Wraps the opencode session API as sub-commands. Does HTTP and prints JSON
     to stdout. No business logic lives here; the recovery flow is defined in
-    .opencode/protocols/session-recovery.md.
+    protocols/session-recovery.md.
 
     Auth: HTTP Basic. Password comes ONLY from the OPENCODE_SERVER_PASSWORD
     env var (never from CLI args, never logged). Optional env vars:

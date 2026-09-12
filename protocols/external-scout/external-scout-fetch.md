@@ -16,8 +16,8 @@ Define single-question live docs fetching with source priority.
 
 ## Shared sources
 
-- `.opencode/agents/subagents/external-scout.md` — one library + version + question contract.
-- `.opencode/protocols/prompt-pipeline.md` — context budget awareness.
+- `agents/external-scout.md` — one library + version + question contract.
+- `protocols/prompt-pipeline.md` — context budget awareness.
 
 ## Permission-derived traits
 

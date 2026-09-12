@@ -17,7 +17,7 @@ Describe how one coder branches by language param, delegating stack knowledge to
 ## Shared sources
 
 - `docs/context/architecture.md` — layering and dependency flow.
-- `.opencode/protocols/prompt-pipeline.md` — Phase 2 scope and verification path.
+- `protocols/prompt-pipeline.md` — Phase 2 scope and verification path.
 - `docs/project.md` Slices — entry points and common commands.
 
 ## Permission-derived traits

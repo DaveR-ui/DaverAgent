@@ -16,9 +16,9 @@ Codifies how delivery intake, normalizes language, and routes work without imple
 
 ## Shared sources
 
-- `.opencode/protocols/prompt-pipeline.md` — Step 0 via interpreter, Phase 2 via orchestrator.
-- `.opencode/workflows/dispatch.md` — interpreter-first hard gate every turn.
-- `.opencode/protocols/session-recovery.md` — STUCK and resume handoff.
+- `protocols/prompt-pipeline.md` — Step 0 via interpreter, Phase 2 via orchestrator.
+- `workflows/dispatch.md` — interpreter-first hard gate every turn.
+- `protocols/session-recovery.md` — STUCK and resume handoff.
 
 ## Permission-derived traits
 

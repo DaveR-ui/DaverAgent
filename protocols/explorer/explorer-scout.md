@@ -16,8 +16,8 @@ Define read-only scouting with divide-and-conquer fan-out.
 
 ## Shared sources
 
-- `.opencode/protocols/broad-investigation-template.md` — Goal/Search/Evidence/Coverage/DoD scaffolding.
-- `.opencode/protocols/prompt-pipeline.md` — hot spots and verification context.
+- `protocols/broad-investigation-template.md` — Goal/Search/Evidence/Coverage/DoD scaffolding.
+- `protocols/prompt-pipeline.md` — hot spots and verification context.
 - `docs/project.md` Slices — route before searching.
 
 ## Permission-derived traits

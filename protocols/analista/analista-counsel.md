@@ -16,9 +16,9 @@ Define read-only second-opinion that compares alternatives before execution.
 
 ## Shared sources
 
-- `.opencode/protocols/session-recovery.md` — STUCK advice complement.
-- `.opencode/protocols/prompt-pipeline.md` — hidden assumption surfacing.
-- `.opencode/protocols/subagent-spec-template.md` — single spec discipline.
+- `protocols/session-recovery.md` — STUCK advice complement.
+- `protocols/prompt-pipeline.md` — hidden assumption surfacing.
+- `protocols/subagent-spec-template.md` — single spec discipline.
 
 ## Permission-derived traits
 

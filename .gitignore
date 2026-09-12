@@ -1,8 +1,26 @@
-/node_modules
-/package.json
-/package-lock.json
-/bun.lock
+# ── Dependencies ─────────────────────────────────────────────────
+node_modules/
+
+# ── Machine-local overrides (never commit) ───────────────────────
+opencode.local.json
+*.local.json
+
+# Machine-local human slang / personal dictionaries (not created by this repo)
+humans/
+
+# ── Backups / runtime state ──────────────────────────────────────
+.backups/
+.agent-backups/
+*.bak
+*.bak.*
+
+# ── Python bytecode ──────────────────────────────────────────────
 __pycache__/
 *.pyc
-.opencode/node_modules/
-.opencode/.draft/
+
+# ── Drafts / logs ────────────────────────────────────────────────
+.draft/
+*.log
+
+# ── Machine-specific plugin scripts (portable plugin source only) ─
+plugins/**/gk-hooks.js

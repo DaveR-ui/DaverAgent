@@ -1,6 +1,6 @@
 # Protocol: Subagent Spec Template
 
-Canonical shape for subagent definitions under `.opencode/agents/subagents/`. Read this before creating a new subagent, auditing an existing one, or scaffolding subagents from the installer (Phase 4 of `agent-installer.md`).
+Canonical shape for subagent definitions under `agents/`. Read this before creating a new subagent or auditing an existing one. Everything under `agents/` — recursively — is auto-loaded as an agent, so specs, templates, and partials must never live there.
 
 > Design decisions ratified by the human on 2026-07-29 (orchestrator instance `subagent-spec-template-001`, CHECKPOINT 1).
 > Centralization (frontmatter as the single source of truth for per-agent config; sibling `<id>.schema.json` files; `opencode.json` reduced to top-level runtime config) ratified on 2026-07-29 (orchestrator instance `centralize-002`).
@@ -10,7 +10,7 @@ Canonical shape for subagent definitions under `.opencode/agents/subagents/`. Re
 
 One canonical shape for every subagent spec, so that:
 
-1. The orchestrator, the installer, and human reviewers can rely on a predictable structure.
+1. The orchestrator, any future scaffolding tool, and human reviewers can rely on a predictable structure.
 2. The agent system can be **specialized per language / stack in the future without duplicating structural content**: structural content lives in the **parent subagent**, variable content lives in a **per-specialization template**.
 
 > A language-specialized subagent = parent + template, composed into a single file.
@@ -64,7 +64,7 @@ The 7+1 canonical headings are grouped into 3 macro sections. The mapping is los
 | 2 — Execution / Standards | `<!-- Section 2: Execution -->` | `### Standards`, `### Anti-Patterns`, (slot) role-specific operational sections | how to work + what to avoid |
 | 3 — Finalization / Return | `<!-- Section 3: Finalization -->` | `### Structured Return`, `### Rules` | output contract + hard rules |
 
-SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permission` global, `instructions`, `references`, `compaction`) — no `agent` block. The shell does not move frontmatter fields. The installer (Phase 4) generates frontmatter + sibling schema from the same answer set and MUST emit the three macro anchors when scaffolding.
+SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permission` global, `instructions`, `references`, `compaction`) — no `agent` block. The shell does not move frontmatter fields. The installer is docs-bootstrap-only and no longer scaffolds agents; a manually created subagent MUST emit the three macro anchors.
 
 Original canonical order preserved (for reference):
 
@@ -109,7 +109,7 @@ Macro order (anchors):
 
 ```bash
 # Fail if anchors out of order or duplicated
-grep -n '<!-- Section [123]:' .opencode/agents/subagents/<id>.md \
+grep -n '<!-- Section [123]:' agents/<id>.md \
   | grep -o 'Section [123]' | awk '{print $2}' | tr '\n' ' ' | grep -qE '^1 2 3 $|^1 3 $|^1 $|^2 3 $|^3 $' \
   || echo "anchor order violation"
 
@@ -124,7 +124,7 @@ Intra-macro H3 order (anchors alone are insufficient):
 
 ```bash
 # Inside each macro, H3 order must be canonical (e.g., Sec1: Role→Scope→Stack/Context)
-grep -n '^### ' .opencode/agents/subagents/<id>.md
+grep -n '^### ' agents/<id>.md
 # Expected Sec1: Role, Scope, Stack / Context
 # Expected Sec2: Standards (or alias), Anti-Patterns, slot
 # Expected Sec3: Structured Return (or alias), Rules (or alias)
@@ -147,7 +147,7 @@ canonical = ["Role","Scope","Stack / Context","Standards","Anti-Patterns","Struc
 Alias lint (warnings → errors after 30 days):
 
 ```bash
-grep -n '^### .*<!-- alias:' .opencode/agents/subagents/<id>.md  # emits warnings
+grep -n '^### .*<!-- alias:' agents/<id>.md  # emits warnings
 # CI promotes to error after 30d via: git log --diff-filter=A --format=%ad --date=short -- <file> vs. deadline
 # Exclusive-or check: fail if file contains both canonical and alias for same concept
 grep -q '^### Standards' file && grep -q '<!-- alias: Standards -->' file && echo "exclusive-or violation: both Standards and alias"
@@ -214,9 +214,9 @@ Rules for thin variants:
 
 ## The `output_schema` ↔ sibling schema bridge
 
-- The schema lives in a **sibling file** `.opencode/agents/subagents/<id>.schema.json`, referenced from the subagent's frontmatter via `output_schema: ./<id>.schema.json`. The `.md` frontmatter is the single source of truth for the return contract.
+- The schema lives in a **sibling file** `agents/<id>.schema.json`, referenced from the subagent's frontmatter via `output_schema: ./<id>.schema.json`. The `.md` frontmatter is the single source of truth for the return contract.
 - The subagent's `## Structured Return` section documents the JSON shape, names the schema, shows an example, and points at the sibling file.
-- The two MUST stay in sync: change one, change the other. The installer (Phase 4) generates both from the same answer set.
+- The two MUST stay in sync: change one, change the other. The `.md` frontmatter and its sibling schema are authored together.
 - Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal/thin Variant B) describes the expected return in prose. Current subagents without a schema: `project-context`, `external-scout`.
 - The task tool validates the return against the schema; on mismatch it prepends a validation warning and keeps the raw text. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
 
@@ -233,7 +233,7 @@ Every per-agent field lives in the agent's `.md` frontmatter:
 | `permission.task` fan-out (which subagents `delivery` / `orchestrator` may call) | Frontmatter of `delivery.md` / `orchestrator.md` |
 | Global `permission` rules | Stay in `opencode.json` |
 
-**To change a model or temperature**: edit the agent's frontmatter (`.opencode/agents/subagents/<id>.md`), then restart opencode. `opencode.json` is untouched.
+**To change a model or temperature**: edit the agent's frontmatter (`agents/<id>.md`), then restart opencode. `opencode.json` is untouched.
 
 Rationale: the `.md` is the canonical artifact the runtime loads; keeping `model`/`temperature` in the agent file makes each agent self-contained — one file to read for everything about that agent, with no frontmatter↔JSON drift. `opencode.json` shrinks to true runtime config.
 
@@ -274,16 +274,16 @@ It shares the sibling schema `coder.schema.json` (`CoderOutput`). Model + temper
 
 1. A specialized subagent file = the parent's structural sections **verbatim** + the template's variable sections, ordered per the canonical full shape above.
 2. Structural sections are **inherited, not copied-and-edited**: if a structural section must change, change the parent and re-compose every specialization.
-3. Template resolution: `<role>.<specialization>.md` composes with `<role>.md`. **No runtime implementation exists yet** — this protocol fixes only the boundary. When the first template is introduced, decide storage (suggestion: `.opencode/agents/templates/`, not auto-loaded) and the composition mechanism (installer Phase 4 is the natural place).
+3. Template resolution: `<role>.<specialization>.md` composes with `<role>.md`. **No runtime implementation exists yet** — this protocol fixes only the boundary. When the first template is introduced, decide storage (suggestion: `templates/agents/`, i.e. **outside** the auto-loaded `agents/` tree) and the composition mechanism. Everything under `agents/` is auto-loaded recursively, so templates and partials must never live there.
 4. Frontmatter composition: the child template's frontmatter **wins over the parent's for any field it declares**; undeclared fields are inherited from the parent. (`mode: subagent` and the `output_schema` bridge are normally inherited, not overridden.)
 
 ## Dual-file convention (retired 2026-08-02)
 
-The old top-level twins at `.opencode/agents/<id>.md` (previously `coder`, `architect`, `interpreter`, `vision-relay`) were **deleted**. Every agent now has exactly **one** definition file under `.opencode/agents/subagents/` — the runtime loads it directly (opencode scans `agent(s)/**/*.md`). Do not recreate a twin: a second file with the same agent name creates a duplicate agent.
+The legacy dual-file convention is retired: there is exactly **one** definition file per agent, flat under `agents/<id>.md` (the runtime loads it directly; opencode scans `agent(s)/**/*.md`). A second file declaring the same agent name — e.g. a leftover under `agents/subagents/` — creates a duplicate agent. Do not recreate one.
 
 ## Audit results — 2026-07-29
 
-Status of the 10 subagents under `.opencode/agents/subagents/` after the canonical-shape audit (Phase B of the same change that introduced this protocol):
+Status of the 10 subagents under `agents/` after the canonical-shape audit (Phase B of the same change that introduced this protocol):
 
 | Subagent | Shape | Gaps found (before) | Status (after) |
 |---|---|---|---|
@@ -339,7 +339,7 @@ Frontmatter is the source of truth for per-agent config; `output_schema` lives i
 
 ## Rules
 
-- New subagents MUST follow this spec (full or minimal/thin shape) from day one — the installer references this file as the Phase 4 shape authority (and MUST emit macro anchors when scaffolding).
+- New subagents MUST follow this spec (full or minimal/thin shape) from day one — this file is the shape authority for any new subagent (and for any future scaffolding tool).
 - Audits fill missing sections with sensible content; they do NOT rewrite sections that already work.
 - Structural edits to a parent that has (future) specializations require re-composing all of them.
-- All `.opencode/` files in ENGLISH.
+- All agent-system files in ENGLISH.

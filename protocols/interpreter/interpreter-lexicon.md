@@ -16,7 +16,7 @@ Capture how interpreter normalizes raw human prompt into an English routing pack
 
 ## Shared sources
 
-- `.opencode/protocols/prompt-pipeline.md` — Step 0 Interpret definition.
+- `protocols/prompt-pipeline.md` — Step 0 Interpret definition.
 - `docs/project.md` Slices table — module routing source.
 - `docs/context/README.md` — context lookup hierarchy.
 

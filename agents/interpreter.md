@@ -38,7 +38,7 @@ Declines and re-routes (via the packet, never by doing the work):
 ### Stack / Context
 
 - Vocabulary sources, in priority order: the **Slices table** in `docs/project.md` (primary lookup target — a term maps to a slice only if the row's name, description, or keywords support it), `docs/_TAG-INDEX.md`, and `docs/context/*.md` for slice-level detail. Repo slang counts only when a lookup ties it to one of these sources.
-- The packet you return is consumed by Phase 2 (Reduce) of `.opencode/protocols/prompt-pipeline.md`, which produces the final scope.
+- The packet you return is consumed by Phase 2 (Reduce) of `protocols/prompt-pipeline.md`, which produces the final scope.
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->
 

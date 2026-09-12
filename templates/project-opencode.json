@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "docs/project.md"
+  ],
+  "references": {
+    "docs-context": {
+      "path": "docs/context",
+      "description": "Project strategic context (architecture, rules, business logic, permission system, naming). Resolves inside this project only. Read on demand to understand the codebase or domain rules."
+    },
+    "docs-protocols": {
+      "path": "docs/protocols",
+      "description": "Project-specific protocols and templates (e.g. api-endpoint-factory). Resolves inside this project only. Read on demand when a task matches a known recipe."
+    }
+  }
+}

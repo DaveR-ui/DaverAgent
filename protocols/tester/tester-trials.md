@@ -17,7 +17,7 @@ Define how tester authors and runs tests from package dir, quarantining flaky tr
 ## Shared sources
 
 - `docs/project.md` Common Commands — canonical runners.
-- `.opencode/protocols/prompt-pipeline.md` — verification path definition.
+- `protocols/prompt-pipeline.md` — verification path definition.
 - `docs/context/project-rules.md` — testing conventions.
 
 ## Permission-derived traits

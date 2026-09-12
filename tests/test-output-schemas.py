@@ -4,14 +4,14 @@
 Four kinds of assertions:
 
 1. Every fixture in tests/fixtures/outputs/<name>.json must VALIDATE against
-   agents/subagents/<name>.json (the happy path).
+   agents/<name>.schema.json (the happy path).
 2. Every fixture in tests/fixtures/outputs/invalid/<name>.json must FAIL
    validation (proves strict rejection actually works — catches schemas that
    were accidentally weakened).
 3. Every golden routing packet in tests/fixtures/prompts/*.json must VALIDATE
-   against agents/subagents/interpreter.schema.json (pins the Step 0 contract,
+   against agents/interpreter.schema.json (pins the Step 0 contract,
    including both the skip-question default and the clarification path).
-4. Every JSON code block inside agents/subagents/*.md that parses must VALIDATE
+4. Every JSON code block inside agents/*.md that parses must VALIDATE
    against the agent's declared output_schema (keeps the documented examples in
    sync with the schemas — the bridge contract from subagent-spec-template.md).
 
@@ -30,7 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from schema_check import validate  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-AGENTS_DIR = ROOT / "agents" / "subagents"
+AGENTS_DIR = ROOT / "agents"
 FIXTURES_DIR = ROOT / "tests" / "fixtures" / "outputs"
 PROMPTS_DIR = ROOT / "tests" / "fixtures" / "prompts"
 

@@ -6,15 +6,15 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 
 ## Skill Migration Redirect
 
-All former repo-local skills have been migrated to agent protocols. The `.opencode/skills/` directory does not exist and should not be created. If the opencode runtime lists skills in `available_skills` pointing to `.opencode/skills/*/SKILL.md`, those are phantom entries from a previous installation.
+All former repo-local skills have been migrated to agent protocols. A repo-local `skills/` directory does not exist here and should not be created. If the opencode runtime lists skills in `available_skills` pointing to agent-system `skills/*/SKILL.md` paths, those are phantom entries from a previous installation.
 
-Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. Phase 2 (Reduce) is described by the `prompt-pipeline` protocol (see below).
+Step 0 (Normalize) is now executed by the [`interpreter`](../agents/interpreter.md) subagent. Phase 2 (Reduce) is described by the `prompt-pipeline` protocol (see below).
 
 | Former Skill / Protocol | Status |
 |---|---|
-| `canonical-prompter` | **Replaced** by [`.opencode/agents/subagents/interpreter.md`](../agents/subagents/interpreter.md) (Step 0) |
-| `context-reductor` | **Merged** into [`.opencode/protocols/prompt-pipeline.md`](./prompt-pipeline.md) (Phase 2) |
-| `api-endpoint-factory` | Project protocol: [`docs/protocols/api-endpoint-factory.md`](../../docs/protocols/api-endpoint-factory.md) |
+| `canonical-prompter` | **Replaced** by [`agents/interpreter.md`](../agents/interpreter.md) (Step 0) |
+| `context-reductor` | **Merged** into [`protocols/prompt-pipeline.md`](./prompt-pipeline.md) (Phase 2) |
+| `api-endpoint-factory` | Project protocol: `docs/protocols/api-endpoint-factory.md` (per project) |
 | `supabase-postgres-best-practices` | On-demand read from `docs/context/` — no preloaded protocol |
 | `customize-opencode` | Built-in opencode runtime skill (not repo-local) |
 
@@ -23,10 +23,10 @@ Step 0 (Normalize) is now executed by the [`interpreter`](../agents/subagents/in
 | Protocol | Purpose | Who reads it |
 |---|---|---|
 | [`prompt-pipeline.md`](./prompt-pipeline.md) | Two-stage analysis convention that runs on EVERY prompt. Step 0 (Interpret) is delegated to the `interpreter` subagent — no prompt skips it. Phase 2 (Reduce) defines scope, complexity, hot spots, and verification path. | `delivery` (every prompt) |
-| [`agent-installer.md`](./agent-installer.md) | Install and reconfigure the agent system in a repo via the 4-phase installer script. | `delivery` (when human asks to install/update the agent) |
+| [`agent-installer.md`](./agent-installer.md) | Install/update the global agent system and bootstrap a project's docs (3-phase docs bootstrap). | `delivery` (when human asks to install/update the agent) |
 | [`session-recovery.md`](./session-recovery.md) | Recovery flow for interrupted or STUCK sessions in the delivery→orchestrator→subagent hierarchy. Covers the 3 failure modes (delivery/orchestrator/child), opencode session API usage, and the `## Resume instructions (if restart)` handoff contract. | `delivery` (on STUCK), `orchestrator` (on cancellation) |
 | [`broad-investigation-template.md`](./broad-investigation-template.md) | Compact 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when coverage > speed. | `orchestrator`, `explorer` |
-| [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents), installer Phase 4 |
+| [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents) |
 
 ## Former IA pipeline protocols (retired 2026-08-24)
 
@@ -43,7 +43,7 @@ Some topics are **not codified as protocols** — they live as scattered info in
 - **Database / ORM best practices** — the ORM conventions, indexes, soft deletes, error mapping. The relevant files are `docs/context/architecture.md` and `docs/context/rules.md`.
 - **Permission system** — atomic permissions design (bitmask, BIGINT, role_permissions, user_permissions, cache invalidation by version, RequirePermission middleware). The design lives in `docs/context/permission-architecture.md`.
 
-## How protocols relate to the rest of `.opencode/`
+## How protocols relate to the rest of the agent system
 
 | Folder | Role |
 |---|---|
@@ -61,5 +61,5 @@ Some topics are **not codified as protocols** — they live as scattered info in
 ## When NOT to add an agent protocol
 
 - The information is about the **project's stack, layers, or naming** -> use `docs/context/`.
-- The information tells the agent **how to think before acting** -> use `.opencode/workflows/`.
+- The information tells the agent **how to think before acting** -> use `workflows/`.
 - The information is one-time reference (HTTP status codes, error catalog) -> already lives in `docs/context/`.

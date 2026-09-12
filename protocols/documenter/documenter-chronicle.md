@@ -18,12 +18,12 @@ Define how documenter maintains `docs/` with frontmatter, registration, and post
 
 - `docs/context/doc-conventions.md` — frontmatter, component format, one topic per file.
 - `docs/context/README.md` + `docs/_TAG-INDEX.md` + `docs/project.md` Slices — registration targets.
-- `.opencode/protocols/subagent-spec-template.md` — canonical shape when touching agent specs.
+- `protocols/subagent-spec-template.md` — canonical shape when touching agent specs.
 
 ## Permission-derived traits
 
 - `task: [documenter]` — sole dedicated writer; project-context is read-only.
-- Writes via DocumenterOutput JSON contract; never modifies code or `.opencode` runtime directly.
+- Writes via DocumenterOutput JSON contract; never modifies code or the global agent-system config directly.
 - Language follows `doc_language: english` — common tongue invariant.
 
 ## Chronicle rule

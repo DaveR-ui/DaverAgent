@@ -17,8 +17,8 @@ Define how architect produces design decisions and phased plans without coding.
 ## Shared sources
 
 - `docs/context/architecture.md` — layering and dependency flow.
-- `.opencode/protocols/subagent-spec-template.md` — subagent shape when designing agents.
-- `.opencode/protocols/prompt-pipeline.md` — complexity and hot-spot framing.
+- `protocols/subagent-spec-template.md` — subagent shape when designing agents.
+- `protocols/prompt-pipeline.md` — complexity and hot-spot framing.
 
 ## Permission-derived traits
 

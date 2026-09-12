@@ -1,6 +1,9 @@
 [CmdletBinding()]
 param(
-    [string]$RepoPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
+    # Target project root (where docs/ will be generated). Defaults to the
+    # current directory. This is the per-project DOCS bootstrap; the global agent
+    # system is installed separately via scripts/bootstrap.sh.
+    [string]$RepoPath,
     [switch]$NonInteractive,
     [string]$AnswersFile,
     [switch]$WhatIf,
@@ -10,7 +13,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$script:RepoRoot = $RepoPath
+if (-not $RepoPath) { $RepoPath = (Get-Location).Path }
+$script:RepoRoot = (Resolve-Path -LiteralPath $RepoPath).Path
 $script:Schema = $null
 $script:Answers = @{}
 $script:Created = New-Object System.Collections.Generic.List[string]
@@ -144,7 +148,7 @@ function Backup-File {
         if ($BackupDir) {
             $script:BackupRoot = $BackupDir
         } else {
-            $script:BackupRoot = Join-Path $script:RepoRoot ".opencode\.backups\$stamp"
+            $script:BackupRoot = Join-Path $script:RepoRoot ".agent-backups\$stamp"
         }
     }
     $rel = $Path.Substring($script:RepoRoot.Length).TrimStart('\','/')
@@ -343,22 +347,23 @@ function Build-SlangTemplate {
 
 > **ROLE**: per-session project slang dictionary (lunfardo del proyecto).
 > NOT a copy of `docs/project.md`. The source-of-truth project info lives in `docs/project.md` and `docs/context/`.
-> This snapshot is a dictionary in the same spirit as `humano.md`, but for the project domain: internal jargon, abbreviations, how this codebase names things.
+> This snapshot is a dictionary for the project domain: internal jargon, abbreviations, how this codebase names things.
 
-## How This File Differs From `humano.md`
+## How This File Differs From `docs/project.md`
 
 | File | Scope | Subject |
 |---|---|---|
-| `humano.md` | How the human talks | Colloquialisms, slang, personal vocabulary in their language |
-| `project.md` (this) | How the project names things | Internal jargon, abbreviations, model names, business terms |
+| `docs/project.md` | Canonical project facts | Stack, commands, slices, domain entities |
+| `docs/project-slang.md` (this) | How the project names things | Internal jargon, abbreviations, model names, business terms |
 
-Both files are **dictionaries for translation**, not style-matching guides.
+This file is a **dictionary for translation**, not a replacement for `docs/project.md`.
 
 ## Project Slang
 
 | Term | Meaning | Location (code) | Confidence |
 |---|---|---|---|
 $rows
+
 ## How to Populate
 
 1. Infer from the codebase
@@ -368,74 +373,6 @@ $rows
 "@
 }
 
-function Get-AgentBody {
-    param([string]$Id)
-    $coderBody = "# Coder Subagent`n`nLanguage-parameterized implementation specialist. Implement features, fix bugs, refactor. Branches by `language=angular|go` param.`n`n**Project context**: read `docs/project.md` (entry point, Slices table). If `language=angular`: read the Angular docs in `docs/context/` + MCP angular; if `language=go`: read the Go docs in `docs/context/`.`n`n## Rules`n`n- Follow the matched slice's primary doc in `docs/context/` for the stack`n- All comments and docs in ENGLISH`n- Run the canonical test/lint/build commands from `docs/project.md` before reporting done`n- Never commit without explicit instruction"
-    $testerBody = "# Tester Subagent`n`nWrite and run tests.`n`n**Project context**: read `docs/project.md` (entry point). For test conventions see `docs/context/conventions/project-rules.md`.`n`n## Rules`n`n- Tests next to source files`n- Mock external deps`n- All test names and comments in ENGLISH"
-    $reviewerBody = "# Reviewer Subagent`n`nAnalyze code - never modify it.`n`n**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`.`n`n## Checklist`n`n1. Architecture compliance (see `docs/context/architecture.md`)`n2. Development standards (see `docs/context/project-rules.md`)`n3. Security`n4. Performance`n5. Anti-patterns`n6. Testing`n`n## Output`n`nReturn structured `ReviewerOutput` JSON (see `.opencode/agents/subagents/reviewer.md`)."
-    $architectBody = "# Architect Subagent`n`nDesign system architecture, define module boundaries, establish patterns.`n`n**Project context**: read `docs/project.md` (entry point) and `docs/context/architecture.md`.`n`n## Principles`n`n- Favor simplicity`n- Design for testability and maintainability`n- Document decisions with rationale`n- All documentation in ENGLISH"
-    $explorerBody = "# Explorer Subagent`n`nRead and analyze the codebase - never modify code.`n`n**Project context**: read `docs/project.md` (entry point) for module layout, then drill into the relevant source paths.`n`n## Approach`n`n- Use grep/glob/read effectively`n- Report file paths and line numbers`n- For architectural questions, consult `docs/context/architecture.md`"
-    $documenterBody = "# Documenter Subagent`n`nWrite and maintain documentation.`n`n**Project context**: read `docs/project.md` and the relevant files in `docs/context/`.`n`n## Rules`n`n- One topic per file`n- Reference, do not duplicate`n- All documentation in ENGLISH"
-    $projectContextBody = "# Project Context Subagent`n`nReads and writes `docs/` on demand.`n`n## Read Workflow`n`n1. Read `docs/project.md` for orientation`n2. Read `docs/context/README.md` to find the relevant context file`n3. If unclear, use grep/glob to search `docs/` and the codebase`n4. Return: relevant excerpt + file path + line numbers`n`n## Write Workflow`n`n1. Identify the target doc (existing in `docs/project.md`, `docs/context/`, or new)`n2. Read the doc to understand its structure`n3. Edit or create the doc, keeping the tone consistent`n4. If a new context file is created, add an entry to `docs/context/README.md`"
-    $defaultBody = "# $Id Subagent`n`nGenerated by install-agent.ps1. Fill in the agent's responsibilities here.`n`n**Project context**: read `docs/project.md` (entry point)."
-    if ($Id -eq "coder") { return $coderBody }
-    if ($Id -eq "tester") { return $testerBody }
-    if ($Id -eq "reviewer") { return $reviewerBody }
-    if ($Id -eq "architect") { return $architectBody }
-    if ($Id -eq "explorer") { return $explorerBody }
-    if ($Id -eq "documenter") { return $documenterBody }
-    if ($Id -eq "project-context") { return $projectContextBody }
-    return $defaultBody
-}
-
-function Get-AgentTemp {
-    param([string]$Id)
-    if ($Id -eq "delivery") { return 0.3 }
-    if ($Id -eq "tester") { return 0.2 }
-    if ($Id -eq "explorer") { return 0.1 }
-    if ($Id -eq "external-scout") { return 0.1 }
-    if ($Id -eq "interpreter") { return 0.1 }
-    if ($Id -eq "project-context") { return 0.2 }
-    if ($Id -eq "documenter") { return 0.2 }
-    return $null
-}
-
-function Build-AgentFile {
-    param([string]$Id, $Ctx)
-    $body = Get-AgentBody -Id $Id
-    $model = Get-AgentModel -Id $Id
-    $temp = Get-AgentTemp -Id $Id
-    $sb = New-Object System.Text.StringBuilder
-    [void]$sb.AppendLine("---")
-    [void]$sb.AppendLine("description: $Id subagent")
-    [void]$sb.AppendLine("mode: subagent")
-    [void]$sb.AppendLine("model: $model")
-    if ($temp) { [void]$sb.AppendLine("temperature: $temp") }
-    [void]$sb.AppendLine("---")
-    [void]$sb.AppendLine("")
-    [void]$sb.Append($body)
-    return $sb.ToString()
-}
-
-function Build-OpencodeJson {
-    param([string]$DefaultAgent, $Subagents, [string]$RepoPath)
-    $sb = New-Object System.Text.StringBuilder
-    [void]$sb.AppendLine('{')
-    [void]$sb.AppendLine('  "$schema": "https://opencode.ai/config.json",')
-    [void]$sb.AppendLine("  ""default_agent"": ""$DefaultAgent"",")
-    [void]$sb.AppendLine('  "compaction": {'),
-    [void]$sb.AppendLine('    "auto": true,')
-    [void]$sb.AppendLine('    "prune": true,')
-    [void]$sb.AppendLine('    "reserved": 10000')
-    [void]$sb.AppendLine('  },')
-    [void]$sb.AppendLine('  "permission": { "question": "ask" },')
-    [void]$sb.AppendLine('  "instructions": [')
-    [void]$sb.AppendLine('    "docs/project.md",')
-    [void]$sb.AppendLine('    ".opencode/protocols/prompt-pipeline.md"')
-    [void]$sb.AppendLine('  ]')
-    [void]$sb.AppendLine('}')
-    return $sb.ToString()
-}
 
 # --- main flow --------------------------------------------------------------
 
@@ -448,7 +385,7 @@ if ($AnswersFile -and (Test-Path -LiteralPath $AnswersFile)) {
     }
 }
 
-Write-Host "Agent Installer - Repo: $script:RepoRoot" -ForegroundColor Green
+Write-Host "Project Docs Bootstrap - Repo: $script:RepoRoot" -ForegroundColor Green
 if ($WhatIf)     { Write-Host "MODE: WhatIf (no writes)" -ForegroundColor Magenta }
 if ($VerifyOnly) { Write-Host "MODE: VerifyOnly (no writes)" -ForegroundColor Magenta }
 if ($Update)     { Write-Host "MODE: Update (preserve existing, prompt for changes)" -ForegroundColor Magenta }
@@ -456,7 +393,9 @@ if ($Update)     { Write-Host "MODE: Update (preserve existing, prompt for chang
 $phase1 = Run-Phase -Phase ($script:Schema.phases[0])
 $phase2 = Run-Phase -Phase ($script:Schema.phases[1])
 $phase3 = Run-Phase -Phase ($script:Schema.phases[2])
-$phase4 = Run-Phase -Phase ($script:Schema.phases[3])
+# Phase 4 (agent selection + opencode.json generation) is obsolete under the
+# global model: agents and the runtime config are installed once per machine via
+# scripts/bootstrap.sh. This script bootstraps per-project docs only.
 
 Write-Host ""
 Write-Host "=== Generating files ===" -ForegroundColor Yellow
@@ -481,19 +420,12 @@ foreach ($id in $selected) {
 $readmePath = Join-Path $contextDir "README.md"
 Write-Generated -Path $readmePath -Content (Build-ContextReadme -SelectedIds $selected -Templates $tplHashtable) -Overwrite:$Update
 
-# (No more session-templates/ — the project slang snapshot is part of docs/, not a separate template.)
+# project slang snapshot
+$slangPath = Join-Path $script:RepoRoot "docs\project-slang.md"
+Write-Generated -Path $slangPath -Content (Build-SlangTemplate -SlangBlock $phase3.slang_block) -Overwrite:$Update
 
-# agents
-$agentsDir = Join-Path $script:RepoRoot ".opencode\agents\subagents"
-$subagentIds = @($phase4.selected_subagents -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) | Select-Object -Unique
-foreach ($id in $subagentIds) {
-    $path = Join-Path $agentsDir "$id.md"
-    Write-Generated -Path $path -Content (Build-AgentFile -Id $id -Ctx @{}) -Overwrite:$Update
-}
-
-# opencode.json
-$opencodePath = Join-Path $script:RepoRoot "opencode.json"
-Write-Generated -Path $opencodePath -Content (Build-OpencodeJson -DefaultAgent $phase4.default_agent -Subagents $subagentIds -RepoPath $script:RepoRoot) -Overwrite:$Update
+# Global agent definitions and opencode.json are NOT generated here:
+# they live in the global config (~/.config/opencode) installed by bootstrap.sh.
 
 # report
 Write-Host ""

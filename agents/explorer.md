@@ -33,13 +33,13 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 ## Approach
 
-- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `.opencode/`
+- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `agents/`, `protocols/`, `workflows/`
 - Report file paths and line numbers relative to the repo root
 - For architectural questions, consult `docs/context/architecture.md` and the `docs/project.md` Slices table
 - For business rules / feature context, consult the slice's primary doc in `docs/context/` (per the Slices table)
 - Match the task to a slice first — the Slices table's Keywords column predicts which `src/` area and which `docs/context/` doc a symbol belongs to
 - This is a codebase with documented stack and slices — see `docs/project.md` and the Slices table's entry points for where application code lives
-- For **broad-coverage** tasks (map / inventory / audit a class of thing across the repo, where incomplete coverage is the worst failure mode), the incoming prompt is expected to follow the `broad-investigation-template` protocol (`.opencode/protocols/broad-investigation-template.md`). Honor its Search Strategy, Evidence Requirements, Coverage Checklist and Definition of Done. Do NOT apply the template to targeted lookups ("where is `X` defined?") — those stay single-pass.
+- For **broad-coverage** tasks (map / inventory / audit a class of thing across the repo, where incomplete coverage is the worst failure mode), the incoming prompt is expected to follow the `broad-investigation-template` protocol (`protocols/broad-investigation-template.md`). Honor its Search Strategy, Evidence Requirements, Coverage Checklist and Definition of Done. Do NOT apply the template to targeted lookups ("where is `X` defined?") — those stay single-pass.
 
 ## Anti-Patterns
 

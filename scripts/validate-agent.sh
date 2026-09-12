@@ -1,56 +1,36 @@
 #!/usr/bin/env bash
-# validate-agent.sh - static integrity check for the opencode agent tree.
+# validate-agent.sh - static integrity check for the global opencode agent tree.
+#
+# This repository IS the global opencode config (installed at ~/.config/opencode),
+# so the layout is flat: agents/ at the root, no per-project .opencode/ prefix.
 #
 # Verifies the agent configuration the way a linter would, so broken installs
 # fail loudly instead of silently degrading the system:
 #
-#   1. opencode.json / jason-opencode.json is valid JSON
-#   2. no agent uses the deprecated `tools:` frontmatter field (use
-#      `permission:`); `model:` is optional (omission inherits the invoking
-#      primary agent's model, per opencode docs)
+#   1. opencode.json is valid JSON
+#   2. flat agents/ layout (no legacy agents/subagents/); no agent uses the
+#      deprecated `tools:` frontmatter field (use `permission:`); `model:` is
+#      optional (omission inherits the invoking primary agent's model)
 #   3. every output_schema frontmatter path resolves to an existing schema file
-#   4. every permission.task entry in delivery/orchestrator maps to a subagent
+#   4. every permission.task entry in delivery/orchestrator maps to a real agent
 #   5. required frontmatter (description, mode) on every agent file
-#   6. config instructions/references paths resolve (.opencode paths are errors;
-#      docs/ paths are warnings - they live in the target repo)
+#   6. config instructions/references paths resolve (docs/ paths are warnings -
+#      they live in the target project; the `agent-system` reference resolves here)
 #   7. every *.schema.json parses as valid JSON
 #
 # Exit code: 0 = OK (warnings allowed), 1 = errors found.
-# Works from the source tree (agents/ at root) and from an installed
-# .opencode/ layout. Pure bash + python3 (no jq/node required).
+# Pure bash + python3 (no jq/node required).
 
 set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
-if [ "$(basename "$(dirname "${SCRIPT_DIR}")")" = ".opencode" ]; then
-  # installed layout: <repo>/.opencode/scripts
-  ROOT="$(cd "${SCRIPT_DIR}/../.." 2>/dev/null && pwd)"
-else
-  # source tree layout: <repo>/scripts
-  ROOT="$(cd "${SCRIPT_DIR}/.." 2>/dev/null && pwd)"
-fi
+ROOT="$(cd "${SCRIPT_DIR}/.." 2>/dev/null && pwd)"
 
-if [ -d "${ROOT}/.opencode/agents/subagents" ]; then
-  AGENTS_DIR="${ROOT}/.opencode/agents/subagents"
-else
-  AGENTS_DIR="${ROOT}/agents/subagents"
-fi
-if [ -d "${ROOT}/.opencode/protocols" ]; then
-  PROTOCOLS_DIR="${ROOT}/.opencode/protocols"
-else
-  PROTOCOLS_DIR="${ROOT}/protocols"
-fi
-if [ -d "${ROOT}/.opencode/plugins" ]; then
-  PLUGINS_DIR="${ROOT}/.opencode/plugins"
-else
-  PLUGINS_DIR="${ROOT}/plugins"
-fi
+AGENTS_DIR="${ROOT}/agents"
 
 if [ -f "${ROOT}/opencode.json" ]; then
   CONFIG="${ROOT}/opencode.json"
-elif [ -f "${ROOT}/jason-opencode.json" ]; then
-  CONFIG="${ROOT}/jason-opencode.json"
 else
-  echo "ERROR: no opencode.json or jason-opencode.json found at ${ROOT}" >&2
+  echo "ERROR: no opencode.json found at ${ROOT}" >&2
   exit 1
 fi
 
@@ -65,11 +45,9 @@ warn() { echo "WARN:  $*" >&2;  WARNINGS=$((WARNINGS + 1)); }
 have_python() { command -v python3 >/dev/null 2>&1; }
 
 resolve() {
-  # Resolve a config-relative path that may be written as ".opencode/...".
+  # Resolve a path relative to the config root (no .opencode/ prefix anymore).
   local p="$1"
   if [ -e "${ROOT}/${p}" ]; then echo "${ROOT}/${p}"; return 0; fi
-  local stripped="${p#.opencode/}"
-  if [ "${stripped}" != "${p}" ] && [ -e "${ROOT}/${stripped}" ]; then echo "${ROOT}/${stripped}"; return 0; fi
   return 1
 }
 
@@ -92,15 +70,16 @@ else
   fi
 fi
 
-# --- 2. agent <-> config cross-check ----------------------------------------
-# NOTE: model/temperature live in the agent frontmatter now, not in
-# opencode.json's agent block. Check 2 verifies frontmatter integrity:
-# `model:` is an OPTIONAL per-agent override — omission means the subagent
-# inherits the invoking primary agent's model (per opencode docs). The only
-# hard error here is the deprecated `tools:` frontmatter field (use
-# `permission:` with allow/deny/ask instead).
+# --- 2. flat agent layout + frontmatter cross-check --------------------------
+# NOTE: model/temperature live in the agent frontmatter, not in opencode.json's
+# (nonexistent) agent block. `model:` is an OPTIONAL per-agent override —
+# omission means the subagent inherits the invoking primary agent's model.
+# The only hard frontmatter error here is the deprecated `tools:` field.
 
-echo "== [2/7] agent frontmatter (model optional; tools: check) =="
+echo "== [2/7] flat agents/ layout + frontmatter (model optional; tools: check) =="
+if [ -d "${ROOT}/agents/subagents" ]; then
+  err "legacy agents/subagents/ layout found; agents must be flat under agents/"
+fi
 if [ ! -d "${AGENTS_DIR}" ]; then
   err "agents directory not found: ${AGENTS_DIR}"
 else
@@ -115,7 +94,7 @@ else
       err "${name} uses deprecated 'tools:' frontmatter; use 'permission:' with allow/deny/ask instead"
     fi
   done <<< "${AGENT_FILES}"
-  echo "ok: frontmatter scanned (model optional; tools: check)"
+  echo "ok: flat layout; frontmatter scanned (model optional; tools: check)"
 fi
 
 # --- 3. output_schema resolution ---------------------------------------------
@@ -142,7 +121,7 @@ for md in "${AGENTS_DIR}"/delivery.md "${AGENTS_DIR}"/orchestrator.md; do
   targets="$(frontmatter "${md}" | awk '/^  task:/{f=1; next} /^[^ ]/{f=0} f && /^    [a-z0-9-]+: allow/{line=$1; sub(/:.*/,"",line); print line}')"
   for id in ${targets}; do
     if [ ! -f "${AGENTS_DIR}/${id}.md" ]; then
-      err "$(basename "${md}") grants task access to '${id}' but agents/subagents/${id}.md does not exist"
+      err "$(basename "${md}") grants task access to '${id}' but agents/${id}.md does not exist"
     fi
   done
   if [ -n "${targets}" ]; then echo "ok: $(basename "${md}") task targets exist"; fi
@@ -181,8 +160,6 @@ root = sys.argv[2]
 
 def resolve(p):
     cands = [os.path.join(root, p)]
-    if p.startswith(".opencode/"):
-        cands.append(os.path.join(root, p[len(".opencode/"):]))
     for c in cands:
         if os.path.exists(c):
             return c
@@ -193,7 +170,7 @@ for p in cfg.get("instructions", []):
     if r is None:
         is_docs = p.startswith("docs/")
         tag = "WARN" if is_docs else "ERROR"
-        print(f"{tag}: instruction path '{p}' does not exist (docs/ = target repo)")
+        print(f"{tag}: instruction path '{p}' does not exist (docs/ = target project)")
     else:
         print(f"ok: instruction '{p}'")
 
@@ -207,11 +184,11 @@ for name, ref in cfg.get("references", {}).items():
         print(f"ok: reference '{name}'")
 PY
 )"
-  echo "${PY_OUT}"
   while IFS= read -r line; do
     case "${line}" in
       ERROR:*) err "${line#ERROR: }" ;;
       WARN:*)  warn "${line#WARN: }" ;;
+      *)       echo "${line}" ;;
     esac
   done <<< "${PY_OUT}"
 fi

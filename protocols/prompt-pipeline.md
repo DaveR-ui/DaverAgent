@@ -4,7 +4,7 @@ Two-stage analysis convention for the Delivery agent. **Every prompt** passes th
 
 This protocol defines the two stages conceptually; the executor of each step may vary:
 
-- **Step 0: Interpret** is executed by the [`interpreter`](../agents/subagents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
+- **Step 0: Interpret** is executed by the [`interpreter`](../agents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
 - **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce delegating it is a one-line `task` call, and doing it on the cheap tier is the failure mode this protocol removes.
 
 ## When to apply
@@ -25,9 +25,9 @@ The `delivery` agent invokes the `interpreter` subagent with the raw prompt. The
 3. Captures hard constraints and explicit non-goals.
 4. Identifies the smallest actionable slice, the hidden assumption, and expected output.
 5. Optionally calls the `question` tool ONCE, with a batch of all blocking questions, if the route would materially change based on the answer.
-6. Returns a compact routing packet written entirely in English (see [`interpreter.md`](../agents/subagents/interpreter.md) for the full shape).
+6. Returns a compact routing packet written entirely in English (see [`interpreter.md`](../agents/interpreter.md) for the full shape).
 
-The full process and the routing packet schema are defined in [`.opencode/agents/subagents/interpreter.md`](../agents/subagents/interpreter.md). Do not duplicate it here.
+The full process and the routing packet schema are defined in [`agents/interpreter.md`](../agents/interpreter.md). Do not duplicate it here.
 
 ## Phase 2: Reduce
 

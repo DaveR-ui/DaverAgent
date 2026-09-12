@@ -18,4 +18,4 @@ Per-agent scroll for Branch B flat fallback. Derived from shared protocols and `
 
 ## See also
 
-Shared index: [`../readme.md`](../readme.md) · Plan: [`../../docs/plans/rpg-agent-organization-plan.md`](../../docs/plans/rpg-agent-organization-plan.md)
+Shared index: [`../readme.md`](../readme.md)

@@ -16,8 +16,8 @@ Define severity-ordered code review that returns ReviewerOutput JSON without edi
 
 ## Shared sources
 
-- `.opencode/protocols/prompt-pipeline.md` — hot spots and verification expectations.
-- `.opencode/protocols/broad-investigation-template.md` — optional when diff large.
+- `protocols/prompt-pipeline.md` — hot spots and verification expectations.
+- `protocols/broad-investigation-template.md` — optional when diff large.
 - `docs/context/architecture.md` — architecture compliance first.
 
 ## Permission-derived traits

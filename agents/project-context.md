@@ -29,7 +29,7 @@ Declines and re-routes:
 - Doc writes and additions — new facts, corrections, new context files, index registrations → `documenter` (the sole dedicated docs writer).
 - Code edits or implementation of any kind → `coder` (language=angular|go).
 - Open-ended codebase exploration (searching code, not docs) → `explorer`.
-- Changes to `.opencode/` runtime config, agents, or protocols → human-owned; do not touch.
+- Changes to the global agent-system config (`agents/`, `protocols/`, `opencode.json`) → human-owned; do not touch.
 
 ## Knowledge
 
@@ -47,7 +47,7 @@ Declines and re-routes:
 
 ## Anti-Patterns
 
-- Do NOT duplicate project facts into `.opencode/` protocols or agent files — `docs/` is the single source of truth; link to it instead.
+- Do NOT duplicate project facts into agent-system protocols or agent files — `docs/` is the single source of truth; link to it instead.
 - Do NOT write or edit any file — you are read-only; route doc writes to `documenter` and code work to `coder` (language=angular|go).
 - Do NOT restate content that already lives in a canonical doc — reference it (path + section) instead of copying it.
 

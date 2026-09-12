@@ -16,9 +16,9 @@ Define how orchestrator owns Phase 2 Reduce and fans out subagents.
 
 ## Shared sources
 
-- `.opencode/protocols/prompt-pipeline.md` — Phase 2 owns scope, complexity, hot spots, verification.
-- `.opencode/protocols/broad-investigation-template.md` — coverage scaffolding.
-- `.opencode/protocols/session-recovery.md` — checkpoint and re-instantiation.
+- `protocols/prompt-pipeline.md` — Phase 2 owns scope, complexity, hot spots, verification.
+- `protocols/broad-investigation-template.md` — coverage scaffolding.
+- `protocols/session-recovery.md` — checkpoint and re-instantiation.
 
 ## Permission-derived traits
 

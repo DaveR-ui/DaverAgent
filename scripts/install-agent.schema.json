@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "AgentInstallerSchema",
-  "description": "Data-driven question list for install-agent.ps1. Four phases: project metadata, context docs, project slang, agent selection.",
+  "description": "Data-driven question list for install-agent.ps1 (per-project docs bootstrap). Three phases: project metadata, context docs, project slang. Agent selection is obsolete under the global model (agents live in ~/.config/opencode).",
   "type": "object",
   "properties": {
     "phases": {
@@ -159,23 +159,6 @@
           "prompt": "Project slang entries (Term | Meaning | Location | Confidence), one per line",
           "type": "multiline",
           "default": ""
-        }
-      ]
-    },
-    {
-      "title": "Agent Selection",
-      "description": "Which subagents to scaffold and the default agent.",
-      "questions": [
-        {
-          "id": "default_agent",
-          "prompt": "Default agent",
-          "default": "delivery",
-          "options": ["delivery", "orchestrator"]
-        },
-        {
-          "id": "selected_subagents",
-          "prompt": "Subagents to install (comma-separated ids)",
-          "default": "delivery,orchestrator,coder,tester,reviewer,architect,explorer,project-context,documenter"
         }
       ]
     }

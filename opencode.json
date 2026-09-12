@@ -1,0 +1,31 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/qwen3.8-flash",
+  "small_model": "opencode-go/qwen3.8-flash",
+  "default_agent": "delivery",
+  "subagent_depth": 4,
+  "mcp": {
+    "angular-cli": {
+      "type": "local",
+      "command": ["npx", "-y", "@angular/cli", "mcp"],
+      "enabled": true
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+  "references": {
+    "agent-system": {
+      "path": ".",
+      "description": "Global agent-system root (this repository, installed at ~/.config/opencode). Agent prompts reference its assets with repo-root-relative paths: `protocols/...`, `workflows/...`, `agents/...`. Resolve those paths under this reference root."
+    }
+  },
+  "permission": {
+    "question": "ask"
+  },
+  "instructions": [
+    "docs/project.md"
+  ]
+}

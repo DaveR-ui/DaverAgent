@@ -46,7 +46,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 6. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
 7. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
 8. Testing - coverage, proper mocking, tests run from package dirs (never root)
-9. Doc-tree integrity (when the diff touches `docs/` or `.opencode/protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
+9. Doc-tree integrity (when the diff touches `docs/` or `protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
 
 ## Anti-Patterns
 

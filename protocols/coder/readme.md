@@ -6,7 +6,7 @@ tags: [protocol, coder, artificer, index]
 
 # Coder Protocols — Artificer
 
-Race **Artificer** (coders group). Single crafter, two toolkits (`language=angular|go`). This folder holds per-agent scrolls under Branch B (flat fallback: `.opencode/protocols/<id>/`).
+Race **Artificer** (coders group). Single crafter, two toolkits (`language=angular|go`). This folder holds per-agent scrolls under Branch B (flat fallback: `protocols/<id>/`).
 
 - [`coder-toolkit.md`](./coder-toolkit.md) — toolkit branching, shared sources, permission-derived traits.
 
@@ -18,4 +18,4 @@ Per-agent scroll for Branch B flat fallback. Derived from shared protocols and `
 
 ## See also
 
-Shared index: [`../readme.md`](../readme.md) · Plan: [`../../docs/plans/rpg-agent-organization-plan.md`](../../docs/plans/rpg-agent-organization-plan.md)
+Shared index: [`../readme.md`](../readme.md)

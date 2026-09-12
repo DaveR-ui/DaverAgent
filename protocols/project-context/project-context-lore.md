@@ -18,7 +18,7 @@ Define read-only doc lookup that cites file path + line numbers for every fact.
 
 - `docs/context/README.md` — index and philosophy of context.
 - `docs/project.md` — Slices table and stack entry point.
-- `.opencode/protocols/broad-investigation-template.md` — coverage when auditing docs.
+- `protocols/broad-investigation-template.md` — coverage when auditing docs.
 
 ## Permission-derived traits
 

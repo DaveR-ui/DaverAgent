@@ -23,4 +23,4 @@ If you catch yourself about to ask the human a clarifying question, STOP. That u
 With the routing packet in hand:
 
 - Trivial (per the packet: factual lookup, one-line fix, pure doc edit with unambiguous scope) -> handle directly per the delivery `## Delegation` table.
-- Non-trivial (1-2 files OR multi-step) -> delegate to `orchestrator` with the routing packet as the handoff. The orchestrator runs Phase 2 (Reduce) per `.opencode/protocols/prompt-pipeline.md`, then decomposes (releasing `coder` (language=angular|go), `tester`, `reviewer`, etc. in parallel). Delivery never runs Phase 2 itself.
+- Non-trivial (1-2 files OR multi-step) -> delegate to `orchestrator` with the routing packet as the handoff. The orchestrator runs Phase 2 (Reduce) per `protocols/prompt-pipeline.md`, then decomposes (releasing `coder` (language=angular|go), `tester`, `reviewer`, etc. in parallel). Delivery never runs Phase 2 itself.
