@@ -32,7 +32,7 @@ function Die([string]$m)         { Write-Host "ERROR: $m" -ForegroundColor Red; 
 
 function Test-Layout([string]$Root) {
     $fail = $false
-    foreach ($p in @("opencode.json", "AGENTS.md", "agents", "protocols", "workflows", "scripts")) {
+    foreach ($p in @("opencode.json", "agents", "protocols", "workflows", "scripts")) {
         if (-not (Test-Path -LiteralPath (Join-Path $Root $p))) {
             Write-Warn2 "missing $p under $Root"
             $fail = $true
@@ -79,7 +79,6 @@ function Test-OurInstall([string]$Root) {
     $normRepo   = ConvertTo-NormalizedUrl $RepoUrl
     if ($normOrigin -and ($normOrigin -eq $normRepo)) { return $true }
     if (-not (Test-Path -LiteralPath (Join-Path $Root "opencode.json"))) { return $false }
-    if (-not (Test-Path -LiteralPath (Join-Path $Root "AGENTS.md")))     { return $false }
     if (-not (Test-Path -LiteralPath (Join-Path $Root "agents")))        { return $false }
     if (Test-Path -LiteralPath (Join-Path $Root "agents/subagents"))     { return $false }
     return [bool](Select-String -LiteralPath (Join-Path $Root "opencode.json") -Pattern '"agent-system"' -Quiet)

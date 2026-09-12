@@ -81,7 +81,6 @@ is_our_install() {
     return 0
   fi
   [ -f "${root}/opencode.json" ] || return 1
-  [ -f "${root}/AGENTS.md" ]     || return 1
   [ -d "${root}/agents" ]        || return 1
   if [ -d "${root}/agents/subagents" ]; then return 1; fi
   grep -q '"agent-system"' "${root}/opencode.json" 2>/dev/null
@@ -90,7 +89,6 @@ is_our_install() {
 verify_layout() {
   local root="$1" fail=0
   [ -f "${root}/opencode.json" ] || { warn "missing ${root}/opencode.json"; fail=1; }
-  [ -f "${root}/AGENTS.md" ]     || { warn "missing ${root}/AGENTS.md"; fail=1; }
   [ -d "${root}/agents" ]        || { warn "missing ${root}/agents/"; fail=1; }
   [ -d "${root}/protocols" ]     || { warn "missing ${root}/protocols/"; fail=1; }
   [ -d "${root}/workflows" ]     || { warn "missing ${root}/workflows/"; fail=1; }

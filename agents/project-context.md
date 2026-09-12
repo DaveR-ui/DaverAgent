@@ -37,7 +37,7 @@ Declines and re-routes:
 - **Context folder**: `docs/context/` (strategic docs, indexed by `docs/context/README.md`)
 - **Slice docs**: each slice in the `docs/project.md` Slices table names its primary doc under `docs/context/`
 - **Code root**: `src/` (Angular SPA); see `docs/project.md` for the stack
-- **Strategic source in repo root**: `AGENTS.md` (stub that redirects to `docs/project.md`)
+- **Strategic source in the project repo root**: the project's own `AGENTS.md` (read it if present, alongside `docs/project.md`)
 - All paths are relative to the repo root
 
 ## Standards

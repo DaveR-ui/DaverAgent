@@ -47,12 +47,12 @@ git clone https://github.com/DaveR-ui/DaverAgent.git ~/.config/opencode
 ## 2. Confirm the layout
 
 The repository root **is** the opencode config directory. opencode loads
-`opencode.json`, `AGENTS.md`, and `agents/*.md` directly from it.
+`opencode.json` and `agents/*.md` directly from it.
 `protocols/` and `workflows/` are read on demand by agents (not auto-loaded).
 
 ```bash
 ls ~/.config/opencode
-# opencode.json  AGENTS.md  agents/  protocols/  workflows/  scripts/  tests/  templates/ ...
+# opencode.json  agents/  protocols/  workflows/  scripts/  tests/  templates/ ...
 ```
 
 ## 3. Validate the config

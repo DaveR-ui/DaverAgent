@@ -35,7 +35,7 @@ Compact scaffold for prompts that ask an agent to **map, inventory, or audit a c
 [Customize per task. Default anchors:]
 - [ ] <primary area, e.g. storage / permissions / session>
 - [ ] relevant `docs/context/*.md`
-- [ ] relevant `AGENTS.md` rules
+- [ ] relevant project `AGENTS.md` rules (if the project ships one)
 - [ ] runtime initialization / entry points
 - [ ] schema and migration folders
 

@@ -10,8 +10,10 @@ install paths — do not conflate them:
    generates a project's `docs/project.md`, `docs/context/*.md` stubs, and the
    slang snapshot. It does **not** create agents or `opencode.json`.
 
-Path rules live in [`AGENTS.md`](../AGENTS.md): agent-system assets resolve under
-the global config root; project docs resolve inside the project.
+Path rules live in `opencode.json` → `references.agent-system`: opencode injects
+that reference's absolute root into agent context, so agent-system assets are
+read by joining the injected root with the relative path; project docs resolve
+inside the project.
 
 ## Source of truth
 
@@ -19,7 +21,7 @@ the global config root; project docs resolve inside the project.
 - **Docs bootstrap**: `scripts/install-agent.ps1`
 - **Schema**: `scripts/install-agent.schema.json` — data-driven question list
   for the docs bootstrap (3 phases below)
-- **Path contract**: `AGENTS.md`
+- **Path contract**: `opencode.json` → `references.agent-system`
 
 ## When this protocol applies
 
@@ -48,7 +50,7 @@ Do NOT use this for:
    `~/.config/opencode`.
 3. If the target already exists and is **not** a clone of this repository,
    bootstrap backs it up to `~/.config/opencode.bak.<timestamp>` first.
-4. Restart opencode so it reloads `opencode.json`, `AGENTS.md`, and `agents/`.
+4. Restart opencode so it reloads `opencode.json` and `agents/`.
 
 Windows: `& ".\scripts\bootstrap.ps1" -VerifyOnly` then
 `& ".\scripts\bootstrap.ps1"`.

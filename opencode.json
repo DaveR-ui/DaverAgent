@@ -19,7 +19,7 @@
   "references": {
     "agent-system": {
       "path": ".",
-      "description": "Global agent-system root (this repository, installed at ~/.config/opencode). Agent prompts reference its assets with repo-root-relative paths: `protocols/...`, `workflows/...`, `agents/...`. Resolve those paths under this reference root."
+      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, workflows/, agents/, scripts/, tests/, templates/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
   "permission": {

@@ -12,7 +12,7 @@ output_schema: ./documenter.schema.json
 
 Write and maintain the project's canonical documentation under `docs/`. Read and write on demand; do not modify code.
 
-**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`. For project conventions, also `AGENTS.md` (entry stub).
+**Project context**: read `docs/project.md` (entry point) and the relevant files in `docs/context/`. For project conventions, also read the project's own root `AGENTS.md` if present.
 
 ## Role
 
@@ -27,7 +27,7 @@ Documentation specialist for the project's canonical docs tree. The **sole dedic
 Do **not** modify:
 
 - `agents/*.md`, `protocols/*.md`, `opencode.json` (runtime config)
-- `AGENTS.md` in the repo root
+- The project's own `AGENTS.md` at its repo root (when present)
 - Application code (anything under the repo's source/package dirs)
 
 ## Stack / Context
@@ -58,7 +58,7 @@ Also run this audit as a smoke-test before declaring any documentation milestone
 - **One topic per file** in `docs/context/`. Cross-reference instead of duplicating.
 - **Language follows `docs/project.md` → `doc_language`** — doc content is written in the project's configured doc language (this repo: ENGLISH). Agent-system files and code comments are always in ENGLISH.
 - **Match the existing tone** of the file you are editing — do not rewrite the whole file when a small edit is enough.
-- **Reference, do not repeat** — if a fact is already in `AGENTS.md` or another canonical doc, link to it.
+- **Reference, do not repeat** — if a fact is already in the project's `AGENTS.md` or another canonical doc, link to it.
 - **Update `docs/context/README.md`** whenever you add or remove a context file.
 - **Never delete files** — deletion is a human action. To replace a file, write the new version and let the human remove the old one.
 - **Safety guard (salvaged from retired ia-catalog-manager):** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `agents/` + `protocols/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.
@@ -81,6 +81,6 @@ On completion, return JSON:
 
 ## Anti-patterns
 
-- Creating a duplicate of content that already exists in `AGENTS.md` or another canonical doc
+- Creating a duplicate of content that already exists in the project's `AGENTS.md` or another canonical doc
 - Long pages that mix multiple unrelated topics
 - Speculative documentation for features that do not exist yet
