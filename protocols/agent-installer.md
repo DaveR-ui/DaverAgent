@@ -7,11 +7,15 @@ install paths — do not conflate them:
    `bootstrap.ps1`) clones/updates this repository into `~/.config/opencode`.
    This carries the agents, protocols, workflows, and `opencode.json`.
 2. **Per-project docs bootstrap (per repository)** — `scripts/install-agent.ps1`
-   generates a project's `docs/project.md`, `docs/context/*.md` stubs, and the
-   slang snapshot. It does **not** create agents or `opencode.json`.
+   generates a project's `docs/project.md`, `docs/context/*.md` stubs, the
+   `docs/context/context-index.md` hub, the generated `docs/tag-index.md`, and the
+   slang snapshot, then installs the derived validator at `docs/validate.js` and
+   runs it (best-effort; needs Node). It does **not** create agents or `opencode.json`.
 
-Path rules live in [`AGENTS.md`](../AGENTS.md): agent-system assets resolve under
-the global config root; project docs resolve inside the project.
+Path rules live in `opencode.json` → `references.agent-system`: opencode injects
+that reference's absolute root into agent context, so agent-system assets are
+read by joining the injected root with the relative path; project docs resolve
+inside the project.
 
 ## Source of truth
 
@@ -19,7 +23,7 @@ the global config root; project docs resolve inside the project.
 - **Docs bootstrap**: `scripts/install-agent.ps1`
 - **Schema**: `scripts/install-agent.schema.json` — data-driven question list
   for the docs bootstrap (3 phases below)
-- **Path contract**: `AGENTS.md`
+- **Path contract**: `opencode.json` → `references.agent-system`
 
 ## When this protocol applies
 
@@ -48,7 +52,7 @@ Do NOT use this for:
    `~/.config/opencode`.
 3. If the target already exists and is **not** a clone of this repository,
    bootstrap backs it up to `~/.config/opencode.bak.<timestamp>` first.
-4. Restart opencode so it reloads `opencode.json`, `AGENTS.md`, and `agents/`.
+4. Restart opencode so it reloads `opencode.json` and `agents/`.
 
 Windows: `& ".\scripts\bootstrap.ps1" -VerifyOnly` then
 `& ".\scripts\bootstrap.ps1"`.
@@ -93,9 +97,31 @@ shape or the thin variant, plus the `output_schema` ↔ sibling schema bridge.
 ## Add a slice
 
 1. Read the current Slices table in the project's `docs/project.md`.
-2. Ask the human: slice id, description, entry points, primary agents.
+2. Ask the human: slice id, description, keywords, entry points, primary agents.
 3. Add a new row to the Slices table. Do NOT touch the script.
 4. The orchestrator picks it up automatically on the next handoff.
+
+## Migrate an existing project (legacy -> onrails)
+
+Existing projects created before the onrails adoption still use the legacy names.
+Migration is **human-confirmed, never silent**; the legacy names are read-accepted
+only until **2026-10-12**.
+
+1. Impact scan: `grep -rn "context/README\|protocols/README\|_TAG-INDEX" <project>/docs`.
+2. For each hit, confirm with the human, then rename:
+
+   | Legacy | Canonical |
+   |---|---|
+   | `docs/context/README.md` | `docs/context/context-index.md` |
+   | `docs/_TAG-INDEX.md` | `docs/tag-index.md` (generated) |
+   | `docs/protocols/README.md` | removed - register each protocol with a link from `docs/project.md` |
+
+3. Add the missing frontmatter: context docs `last_updated, status, description, tags, version` (+ `doc_language` on `docs/project.md`); notes `id, category, tags, aliases, related, version, status`.
+4. Widen a 4-column Slices table to 5 columns (`Slice | Description | Keywords | Entry points | Primary agents`); rename `## Backend Structure` to `## Repository Structure` and add `## Common Lookups`.
+5. Record provenance with the note key `moved_from` on renamed notes.
+6. Regenerate + validate: `node docs/validate.js --write && node docs/validate.js` (must exit 0).
+
+After **2026-10-12** the legacy names are unsupported: agents report them instead of reading them.
 
 ## Add a subagent
 
@@ -144,12 +170,13 @@ then without the flag. The 3 phases walk through everything.
 
 **Human**: "I added a new context doc called `cache-strategy.md`."
 
-You: Add the file under the project's `docs/context/` and update the index in
-`docs/context/README.md`.
+You: Add the file under the project's `docs/context/` and update the hub in
+`docs/context/context-index.md` (legacy name `docs/context/README.md` during the
+migration window).
 
 **Human**: "Update the slices table to include a new 'reports' slice."
 
-You: Ask for the four fields. Edit the project's `docs/project.md` directly.
+You: Ask for the five fields (id, description, keywords, entry points, primary agents). Edit the project's `docs/project.md` directly.
 Confirm by reading the file back.
 
 **Human**: "What would the bootstrap change if I ran it now?"

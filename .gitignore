@@ -24,3 +24,6 @@ __pycache__/
 
 # ── Machine-specific plugin scripts (portable plugin source only) ─
 plugins/**/gk-hooks.js
+package-lock.json
+package.json
+

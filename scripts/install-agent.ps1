@@ -206,9 +206,24 @@ function Write-Generated {
 
 function Build-ProjectMd {
     param([hashtable]$A)
+    $today = (Get-Date -Format "yyyy-MM-dd")
     $entities = ($A.domain_entities -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) -join ", "
+    $desc = $A.project_description
+    if ([string]::IsNullOrWhiteSpace($desc)) { $desc = "$($A.project_name) project facts: stack, commands, slices, domain entities" }
+    $lang = $A.doc_language
+    if ([string]::IsNullOrWhiteSpace($lang)) { $lang = "en" }
     $sb = New-Object System.Text.StringBuilder
 
+    # context-doc frontmatter + entry-point-only doc_language (onrails 02 §4)
+    [void]$sb.AppendLine("---")
+    [void]$sb.AppendLine("last_updated: $today")
+    [void]$sb.AppendLine("status: draft")
+    [void]$sb.AppendLine("description: $desc")
+    [void]$sb.AppendLine("tags: [project]")
+    [void]$sb.AppendLine("version: 1.0")
+    [void]$sb.AppendLine("doc_language: $lang")
+    [void]$sb.AppendLine("---")
+    [void]$sb.AppendLine("")
     [void]$sb.AppendLine("# $($A.project_display_name)")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("> **Single source of truth for project info, conventions, and architecture.**")
@@ -235,12 +250,18 @@ function Build-ProjectMd {
         [void]$sb.AppendLine("")
         [void]$sb.AppendLine("The orchestrator uses this table to route incoming tasks. Each slice is a 'pizza slice' - a major area of the codebase that the human has explicitly demarcated. Tasks that fall inside a slice should start by reading the listed entry points and using the listed primary agents.")
         [void]$sb.AppendLine("")
-        [void]$sb.AppendLine("| Slice | Description | Entry points | Primary agents |")
-        [void]$sb.AppendLine("|---|---|---|---|")
+        [void]$sb.AppendLine("| Slice | Description | Keywords | Entry points | Primary agents |")
+        [void]$sb.AppendLine("|---|---|---|---|---|")
         foreach ($line in ($A.slices -split "`n" | Where-Object { $_ -and $_.Trim() })) {
             $parts = $line -split '\|' | ForEach-Object { $_.Trim() }
-            if ($parts.Count -lt 4) { continue }
-            [void]$sb.AppendLine("| $($parts[0]) | $($parts[1]) | $($parts[2]) | $($parts[3]) |")
+            # Canonical row: slice | description | keywords | entry points | primary agents.
+            # A legacy 4-field row (no keywords) is still accepted.
+            if ($parts.Count -ge 5) {
+                [void]$sb.AppendLine("| $($parts[0]) | $($parts[1]) | $($parts[2]) | $($parts[3]) | $($parts[4]) |")
+            }
+            elseif ($parts.Count -ge 4) {
+                [void]$sb.AppendLine("| $($parts[0]) | $($parts[1]) |  | $($parts[2]) | $($parts[3]) |")
+            }
         }
         [void]$sb.AppendLine("")
         [void]$sb.AppendLine("If a task does not clearly belong to any slice, the orchestrator MUST add a new slice row to this table and explain the rationale before starting work.")
@@ -257,11 +278,16 @@ function Build-ProjectMd {
     if (-not $hasCmd)        { [void]$sb.AppendLine("- (add commands)") }
 
     [void]$sb.AppendLine("")
-    [void]$sb.AppendLine("## Backend Structure")
+    [void]$sb.AppendLine("## Repository Structure")
     [void]$sb.AppendLine("")
-    $backendLines = @($A.backend_structure -split "`n" | Where-Object { $_ -and $_.Trim() })
-    if ($backendLines.Count -gt 0) {
-        foreach ($b in $backendLines) { [void]$sb.AppendLine("  - ``$b``") }
+    # Canonical question id is `repository_structure`; accept the legacy
+    # `backend_structure` key from an older -AnswersFile (it is loaded into
+    # $script:Answers, not into the current phase hashtable).
+    $structureRaw = $A.repository_structure
+    if (-not $structureRaw) { $structureRaw = $script:Answers['backend_structure'] }
+    $structureLines = @($structureRaw -split "`n" | Where-Object { $_ -and $_.Trim() })
+    if ($structureLines.Count -gt 0) {
+        foreach ($b in $structureLines) { [void]$sb.AppendLine("  - ``$b``") }
     } else {
         [void]$sb.AppendLine("  - (add structure)")
     }
@@ -269,7 +295,7 @@ function Build-ProjectMd {
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("## Key Conventions")
     [void]$sb.AppendLine("")
-    [void]$sb.AppendLine("- All documentation and comments in **$($A.doc_language)**")
+    [void]$sb.AppendLine("- All documentation and comments in **$lang**")
     [void]$sb.AppendLine("- See `docs/context/` for strategic docs")
 
     [void]$sb.AppendLine("")
@@ -284,16 +310,42 @@ function Build-ProjectMd {
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("## Context Index")
     [void]$sb.AppendLine("")
-    [void]$sb.AppendLine("See `docs/context/README.md` for the full index of strategic docs.")
+    [void]$sb.AppendLine("See [the context index](./context/context-index.md) for the full index of strategic docs.")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("Project procedures live in `docs/protocols/` (hub-less); register each one with a link here.")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("Project slang: [snapshot](./project-slang.md).")
+
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("## Common Lookups")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("Map recurring symptoms/questions to the doc that answers them.")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("| Lookup | Where |")
+    [void]$sb.AppendLine("|---|---|")
+    [void]$sb.AppendLine("| (add symptom) | ``docs/context/<doc>.md#anchor`` |")
 
     return $sb.ToString()
 }
 
 function Build-ContextDoc {
     param([string]$Id, $Template)
+    $today = (Get-Date -Format "yyyy-MM-dd")
     $body = $Template.default_body
     $title = $Template.title
+    $desc = $Template.description
+    if ([string]::IsNullOrWhiteSpace($desc)) { $desc = $title }
+    $tagList = "["
+    if ($Template.tags) { $tagList += ($Template.tags -join ", ") }
+    $tagList += "]"
     return @"
+---
+last_updated: $today
+status: draft
+description: $desc
+tags: $tagList
+version: 1.0
+---
 # $title
 
 > Generated by `install-agent.ps1`. Fill in the substance.
@@ -305,6 +357,18 @@ $body
 function Build-ContextReadme {
     param([string[]]$SelectedIds, $Templates)
     $sb = New-Object System.Text.StringBuilder
+    # context-index.md is a hub (`*-index.md`), so it carries the NOTE contract
+    # (onrails 01 §hub rule).
+    [void]$sb.AppendLine("---")
+    [void]$sb.AppendLine("id: context-index")
+    [void]$sb.AppendLine("category: context")
+    [void]$sb.AppendLine("tags: [context, index]")
+    [void]$sb.AppendLine("aliases: []")
+    [void]$sb.AppendLine("related: []")
+    [void]$sb.AppendLine("version: 1.0")
+    [void]$sb.AppendLine("status: draft")
+    [void]$sb.AppendLine("---")
+    [void]$sb.AppendLine("")
     [void]$sb.AppendLine("# Context Folder - Project Knowledge Base")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("**Single source of truth for project strategies, architecture, and conventions.**")
@@ -327,7 +391,48 @@ function Build-ContextReadme {
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("- One topic per file")
     [void]$sb.AppendLine("- Cross-reference related files")
-    [void]$sb.AppendLine("- Update this README when adding a new file")
+    [void]$sb.AppendLine("- Update this hub when adding a new file")
+    return $sb.ToString()
+}
+
+function Build-TagIndex {
+    param([string[]]$SelectedIds, $Templates)
+    $today = (Get-Date -Format "yyyy-MM-dd")
+    # Real tag -> doc inversion for the docs this bootstrap creates. Docs added
+    # later by humans are folded in when the Node validator regenerates the region
+    # (`node docs/validate.js --write`).
+    $byTag = @{}
+    $byTag['project'] = New-Object System.Collections.Generic.List[string]
+    $byTag['project'].Add("- ``docs/project.md`` - Project facts")
+    foreach ($id in $SelectedIds) {
+        if (-not $Templates.ContainsKey($id)) { continue }
+        $t = $Templates[$id]
+        $desc = $t.description
+        if ([string]::IsNullOrWhiteSpace($desc)) { $desc = $t.title }
+        $entry = "- ``docs/context/$($t.filename)`` - $desc"
+        if ($t.tags) {
+            foreach ($tag in $t.tags) {
+                if (-not $byTag.ContainsKey($tag)) { $byTag[$tag] = New-Object System.Collections.Generic.List[string] }
+                $byTag[$tag].Add($entry)
+            }
+        }
+    }
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.AppendLine("# Tag Index")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("> GENERATED surface. Do not hand-edit inside the markers.")
+    [void]$sb.AppendLine("> Regenerate with ``node docs/validate.js --write``.")
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("<!-- BEGIN GENERATED: tags -->")
+    [void]$sb.AppendLine("<!-- snapshot: $today -->")
+    foreach ($tag in ($byTag.Keys | Sort-Object)) {
+        [void]$sb.AppendLine("")
+        [void]$sb.AppendLine("## $tag")
+        [void]$sb.AppendLine("")
+        foreach ($entry in $byTag[$tag]) { [void]$sb.AppendLine($entry) }
+    }
+    [void]$sb.AppendLine("")
+    [void]$sb.AppendLine("<!-- END GENERATED: tags -->")
     return $sb.ToString()
 }
 
@@ -343,6 +448,15 @@ function Build-SlangTemplate {
     }
     if (-not $rows) { $rows = "| | | | |`n" }
     return @"
+---
+id: project-slang
+category: project
+tags: [slang, glossary]
+aliases: []
+related: []
+version: 1.0
+status: draft
+---
 # Project Slang Snapshot
 
 > **ROLE**: per-session project slang dictionary (lunfardo del proyecto).
@@ -417,12 +531,43 @@ foreach ($id in $selected) {
     $path = Join-Path $contextDir $tpl.filename
     Write-Generated -Path $path -Content (Build-ContextDoc -Id $id -Template $tpl) -Overwrite:$Update
 }
-$readmePath = Join-Path $contextDir "README.md"
+$readmePath = Join-Path $contextDir "context-index.md"
 Write-Generated -Path $readmePath -Content (Build-ContextReadme -SelectedIds $selected -Templates $tplHashtable) -Overwrite:$Update
+
+# generated tag index (onrails lowercase tag-index.md, marker regions)
+$tagIndexPath = Join-Path $script:RepoRoot "docs\tag-index.md"
+Write-Generated -Path $tagIndexPath -Content (Build-TagIndex -SelectedIds $selected -Templates $tplHashtable) -Overwrite:$Update
 
 # project slang snapshot
 $slangPath = Join-Path $script:RepoRoot "docs\project-slang.md"
 Write-Generated -Path $slangPath -Content (Build-SlangTemplate -SlangBlock $phase3.slang_block) -Overwrite:$Update
+
+# derived documentation validator (per project; NOT wired into the global repo).
+# Ships at docs/validate.js so its default corpus root is the project's docs/.
+$validatorSrc = Join-Path $PSScriptRoot "..\templates\docs-validate.js"
+$validatorDst = Join-Path $script:RepoRoot "docs\validate.js"
+if (Test-Path -LiteralPath $validatorSrc) {
+    if ($VerifyOnly -or $WhatIf) {
+        $script:Skipped.Add("FILE $validatorDst (would install validator)") | Out-Null
+    } else {
+        Copy-Item -LiteralPath $validatorSrc -Destination $validatorDst -Force
+        $script:Created.Add("FILE $validatorDst") | Out-Null
+    }
+}
+
+# best-effort structure validation (Node required by the validator; skip if absent)
+if (-not $VerifyOnly -and -not $WhatIf -and (Test-Path -LiteralPath $validatorDst)) {
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    Write-Host ""
+    if ($node) {
+        Write-Host "=== Validating docs (node docs/validate.js) ===" -ForegroundColor Yellow
+        # --write first so the generated tag index matches the validator's canonical render.
+        & node $validatorDst --root (Join-Path $script:RepoRoot "docs") --write | Out-Null
+        & node $validatorDst --root (Join-Path $script:RepoRoot "docs")
+    } else {
+        Write-Host "node not found; run 'node docs/validate.js' later to validate the generated docs." -ForegroundColor DarkGray
+    }
+}
 
 # Global agent definitions and opencode.json are NOT generated here:
 # they live in the global config (~/.config/opencode) installed by bootstrap.sh.

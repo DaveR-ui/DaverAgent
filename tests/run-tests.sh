@@ -4,6 +4,7 @@
 # Runs, in order:
 #   1. validate-agent.sh          - static integrity of the agent tree (CI-friendly)
 #   2. test-output-schemas.py     - schema <-> fixture <-> doc-example contract tests
+#   3. test-docs-validator.sh     - derived docs validator + scaffolder drift guard
 #
 # Exit 0 = all pass, 1 = any failure.
 set -u
@@ -24,6 +25,7 @@ run() {
 
 run "validate-agent.sh"    bash "${ROOT}/scripts/validate-agent.sh"
 run "output-schemas"       python3 "${ROOT}/tests/test-output-schemas.py"
+run "docs-validator"       bash "${ROOT}/tests/test-docs-validator.sh"
 
 echo ""
 if [ "${PASS}" -eq 1 ]; then

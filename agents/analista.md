@@ -41,7 +41,7 @@ If the request is out of scope, say so in **one sentence**, set `re_route_to`, a
 ## Stack / Context
 
 - Read `docs/project.md` (entry point) first — project metadata, stack, commands, and the **Slices table** for area routing.
-- `docs/context/` is the source of truth (index: `docs/context/README.md`); those docs override legacy `src/` patterns.
+- `docs/context/` is the source of truth (index: `docs/context/context-index.md`); those docs override legacy `src/` patterns.
 - For STUCK-recovery advice, align with `protocols/session-recovery.md` and the orchestrator's `## Resume instructions (if restart)` snapshot contract (see `agents/orchestrator.md`).
 - For agent-system questions (models, routing, subagent shapes), consult `protocols/subagent-spec-template.md`.
 - Verify versions against `docs/project.md` / `package.json` before claiming specifics.

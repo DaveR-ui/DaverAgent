@@ -13,7 +13,7 @@ output_schema: ./explorer.schema.json
 
 Read and analyze the codebase — never modify code.
 
-**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/README.md`).
+**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/context-index.md`).
 
 ## Role
 

@@ -16,19 +16,20 @@ Define read-only doc lookup that cites file path + line numbers for every fact.
 
 ## Shared sources
 
-- `docs/context/README.md` — index and philosophy of context.
+- `docs/context/context-index.md` — index and philosophy of context.
 - `docs/project.md` — Slices table and stack entry point.
 - `protocols/broad-investigation-template.md` — coverage when auditing docs.
+- `documentation-onrails` (<https://github.com/DaveR-ui/documentation-onrails>, `guidelines/`, `templates/`) — the canonical specification for documentation **structure** (layout, hubs, frontmatter, naming, generated indexes, validation); consult on demand; never a source of project facts.
 
 ## Permission-derived traits
 
 - `edit: deny`, `bash: deny` — cannot write or execute.
 - `task: [project-context]` — self-fan-out only; delegates docs writing to documenter.
-- Single source hierarchy: `docs/context/*.md` > `docs/project.md` > `_TAG-INDEX.md` > `src/`.
+- Single source hierarchy (facts): `docs/context/*.md` > `docs/project.md` > `src/`. The generated `docs/tag-index.md` is a navigation surface, never a fact source; `documentation-onrails` is canonical for *structure* only.
 
 ## Lookup workflow
 
-`docs/project.md` → `docs/context/README.md` → slice README → grep if still unclear.
+`docs/project.md` → `docs/context/context-index.md` → slice hub → grep if still unclear.
 
 ## Presentation note
 

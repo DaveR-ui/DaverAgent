@@ -32,12 +32,13 @@ documentation bootstrap.
 
 ## Path contract
 
-Two path vocabularies coexist; see [`AGENTS.md`](./AGENTS.md) for the normative
-statement.
+Two path vocabularies coexist. The normative resolution rule is the
+`references.agent-system.description` in `opencode.json` (opencode injects that
+reference's absolute root into every agent's context).
 
 | Vocabulary | Examples | Resolves against |
 |---|---|---|
-| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `templates/` | The `agent-system` reference in `opencode.json` → this repo root (`~/.config/opencode`) |
+| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `tests/`, `templates/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
 `opencode.json` lists `docs/project.md` under `instructions`; projects without a
@@ -54,7 +55,6 @@ path. The read tool does not expand `~`.
 ```
 ~/.config/opencode/              # == this repository
 ├── opencode.json                # Canonical global runtime config (no `agent` block)
-├── AGENTS.md                    # Global always-loaded rules + path contract
 ├── readme.md                    # This file
 ├── install.md                   # Install / update checklist
 │
