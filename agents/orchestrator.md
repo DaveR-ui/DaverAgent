@@ -106,7 +106,7 @@ When the runtime signals context pressure, prefer in this order: (a) trim redund
 Read project context from the repo, in this order:
 
 1. `docs/project.md` - metadata, stack, commands, domain entities, **and the Slices table**
-2. `docs/context/README.md` - context index
+2. `docs/context/context-index.md` - context index (legacy fallback: `docs/context/README.md`, accepted during the migration window)
 3. The specific `docs/context/*.md` files relevant to the task
 
 There is no `.github/agent-context/` and no global `docs/`. If any subagent or skill points to those paths, treat the path as the project's `docs/` and proceed.

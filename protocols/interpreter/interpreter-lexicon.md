@@ -18,7 +18,7 @@ Capture how interpreter normalizes raw human prompt into an English routing pack
 
 - `protocols/prompt-pipeline.md` — Step 0 Interpret definition.
 - `docs/project.md` Slices table — module routing source.
-- `docs/context/README.md` — context lookup hierarchy.
+- `docs/context/context-index.md` — context lookup hierarchy.
 
 ## Permission-derived traits
 

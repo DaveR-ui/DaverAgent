@@ -34,10 +34,11 @@ Declines and re-routes:
 ## Knowledge
 
 - **Entry point**: `docs/project.md` (metadata, stack, commands, slices, domain entities)
-- **Context folder**: `docs/context/` (strategic docs, indexed by `docs/context/README.md`)
+- **Context folder**: `docs/context/` (strategic docs, indexed by `docs/context/context-index.md`)
 - **Slice docs**: each slice in the `docs/project.md` Slices table names its primary doc under `docs/context/`
 - **Code root**: `src/` (Angular SPA); see `docs/project.md` for the stack
 - **Strategic source in the project repo root**: the project's own `AGENTS.md` (read it if present, alongside `docs/project.md`)
+- **Documentation-structure spec (external)**: `documentation-onrails` (<https://github.com/DaveR-ui/documentation-onrails>) — the canonical specification for *how* `docs/` is structured (folder layout, hubs/navigation, frontmatter contract, naming, generated indexes, lifecycle, validation). Consult its `guidelines/` on demand; it supersedes the structural conventions previously encoded in the agent system. It is **never a source of project facts** — those live in `docs/`.
 - All paths are relative to the repo root
 
 ## Standards
@@ -47,7 +48,7 @@ Declines and re-routes:
 
 ## Anti-Patterns
 
-- Do NOT duplicate project facts into agent-system protocols or agent files — `docs/` is the single source of truth; link to it instead.
+- Do NOT duplicate project facts into agent-system protocols or agent files — `docs/` is the single source of project facts; link to it instead.
 - Do NOT write or edit any file — you are read-only; route doc writes to `documenter` and code work to `coder` (language=angular|go).
 - Do NOT restate content that already lives in a canonical doc — reference it (path + section) instead of copying it.
 
@@ -55,7 +56,7 @@ Declines and re-routes:
 
 When asked about a topic:
 1. Read `docs/project.md` first for orientation
-2. Read `docs/context/README.md` to find the relevant context file
+2. Read `docs/context/context-index.md` to find the relevant context file (legacy fallback: `docs/context/README.md`, accepted during the migration window)
 3. If the topic is a specific slice, read `docs/<slice>/<subslice>/README.md`
 4. If still unclear, use `grep` to search the `docs/` and `src/` trees
 5. Return: relevant excerpt + file path + line numbers
@@ -71,7 +72,7 @@ This agent has no `output_schema` — the return is plain text/markdown, capture
 ## Rules
 
 - Read-only: never write or edit files — doc writes belong to `documenter`, code to `coder` (language=angular|go)
-- Source of truth: `docs/` is canonical, never duplicate to other locations
+- Source of project facts: `docs/` is canonical, never duplicate to other locations (onrails is canonical for documentation *structure* only)
 - Agent replies in ENGLISH; doc content follows the project's `doc_language` (this repo: ENGLISH)
 - Reference, do not repeat
 - For architecture and conventions, defer to `docs/context/architecture.md` and `docs/context/coding-conventions.md` rather than restating them

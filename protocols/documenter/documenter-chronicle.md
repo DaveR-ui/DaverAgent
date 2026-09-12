@@ -17,8 +17,9 @@ Define how documenter maintains `docs/` with frontmatter, registration, and post
 ## Shared sources
 
 - `docs/context/doc-conventions.md` — frontmatter, component format, one topic per file.
-- `docs/context/README.md` + `docs/_TAG-INDEX.md` + `docs/project.md` Slices — registration targets.
+- `docs/context/context-index.md` + `docs/tag-index.md` + `docs/project.md` Slices — registration targets.
 - `protocols/subagent-spec-template.md` — canonical shape when touching agent specs.
+- `documentation-onrails` (<https://github.com/DaveR-ui/documentation-onrails>, `guidelines/`, `templates/`, `protocols/`, `validate.js`) — the **canonical specification for documentation STRUCTURE** (layout, hubs, frontmatter, naming, generated indexes, lifecycle, validation); consult on demand; supersedes the structural conventions previously in this scroll; never a source of project facts.
 
 ## Permission-derived traits
 
@@ -28,7 +29,7 @@ Define how documenter maintains `docs/` with frontmatter, registration, and post
 
 ## Chronicle rule
 
-Every new doc carries frontmatter (last_updated, status, description, tags) and is registered; audit covers routing sync, freshness (>30 stale, >90 flag), link integrity.
+Every new doc carries the frontmatter contract (context-doc: last_updated, status, description, tags, version; note: id, category, tags, aliases, related, version, status) and is registered; audit covers routing sync, freshness (>30 stale, >90 flag), link integrity, structure validation.
 
 ## Presentation note
 

@@ -68,7 +68,7 @@
         },
         {
           "id": "slices",
-          "prompt": "Slices table rows (id | description | entry points | primary agents), one per line",
+          "prompt": "Slices table rows (id | description | keywords | entry points | primary agents), one per line",
           "type": "multiline",
           "default": ""
         },
@@ -93,8 +93,8 @@
           "default": ""
         },
         {
-          "id": "backend_structure",
-          "prompt": "Backend structure lines, one per line",
+          "id": "repository_structure",
+          "prompt": "Repository structure lines, one per line",
           "type": "multiline",
           "default": ""
         },
@@ -126,26 +126,36 @@
         "architecture": {
           "title": "Architecture",
           "filename": "architecture.md",
+          "description": "Layers, dependency rules, module boundaries",
+          "tags": ["architecture"],
           "default_body": "## Layers\n\n## Dependency Rules\n\n## Module Boundaries\n"
         },
         "project-rules": {
           "title": "Project Rules",
           "filename": "project-rules.md",
+          "description": "Coding standards, error handling, security, testing conventions",
+          "tags": ["rules", "conventions"],
           "default_body": "## Coding Standards\n\n## Error Handling\n\n## Security\n\n## Testing Conventions\n"
         },
         "api-endpoint-factory": {
           "title": "API Endpoint Factory",
           "filename": "api-endpoint-factory.md",
+          "description": "Endpoint template, registration, validation",
+          "tags": ["api", "endpoints"],
           "default_body": "## Endpoint Template\n\n## Registration\n\n## Validation\n"
         },
         "testing": {
           "title": "Testing",
           "filename": "testing.md",
+          "description": "Test stack, canonical commands, mocking",
+          "tags": ["testing"],
           "default_body": "## Test Stack\n\n## Canonical Commands\n\n## Mocking\n"
         },
         "security-permissions": {
           "title": "Security & Permissions",
           "filename": "security-permissions.md",
+          "description": "Permission model, guards/middleware, secrets",
+          "tags": ["security", "permissions"],
           "default_body": "## Permission Model\n\n## Guards / Middleware\n\n## Secrets\n"
         }
       }
