@@ -3,7 +3,9 @@ description: Tester - framework-parameterized test execution for vitest, karma-j
 mode: subagent
 temperature: 0.2
 permission:
+  edit: deny
   task:
+    "*": deny
     tester: allow
 output_schema: ./tester.schema.json
 ---

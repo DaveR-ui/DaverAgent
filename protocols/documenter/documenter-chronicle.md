@@ -17,9 +17,9 @@ Define how documenter maintains `docs/` with frontmatter, registration, and post
 ## Shared sources
 
 - `docs/context/doc-conventions.md` — frontmatter, component format, one topic per file.
-- `docs/context/context-index.md` + `docs/tag-index.md` + `docs/project.md` Slices — registration targets.
+- `docs/context/context-index.md` + `docs/index.md` + `docs/tag-index.md` + `docs/project.md` Slices — registration targets.
 - `protocols/subagent-spec-template.md` — canonical shape when touching agent specs.
-- `documentation-onrails` (<https://github.com/DaveR-ui/documentation-onrails>, `guidelines/`, `templates/`, `protocols/`, `validate.js`) — the **canonical specification for documentation STRUCTURE** (layout, hubs, frontmatter, naming, generated indexes, lifecycle, validation); consult on demand; supersedes the structural conventions previously in this scroll; never a source of project facts.
+- `documentation-onrails (version 1.4, snapshot 2026-09-12)` (<https://github.com/DaveR-ui/documentation-onrails>, `guidelines/`, `templates/`, `protocols/`, `validate.js`) — the **canonical specification for documentation STRUCTURE** (layout, hubs, frontmatter, naming, generated indexes, lifecycle, validation); consult on demand; supersedes the structural conventions previously in this scroll; never a source of project facts.
 
 ## Permission-derived traits
 

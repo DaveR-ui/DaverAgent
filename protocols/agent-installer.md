@@ -8,9 +8,10 @@ install paths — do not conflate them:
    This carries the agents, protocols, workflows, and `opencode.json`.
 2. **Per-project docs bootstrap (per repository)** — `scripts/install-agent.ps1`
    generates a project's `docs/project.md`, `docs/context/*.md` stubs, the
-   `docs/context/context-index.md` hub, the generated `docs/tag-index.md`, and the
-   slang snapshot, then installs the derived validator at `docs/validate.js` and
-   runs it (best-effort; needs Node). It does **not** create agents or `opencode.json`.
+   `docs/context/context-index.md` hub, the generated `docs/index.md` and
+   `docs/tag-index.md`, and the slang snapshot, then installs the derived
+   validator at `docs/validate.js` and runs it (best-effort; needs Node). It does
+   **not** create agents or `opencode.json`.
 
 Path rules live in `opencode.json` → `references.agent-system`: opencode injects
 that reference's absolute root into agent context, so agent-system assets are
@@ -39,7 +40,7 @@ The human wants to:
 Do NOT use this for:
 
 - Day-to-day coding tasks (delegate to `coder` (language=angular|go) directly)
-- Documentation edits (delegate to `documenter` or `project-context`)
+- Documentation edits (delegate to `documenter`, the single prose writer)
 - Just running the agent (use `delivery`)
 
 ## Global install (per machine)
@@ -103,17 +104,18 @@ shape or the thin variant, plus the `output_schema` ↔ sibling schema bridge.
 
 ## Migrate an existing project (legacy -> onrails)
 
-Existing projects created before the onrails adoption still use the legacy names.
+Existing projects created before the adoption of `documentation-onrails (version 1.4, snapshot 2026-09-12)` still use the legacy names.
 Migration is **human-confirmed, never silent**; the legacy names are read-accepted
 only until **2026-10-12**.
 
-1. Impact scan: `grep -rn "context/README\|protocols/README\|_TAG-INDEX" <project>/docs`.
+1. Impact scan: `grep -rn "context/README\|protocols/README\|_TAG-INDEX\|project-slang" <project>/docs`.
 2. For each hit, confirm with the human, then rename:
 
    | Legacy | Canonical |
    |---|---|
    | `docs/context/README.md` | `docs/context/context-index.md` |
    | `docs/_TAG-INDEX.md` | `docs/tag-index.md` (generated) |
+   | `docs/project-slang.md` | `docs/context/project-slang.md` (context-doc) |
    | `docs/protocols/README.md` | removed - register each protocol with a link from `docs/project.md` |
 
 3. Add the missing frontmatter: context docs `last_updated, status, description, tags, version` (+ `doc_language` on `docs/project.md`); notes `id, category, tags, aliases, related, version, status`.

@@ -23,7 +23,8 @@
     }
   },
   "permission": {
-    "question": "ask"
+    "question": "ask",
+    "session_send": "ask"
   },
   "instructions": [
     "docs/project.md"

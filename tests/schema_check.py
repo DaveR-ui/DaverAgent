@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Minimal JSON Schema validator covering the subset used by the agent output
 schemas (draft 2020-12): type, properties, required, additionalProperties,
-items, enum, minimum/maximum. Dependency-free (stdlib only) so the tests run
-anywhere python3 is available.
+items, enum, minimum/maximum, pattern. Dependency-free (stdlib only) so the
+tests run anywhere python3 is available.
 
 Not a general validator — it intentionally supports only the keywords the
 agent schemas use. If a schema introduces a new keyword, extend this module
@@ -10,6 +10,7 @@ and add a fixture that exercises it.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
@@ -51,6 +52,10 @@ def validate(data: Any, schema: dict, path: str = "$") -> list[str]:
 
     if "enum" in schema and data not in schema["enum"]:
         errors.append(f"{path}: value {data!r} not in enum {schema['enum']}")
+
+    if "pattern" in schema and isinstance(data, str):
+        if re.search(schema["pattern"], data) is None:
+            errors.append(f"{path}: {data!r} does not match pattern {schema['pattern']!r}")
 
     if isinstance(data, (int, float)) and not isinstance(data, bool):
         if "minimum" in schema and data < schema["minimum"]:

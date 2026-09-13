@@ -22,9 +22,9 @@ Define read-only scouting with divide-and-conquer fan-out.
 
 ## Permission-derived traits
 
-- `edit: deny` — never modifies.
-- `task: [explorer]` — self-fan-out only when needed.
-- Returns ExplorerOutput JSON via EventV2, not markdown files.
+- `edit: deny` and `bash: deny` — never modifies, never runs shell commands.
+- `task: {"*": deny, explorer: allow}` — self-fan-out only when needed.
+- Returns ExplorerOutput JSON through the `task` tool return, not markdown files.
 
 ## Sampling discipline
 

@@ -78,6 +78,26 @@
           "default": ""
         },
         {
+          "id": "serve_command",
+          "prompt": "Serve command",
+          "default": ""
+        },
+        {
+          "id": "build_command",
+          "prompt": "Build command",
+          "default": ""
+        },
+        {
+          "id": "test_command",
+          "prompt": "Test command",
+          "default": ""
+        },
+        {
+          "id": "lint_command",
+          "prompt": "Lint command",
+          "default": ""
+        },
+        {
           "id": "db_command",
           "prompt": "Start DB command",
           "default": ""

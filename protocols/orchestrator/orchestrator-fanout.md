@@ -22,12 +22,12 @@ Define how orchestrator owns Phase 2 Reduce and fans out subagents.
 
 ## Permission-derived traits
 
-- `task` allow-list: coder, tester, reviewer, architect, explorer, project-context, external-scout, analista, documenter.
+- `task` allow-list: `{"*": deny, ...}` — coder, tester, reviewer, architect, explorer, project-context, external-scout, analista, documenter.
 - Inherits delivery model when not overridden; subagent depth bounded.
 
 ## Fan-out pattern
 
-Split file list into 20-file chunks (SAMPLE_WINDOW 10), launch N parallel tasks, dedup, promote severity, aggregate via EventV2.
+Split file list into 20-file chunks (SAMPLE_WINDOW 10), launch N parallel tasks, dedup, promote severity, aggregate the validated JSON returned by each `task` call.
 
 ## Presentation note
 

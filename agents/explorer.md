@@ -4,7 +4,9 @@ mode: subagent
 temperature: 0.1
 permission:
   edit: deny
+  bash: deny
   task:
+    "*": deny
     explorer: allow
 output_schema: ./explorer.schema.json
 ---
@@ -98,6 +100,7 @@ The task tool validates your return against `ExplorerOutput`. Do not write `summ
 
 ## Rules
 
-- NEVER modify code
+- NEVER modify code or run shell commands
+- Read-only is enforced by permission: `edit: deny` and `bash: deny`. The `grep`, `glob` and `read` tools remain available — `grep` is a distinct tool, not a shell command, so `bash: deny` does not disable it
 - All output in ENGLISH
 - Always report absolute paths from the repo root (e.g. `src/feature/foo.ts`), not relative

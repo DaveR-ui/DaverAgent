@@ -9,4 +9,4 @@ version: 1.0
 
 Example config:
 
-password: "hunter2hunter2"
+password: "hunter2hunter2hunter2"

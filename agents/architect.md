@@ -2,7 +2,9 @@
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
 permission:
+  edit: deny
   task:
+    "*": deny
     architect: allow
 output_schema: ./architect.schema.json
 ---

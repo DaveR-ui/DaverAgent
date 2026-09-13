@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+  "onrails": {
+    "version": "1.4",
+    "snapshot": "2026-09-12"
+  },
+  "entries": [
+    {
+      "id": "entry-file",
+      "a_rule": "The consumer documentation entry point is the repository root README.md.",
+      "b_behavior": "The consumer entry point is docs/project.md; checkRegistration roots registration at mdOut.get('project.md').",
+      "class": "accepted-adaptation",
+      "rationale": "The global agent system ships a docs/ tree rooted at project.md rather than a repository README, so registration follows the docs/ entry point.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/invalid | grep -q \"missing-from-entry.*project.md\""
+    },
+    {
+      "id": "orphan-note-severity",
+      "a_rule": "An unlinked note (orphan-note) is an error that fails the run.",
+      "b_behavior": "checkOrphans pushes orphan-note to warnings, so an unlinked note never fails the run.",
+      "class": "accepted-severity-downgrade",
+      "rationale": "A freshly scaffolded corpus legitimately starts disconnected, so erroring would make bootstrap unusable.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/invalid | grep \"orphan-note\" | grep -q \"^warning:\""
+    },
+    {
+      "id": "missing-from-entry-severity",
+      "a_rule": "Registration is named missing-from-hub and is an error rooted at the root hub.",
+      "b_behavior": "checkRegistration restores resolver-based registration as the missing-from-entry warning rooted at project.md.",
+      "class": "accepted-severity-downgrade",
+      "rationale": "Registration gaps are advisory while a project is being authored; the name and entry point also changed with the docs/-rooted layout.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/invalid | grep \"missing-from-entry\" | grep -q \"^warning:\""
+    },
+    {
+      "id": "near-duplicate-body-omitted",
+      "a_rule": "A near-duplicate document body is reported as a warning.",
+      "b_behavior": "The check is omitted entirely; the validator header documents the omission in its 'Omitted (documented): near-duplicate-body' note.",
+      "class": "accepted-omission",
+      "rationale": "Near-duplicate detection requires a tokenizer and is taste-level, so its cost outweighs the value for this consumer.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "grep -q \"Omitted (documented): near-duplicate-body\" templates/docs-validate.js"
+    },
+    {
+      "id": "tag-index-serialization",
+      "a_rule": "Tags serialize as '- **tag** — refs' bullet blocks.",
+      "b_behavior": "renderTagsRegion emits a '## tag' heading per distinct tag with '- `rel` - label' lines.",
+      "class": "accepted-adaptation",
+      "rationale": "The docs/-rooted layout references files by relative path and defines its own generated-region format, covered by the generated-region test.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/valid"
+    },
+    {
+      "id": "index-serialization",
+      "a_rule": "Upstream generates a repository-root index.md rooted at README.md with upstream's own labels and counters.",
+      "b_behavior": "renderIndexRegion generates a docs/-rooted index.md whose tree is rooted at the entry `project.md` and whose region uses this corpus's serialization (context-doc/note/hub tree labels and its own class counters).",
+      "class": "accepted-adaptation",
+      "rationale": "The consumer docs/ corpus has no repository README; it is rooted at project.md, so index.md serializes that entry point and this corpus's class vocabulary instead of upstream's README-rooted shape.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "tmp=$(mktemp -d) && cp -r tests/fixtures/docs-corpus/valid/. \"$tmp/\" && node templates/docs-validate.js --root \"$tmp\" --write >/dev/null 2>&1 && grep -q \"### Tree\" \"$tmp/index.md\" && rm -rf \"$tmp\""
+    },
+    {
+      "id": "output-line-format",
+      "a_rule": "Findings are printed without a severity prefix.",
+      "b_behavior": "Findings are prefixed with 'error:'/'warning:' and carry a real path:line location.",
+      "class": "accepted-adaptation",
+      "rationale": "Severity prefixes make findings machine-filterable and path:line lets an editor jump to the offending line.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/invalid | grep -qE \"^error: +[^ ]+:[0-9]+\""
+    },
+    {
+      "id": "output-ordering",
+      "a_rule": "Upstream sorts all findings by path:line before printing.",
+      "b_behavior": "main prints every warning first, then every error, each group in check order instead of a merged path:line sort.",
+      "class": "accepted-adaptation",
+      "rationale": "Reporting the advisory warnings and the failing errors as separate groups keeps the summary counters legible and the exit status unambiguous.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/invalid | grep -nE \"^(warning|error):\" | head -1 | grep -q \"^[0-9]*:warning:\""
+    },
+    {
+      "id": "summary-root-suffix",
+      "a_rule": "The summary line reports the counts and files scanned without the corpus root.",
+      "b_behavior": "main appends `(root: <dir>)` to the summary line so the scanned corpus is identifiable.",
+      "class": "accepted-adaptation",
+      "rationale": "The validator can be pointed at any corpus with --root, so echoing the resolved root makes results self-describing in CI logs.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "node templates/docs-validate.js --root tests/fixtures/docs-corpus/valid | grep -q \"(root: \""
+    },
+    {
+      "id": "skip-dirs",
+      "a_rule": "Upstream walks the corpus skipping only its own infrastructure directories.",
+      "b_behavior": "collect additionally skips node_modules and .agent-backups via SKIP_DIRS.",
+      "class": "accepted-adaptation",
+      "rationale": "A consumer project's docs/ sits inside a code repo, so node_modules and the agent system's .agent-backups snapshots must never be scanned.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "grep -q \"node_modules\" templates/docs-validate.js && grep -q \".agent-backups\" templates/docs-validate.js"
+    },
+    {
+      "id": "folder-name-reporting",
+      "a_rule": "A non-kebab folder is reported at the folder path.",
+      "b_behavior": "checkNames reports each offending folder at the offending file path (d.rel) that sits inside it.",
+      "class": "accepted-adaptation",
+      "rationale": "Findings are emitted as path:line, so attributing the folder violation to a concrete scanned file keeps the location editor-jumpable.",
+      "owner": "agent-system",
+      "review_date": "2026-10-12",
+      "test": "grep -q \"folder '\" templates/docs-validate.js"
+    }
+  ]
+}

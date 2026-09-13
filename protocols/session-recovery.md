@@ -24,7 +24,8 @@ to reconstruct context by hand; with it, recovery is a mechanical API walk.
 Apply this protocol when you observe any of the following:
 
 - `STATUS: STUCK` returned by an orchestrator.
-- A `Subagent.Interrupted` event on the EventV2 bus (see
+- A child session interrupted mid-flight — observable as a non-`idle`
+  entry in the `GET /session/status` map after an abort (see
   `agents/orchestrator.md` — Subagent outcomes block and interruption
   notes).
 - `POST /session/:id/abort` triggered by `delivery` (see
@@ -76,15 +77,17 @@ One sentence of context from the human is sufficient.
 Walk the opencode session API in this order:
 
 1. `GET /global/health` — pre-flight check that the server is reachable.
-2. `GET /session/status` — map of session id → state; find whether the failed
-   session is `running`, `idle`, or something else.
+2. `GET /session/status` — map of session id → state (`idle` | `busy` |
+   `retry`); find whether the failed session is still `busy`.
 3. `GET /session/:id` — metadata of the failed orchestrator (title, parentID,
    timestamps).
-4. `GET /session/:id/children` — list coder/tester/etc. children as
-   `ChildInfo { status, summary, agentType, durationMs }`.
-5. For each child still in `running`: `POST /session/:id/abort` (cleanup
+4. `GET /session/:id/children` — list coder/tester/etc. children; the
+   response is `Session[]` (`id`, `parentID`, `title`, `time`). A child's
+   run state is read from the `GET /session/status` map, not from a
+   per-child `status` field.
+5. For each child still `busy`: `POST /session/:id/abort` (cleanup
    before resume).
-6. If the orchestrator session itself is still `running`:
+6. If the orchestrator session itself is still `busy`:
    `POST /session/:id/abort`.
 7. `GET /session/:id/message?limit=20` — last 20 messages for context.
 8. `GET /session/:id/todo` — pending todo list.

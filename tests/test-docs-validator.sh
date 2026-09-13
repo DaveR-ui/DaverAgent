@@ -15,7 +15,9 @@ for s in \
   "repository_structure" \
   "context-index.md" \
   "Build-TagIndex" \
-  "BEGIN GENERATED: tags"; do
+  "BEGIN GENERATED: tags" \
+  "Build-Index" \
+  "BEGIN GENERATED: index"; do
   if grep -qF -- "$s" "${ROOT}/scripts/install-agent.ps1"; then
     echo "  [ok] install-agent.ps1 contains: $s"
   else
@@ -23,6 +25,15 @@ for s in \
     FAIL=1
   fi
 done
+
+# Negative guard: the parity fix replaced the hand-rolled tag-index heading
+# with the validator's generated region, so the obsolete literal must be gone.
+if grep -qF -- "## Generated tag index" "${ROOT}/scripts/install-agent.ps1"; then
+  echo "  [FAIL] install-agent.ps1 still contains obsolete literal: ## Generated tag index"
+  FAIL=1
+else
+  echo "  [ok] install-agent.ps1 omits obsolete literal: ## Generated tag index"
+fi
 
 if ! command -v node >/dev/null 2>&1; then
   echo ""
@@ -48,7 +59,7 @@ if node "$VALIDATOR" --root "$FIX/invalid" >/tmp/docs-invalid.out 2>&1; then
 else
   echo "  [ok] exit 1"
 fi
-for check in metadata-outside-contract non-kebab-case-name dangling-link duplicate-ids secret-in-prose stale-generated-index; do
+for check in metadata-outside-contract non-kebab-case-name dangling-link duplicate-ids secret-in-prose stale-generated-index dangling-related-target missing-from-entry orphan-note no-h1; do
   if grep -q "$check" /tmp/docs-invalid.out; then
     echo "  [ok] reported $check"
   else
@@ -71,6 +82,28 @@ fi
 before="$(cat "$WRITE_DIR/tag-index.md")"
 node "$VALIDATOR" --root "$WRITE_DIR" --write >/dev/null 2>&1
 after="$(cat "$WRITE_DIR/tag-index.md")"
+if [ "$before" = "$after" ]; then
+  echo "  [ok] second --write is a no-op (write-if-diff)"
+else
+  echo "  [FAIL] --write is not idempotent"
+  FAIL=1
+fi
+rm -rf "$WRITE_DIR"
+
+echo ""
+echo "== --write regenerates the index region, write-if-diff =="
+WRITE_DIR="$(mktemp -d)"
+cp -r "$FIX/valid/." "$WRITE_DIR/"
+node "$VALIDATOR" --root "$WRITE_DIR" --write >/dev/null 2>&1
+if grep -q "### Tree" "$WRITE_DIR/index.md"; then
+  echo "  [ok] index region regenerated"
+else
+  echo "  [FAIL] index region not regenerated"
+  FAIL=1
+fi
+before="$(cat "$WRITE_DIR/index.md")"
+node "$VALIDATOR" --root "$WRITE_DIR" --write >/dev/null 2>&1
+after="$(cat "$WRITE_DIR/index.md")"
 if [ "$before" = "$after" ]; then
   echo "  [ok] second --write is a no-op (write-if-diff)"
 else

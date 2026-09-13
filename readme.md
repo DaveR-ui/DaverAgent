@@ -75,16 +75,16 @@ path. The read tool does not expand `~`.
 │
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
+├── commands/                    # Human-facing slash commands (e.g. /session)
+├── plugins/                     # Portable plugins (session tool, GitKraken hooks)
 ├── scripts/                     # bootstrap.sh / bootstrap.ps1 + installer + validators
 ├── tests/                       # Test suite of the agent tree
 └── templates/                   # Optional per-project opencode.json shim
 ```
 
-> `plugins/` and a root `package.json` + lockfile are **optional**. They exist
-> only if you add portable plugins (or other JS dependencies); `.gitignore` does
-> **not** ignore them, so they are tracked when present, while any plugin
-> `node_modules/` is ignored. This repo currently ships neither — do not add an
-> empty `package.json` just to match the diagram.
+> `plugins/`, `commands/` and the root `package.json` + lockfile are tracked.
+> `plugins/` holds portable plugin modules; `commands/` holds slash commands;
+> any plugin `node_modules/` is gitignored.
 
 ## Available agents
 
@@ -126,6 +126,19 @@ the `orchestrator`.
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
 
+## Session tool
+
+The session capability ships two ways:
+
+- **Agent tool** — [`plugins/session-tool.js`](./plugins/session-tool.js)
+  registers a `session` tool (`children`, `tree`, `parent`, `messages`,
+  `status`, `todo`, `diff`, `send`). Read ops target the caller's session by
+  default. `send` (which prompts another session) is restricted to the
+  `orchestrator` and `delivery` agents and asks for confirmation first.
+- **Slash command** — [`commands/session.md`](./commands/session.md) gives a
+  human-facing entry point: `/session <session-id> [op]`. Commands inject a
+  prompt, so the command delegates the actual read/write to the tool above.
+
 ## Updating the config
 
 - **Change an agent's model/temperature** → edit the frontmatter of
@@ -149,7 +162,7 @@ Bash / WSL):
 bash tests/run-tests.sh
 ```
 
-It includes two suites, both exit-code driven (CI-ready):
+It runs six suites, all exit-code driven (CI-ready):
 
 1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
    valid JSON, that the flat `agents/` layout is intact, that no agent uses the
@@ -162,6 +175,15 @@ It includes two suites, both exit-code driven (CI-ready):
    is rejected, the golden routing packets validate against
    `interpreter.schema.json`, and the JSON examples documented in the agent
    `.md` files stay in sync with their schemas.
+3. **`tests/test-docs-validator.sh`** (docs validator): the bundled
+   `templates/docs-validate.js` derives from upstream onrails without drift.
+4. **`tests/test-conformance-register.py`** (divergence register): the declared
+   onrails divergences in `templates/docs-conformance.json` are machine-checked.
+5. **`tests/test-agent-hardening.py`** (permission matrix): `subagent_depth: 4`,
+   no `lsp` block, the read-only/edit/`websearch` denies, the `permission.task`
+   catch-all model, and the absence of fabricated runtime claims.
+6. **`tests/test-session-tool.py`** (session capability): the `session` plugin
+   tool, the `/session` slash command, and the harness wiring.
 
 ## Troubleshooting
 

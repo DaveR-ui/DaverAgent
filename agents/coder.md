@@ -3,6 +3,7 @@ description: Coder - language-parameterized implementation for Angular SPA and G
 mode: subagent
 permission:
   task:
+    "*": deny
     coder: allow
 output_schema: ./coder.schema.json
 ---

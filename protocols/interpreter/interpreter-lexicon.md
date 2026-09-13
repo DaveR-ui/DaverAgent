@@ -23,7 +23,7 @@ Capture how interpreter normalizes raw human prompt into an English routing pack
 ## Permission-derived traits
 
 - `edit: deny`, `bash: deny` — read-only divination.
-- No `task` beyond self — cannot delegate further.
+- `task: {"*": deny, interpreter: allow}` — no fan-out beyond self; cannot delegate further.
 - Single vision fallback: one image + one question, text-over-image priority.
 
 ## Lexicon rule

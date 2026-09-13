@@ -23,7 +23,7 @@ Define read-only second-opinion that compares alternatives before execution.
 ## Permission-derived traits
 
 - `edit: deny`, `bash: deny` — cannot mutate or execute.
-- `task: [analista]` — read-only counsel only.
+- `task: {"*": deny, analista: allow}` — read-only counsel; self-fan-out only.
 - Returns AnalystOutput JSON with re_route_to when out-of-scope.
 
 ## Counsel rule

@@ -5,6 +5,9 @@
 #   1. validate-agent.sh          - static integrity of the agent tree (CI-friendly)
 #   2. test-output-schemas.py     - schema <-> fixture <-> doc-example contract tests
 #   3. test-docs-validator.sh     - derived docs validator + scaffolder drift guard
+#   4. test-conformance-register.py - machine-checked docs divergence register
+#   5. test-agent-hardening.py    - permission matrix + corrected runtime claims
+#   6. test-session-tool.py       - session plugin tool + slash command wiring
 #
 # Exit 0 = all pass, 1 = any failure.
 set -u
@@ -26,6 +29,9 @@ run() {
 run "validate-agent.sh"    bash "${ROOT}/scripts/validate-agent.sh"
 run "output-schemas"       python3 "${ROOT}/tests/test-output-schemas.py"
 run "docs-validator"       bash "${ROOT}/tests/test-docs-validator.sh"
+run "conformance-register" python3 "${ROOT}/tests/test-conformance-register.py"
+run "agent-hardening"      python3 "${ROOT}/tests/test-agent-hardening.py"
+run "session-tool"         python3 "${ROOT}/tests/test-session-tool.py"
 
 echo ""
 if [ "${PASS}" -eq 1 ]; then

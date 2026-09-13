@@ -22,7 +22,7 @@ Describe how one coder branches by language param, delegating stack knowledge to
 
 ## Permission-derived traits
 
-- `task: [coder]` — self-reinvoke for narrow slices; no other summons.
+- `task: {"*": deny, coder: allow}` — self-reinvoke for narrow slices; no other summons.
 - Angular: standalone components, signals/rxResource, Angular 22 + Material + ngx-graph via MCP.
 - Go: gofmt/vet clean, domain→repo→service→handler→routes, explicit errors.
 
