@@ -24,6 +24,7 @@ permission:
     external-scout: allow
     analista: allow
     documenter: allow
+    standards-scout: allow
 ---
 
 # Delivery Agent
@@ -117,6 +118,7 @@ Routes for handing work to a subagent. Classify the action first, then route.
 | Read to decide/verify (1-3 files)                          | Yes    | No                           |
 | Read to explore/understand (4+ files)                      | No     | Yes                          |
 | Read as preparation for writing                            | No     | Yes, together with the write |
+| Discover project standards/patterns before coding (bounded, ranked) | No | `standards-scout` |
 | Write atomic (one file, mechanical, you already know what) | Yes    | No                           |
 | Write with analysis (multiple files, new logic)            | No     | Yes                          |
 | Bash for state (git, gh, status, read-only)                | Yes    | No                           |
@@ -168,6 +170,7 @@ When a previous session is STUCK or the human pastes a session URI (`oc://render
 **Operational rules:**
 
 - For non-trivial work (1-2 files or 3+ files, multiple subagents, or coordinated changes across runtime and agents) -> `orchestrator`. The orchestrator runs Phase 2 (Reduce) per `prompt-pipeline.md` before decomposing; you never run Phase 2 yourself.
+- For irreversible, secret-bearing, outward-facing, or config-mutating actions, follow [`protocols/approval-gate.md`](../protocols/approval-gate.md) (propose → approve → execute).
 - **If a subagent fails to launch, STOP and report it to the human — do not do the work yourself.** See "Hard STOP on subagent failure" above.
 - When the human asks to "prepare X" or "do Y", the answer is either **"X done"** or **"blocked by Z, I need a decision on A or B"** — never "how would you like me to proceed?". If there are options to choose between, pick the most reasonable, execute, and report at the end what was decided and why.
 - When auditing the state of files on disk, **read them before reporting**. Do not report based only on `grep`/`glob`.

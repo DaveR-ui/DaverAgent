@@ -33,7 +33,43 @@
   "model": "opencode-go/deepseek-v4.1-flash",
   "permission": {
     "question": "ask",
-    "session_send": "ask"
+    "session_send": "ask",
+    "read": {
+      "*": "allow",
+      ".env": "deny",
+      "**/.env": "deny",
+      "*.env": "deny",
+      "**/*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow",
+      "**/*.env.example": "allow"
+    },
+    "edit": {
+      "*": "allow",
+      ".env": "deny",
+      "**/.env": "deny",
+      "*.env": "deny",
+      "**/*.env": "deny",
+      "*.env.*": "deny",
+      "**/*.env.*": "deny",
+      "*.env.example": "allow",
+      "**/*.env.example": "allow",
+      "*.key": "deny",
+      "**/*.key": "deny",
+      "*.secret": "deny",
+      "**/*.secret": "deny",
+      "*.pem": "deny",
+      "**/*.pem": "deny"
+    },
+    "bash": {
+      "*": "allow",
+      "sudo *": "deny",
+      "rm -rf *": "deny",
+      "curl *": "ask",
+      "wget *": "ask",
+      "docker *": "ask"
+    }
   },
   "references": {
     "agent-system": {

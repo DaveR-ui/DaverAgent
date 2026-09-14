@@ -8,6 +8,20 @@ permission:
     "protocols/**": ask
     "workflows/**": ask
     "opencode.json": ask
+    ".env": deny
+    "**/.env": deny
+    "*.env": deny
+    "**/*.env": deny
+    "*.env.*": deny
+    "**/*.env.*": deny
+    "*.env.example": allow
+    "**/*.env.example": allow
+    "*.key": deny
+    "**/*.key": deny
+    "*.secret": deny
+    "**/*.secret": deny
+    "*.pem": deny
+    "**/*.pem": deny
   task:
     "*": deny
     coder: allow
@@ -19,6 +33,7 @@ permission:
     external-scout: allow
     analista: allow
     documenter: allow
+    standards-scout: allow
 ---
 
 # Orchestrator Agent (Persistent Coordinator)
@@ -38,7 +53,7 @@ Those belong to `delivery`.
 
 Read [`workflows/orchestrate.md`](../workflows/orchestrate.md) at the start of EVERY handoff. It defines this seat's thinking process before you act: Protocol Discovery → Context Refresh → Proposal → Implementation → Verification → Documentation. Also note the workflow's `do-not-run-tests-from-root` guard: run the canonical test/typecheck/lint commands from the affected package directory, never from the repo root.
 
-You are the sole executor of **Phase 2 (Reduce)** from [`protocols/prompt-pipeline.md`](../protocols/prompt-pipeline.md). On every non-trivial handoff, produce the scope (complexity, hot spots, in/out of scope, key files, verification path) **before** decomposing. `delivery` never runs Phase 2 — it delegates the routing packet to you for exactly this.
+You are the sole executor of **Phase 2 (Reduce)** from [`protocols/prompt-pipeline.md`](../protocols/prompt-pipeline.md). On every non-trivial handoff, produce the scope (complexity, hot spots, in/out of scope, key files, verification path) **before** decomposing. `delivery` never runs Phase 2 — it delegates the routing packet to you for exactly this. When the decomposition has 2+ subtasks, also emit the machine-checkable plan per [`protocols/task-plan.md`](../protocols/task-plan.md) before releasing subagents.
 
 ## Decision Hierarchy
 
@@ -243,6 +258,7 @@ Each subagent inherits the invoking primary agent's model by default (each may o
 | `external-scout` | Live docs for external libraries via webfetch | text |
 | `interpreter` | Step 0 normalization — produces the routing packet | `InterpreterOutput` |
 | `documenter` | Writes/maintains `docs/` | `DocumenterOutput` |
+| `standards-scout` | Read-only standards/pattern discovery before coding (navigation-driven, ranked output) | text |
 
 ## Available Protocols and Skills
 
@@ -253,6 +269,8 @@ Each subagent inherits the invoking primary agent's model by default (each may o
 - `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every prompt
 - `agent-installer` — global install/update + 3-phase project docs bootstrap
 - `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `prompt-pipeline` Phase 2.
+- `approval-gate` — propose → approve → execute rule for irreversible, secret-bearing, outward-facing, or config-mutating actions.
+- `task-plan` — machine-checkable JSON task plan (dependencies, parallelism, standards-vs-source file vocabularies) emitted after Phase 2 (Reduce).
 
 **Built-in skills** (from opencode runtime):
 

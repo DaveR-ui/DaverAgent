@@ -22,7 +22,7 @@ Define how orchestrator owns Phase 2 Reduce and fans out subagents.
 
 ## Permission-derived traits
 
-- `task` allow-list: `{"*": deny, ...}` — coder, tester, reviewer, architect, explorer, project-context, external-scout, analista, documenter.
+- `task` allow-list: `{"*": deny, ...}` — coder, tester, reviewer, architect, explorer, project-context, external-scout, analista, documenter, standards-scout.
 - Inherits delivery model when not overridden; subagent depth bounded.
 
 ## Fan-out pattern

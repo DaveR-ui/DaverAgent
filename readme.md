@@ -68,6 +68,7 @@ path. The read tool does not expand `~`.
 │   ├── explorer.md              # Search and mapping (read-only)
 │   ├── project-context.md       # docs/ reading (read-only)
 │   ├── external-scout.md        # External docs via webfetch
+│   ├── standards-scout.md       # Standards/pattern discovery before coding (read-only)
 │   ├── interpreter.md           # Step 0 normalization + image inspection
 │   ├── analista.md              # Second opinion
 │   ├── documenter.md            # Documentation
@@ -76,7 +77,7 @@ path. The read tool does not expand `~`.
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
 ├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, steer inbox, GitKraken hooks)
+├── plugins/                     # Portable plugins (session tool, steer inbox, session export, GitKraken hooks)
 ├── scripts/                     # bootstrap.sh / bootstrap.ps1 + installer + validators
 ├── tests/                       # Test suite of the agent tree
 └── templates/                   # Optional per-project opencode.json shim
@@ -103,6 +104,7 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `explorer` | Search and mapping in the repo. Returns `ExplorerOutput`. |
 | `project-context` | Lookups and context assembly from `docs/` (read-only). |
 | `external-scout` | Brings docs of external libraries via webfetch. |
+| `standards-scout` | Discovers the project's standards/patterns before coding (read-only, ranked output). Text return. |
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
 
@@ -177,6 +179,42 @@ own already-available default Zen model is used. To use a preferred
 the opencode UI; the session can then select it. No `opencode.json` entry is
 needed — local plugins auto-load from `plugins/`.
 
+## Session export
+
+[`plugins/session-export.js`](./plugins/session-export.js) keeps a
+machine-readable snapshot of the opencode session list and each session's run
+state, so external consumers (e.g. a KDE Plasma widget) can render the active
+sessions without talking to the local server themselves.
+
+- **Output file** — `$XDG_STATE_HOME/opencode/sessions.json`, else
+  `~/.local/state/opencode/sessions.json`. It lives in the state dir (outside
+  this repo), so runtime state never pollutes `git status`.
+- **Override / kill switch** — `OPENCODE_SESSION_EXPORT` (absolute path);
+  `OPENCODE_SESSION_EXPORT_DISABLE=1` disables the plugin.
+
+```json
+{
+  "updatedAt": "2026-09-13T22:30:00.000Z",
+  "sessions": [
+    {"id":"ses_...","title":"...","parentID":null,
+     "status":"idle","updated":1757800200000}
+  ]
+}
+```
+
+`status` is one of `idle`, `busy`, `retry` (or `unknown`); `parentID` is `null`
+for top-level sessions; `updated` is epoch milliseconds. Sessions are sorted by
+status rank (busy, retry first), then by `updated` descending.
+
+**Safe by default / no-throw:** writes are async and fire-and-forget, atomic
+(temp file + `fs.rename`), and never throw. If the local server is unreachable
+the previous snapshot is left untouched. It sends no model override, reads no
+credentials, and connects nothing — no `opencode.json` entry is needed, since
+local plugins auto-load from `plugins/`.
+
+**Restart required:** opencode must be **restarted** after adding or changing
+the plugin for it to load.
+
 ## Updating the config
 
 - **Change an agent's model/temperature** → edit the frontmatter of
@@ -200,7 +238,7 @@ Bash / WSL):
 bash tests/run-tests.sh
 ```
 
-It runs seven suites, all exit-code driven (CI-ready):
+It runs eight suites, all exit-code driven (CI-ready):
 
 1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
    valid JSON, that the flat `agents/` layout is intact, that no agent uses the
@@ -225,6 +263,9 @@ It runs seven suites, all exit-code driven (CI-ready):
 7. **`tests/test-steer-inbox.py`** (steering inbox): the `steer-inbox` plugin's
    structure, safe/no-throw async behavior, v2 steer delivery channel, env
    overrides, and `node --check` parse guard.
+8. **`tests/test-session-export.py`** (session export): the `session-export`
+   plugin's structure, safe/no-throw async behavior, atomic write, env
+   overrides, and `node --check` parse guard, plus the runner wiring.
 
 ## Troubleshooting
 

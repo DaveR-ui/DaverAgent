@@ -217,7 +217,7 @@ Rules for thin variants:
 - The schema lives in a **sibling file** `agents/<id>.schema.json`, referenced from the subagent's frontmatter via `output_schema: ./<id>.schema.json`. The `.md` frontmatter is the single source of truth for the return contract.
 - The subagent's `## Structured Return` section documents the JSON shape, names the schema, shows an example, and points at the sibling file.
 - The two MUST stay in sync: change one, change the other. The `.md` frontmatter and its sibling schema are authored together.
-- Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal/thin Variant B) describes the expected return in prose. Current subagents without a schema: `project-context`, `external-scout`.
+- Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal/thin Variant B) describes the expected return in prose. Current subagents without a schema: `project-context`, `external-scout`, `standards-scout`.
 - The task tool validates the return against the schema; on mismatch it prepends a validation warning and keeps the raw text. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime returns the structured JSON through the `task` tool.
 
 ## `opencode.json` — top-level runtime knobs only
