@@ -60,6 +60,14 @@ def main() -> int:
         "no sync fs calls in the hook path",
     )
 
+    print("== provider policy ==")
+    check("auth.json" not in source, "does not reference auth.json")
+    check("apiKey" not in source, "does not reference apiKey")
+    check(
+        re.search(r"\bmodel\s*:", source) is None,
+        "does not set a model override",
+    )
+
     print("== configuration ==")
     check(
         "OPENCODE_SESSION_EXPORT" in source,
