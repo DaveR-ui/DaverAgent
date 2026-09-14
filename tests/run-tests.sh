@@ -8,6 +8,7 @@
 #   4. test-conformance-register.py - machine-checked docs divergence register
 #   5. test-agent-hardening.py    - permission matrix + corrected runtime claims
 #   6. test-session-tool.py       - session plugin tool + slash command wiring
+#   7. test-steer-inbox.py        - steering inbox plugin + wiring
 #
 # Exit 0 = all pass, 1 = any failure.
 set -u
@@ -32,6 +33,7 @@ run "docs-validator"       bash "${ROOT}/tests/test-docs-validator.sh"
 run "conformance-register" python3 "${ROOT}/tests/test-conformance-register.py"
 run "agent-hardening"      python3 "${ROOT}/tests/test-agent-hardening.py"
 run "session-tool"         python3 "${ROOT}/tests/test-session-tool.py"
+run "steer-inbox"        python3 "${ROOT}/tests/test-steer-inbox.py"
 
 echo ""
 if [ "${PASS}" -eq 1 ]; then

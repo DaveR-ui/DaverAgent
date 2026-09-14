@@ -1,20 +1,39 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/deepseek-v4.1-flash",
-  "small_model": "opencode-go/deepseek-v4.1-flash",
-  "default_agent": "delivery",
-  "subagent_depth": 4,
-  "mcp": {
-    "angular-cli": {
-      "type": "local",
-      "command": ["npx", "-y", "@angular/cli", "mcp"],
-      "enabled": true
-    }
-  },
   "compaction": {
     "auto": true,
     "prune": true,
     "reserved": 10000
+  },
+  "default_agent": "delivery",
+  "instructions": [
+    "docs/project.md"
+  ],
+  "mcp": {
+    "angular-cli": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@angular/cli",
+        "mcp"
+      ],
+      "enabled": true
+    },
+    "engram": {
+      "command": [
+        "/home/admin/.local/bin/engram",
+        "mcp",
+        "--tools=agent"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  },
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "permission": {
+    "question": "ask",
+    "session_send": "ask"
   },
   "references": {
     "agent-system": {
@@ -22,11 +41,9 @@
       "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, workflows/, agents/, scripts/, tests/, templates/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
-  "permission": {
-    "question": "ask",
-    "session_send": "ask"
-  },
-  "instructions": [
-    "docs/project.md"
+  "small_model": "opencode-go/deepseek-v4.1-flash",
+  "subagent_depth": 4,
+  "plugin": [
+    "oh-my-openagent@5.0.0-beta.62"
   ]
 }

@@ -76,7 +76,7 @@ path. The read tool does not expand `~`.
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
 ├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, GitKraken hooks)
+├── plugins/                     # Portable plugins (session tool, steer inbox, GitKraken hooks)
 ├── scripts/                     # bootstrap.sh / bootstrap.ps1 + installer + validators
 ├── tests/                       # Test suite of the agent tree
 └── templates/                   # Optional per-project opencode.json shim
@@ -139,6 +139,44 @@ The session capability ships two ways:
   human-facing entry point: `/session <session-id> [op]`. Commands inject a
   prompt, so the command delegates the actual read/write to the tool above.
 
+## Steering inbox
+
+[`plugins/steer-inbox.js`](./plugins/steer-inbox.js) is a file-based steering
+inbox. While an agent turn is running, append one JSON object per line (JSONL)
+to the inbox; the plugin delivers each message to the active session over
+opencode's **v2 steer channel** (`delivery:"steer"`), applied in the same turn
+at the next step boundary.
+
+- **Inbox** — `$XDG_STATE_HOME/opencode/steer-inbox.jsonl`, else
+  `~/.local/state/opencode/steer-inbox.jsonl`. It lives in the state dir
+  (outside this repo), so runtime state never pollutes `git status`.
+- **Override / kill switch** — `OPENCODE_STEER_INBOX` (absolute path);
+  `OPENCODE_STEER_INBOX_DISABLE=1` disables the plugin.
+- **Line format** — `{"text":"...", "session":"ses_..."}`; `text` is required,
+  `session` (or `target`) optionally names the target session.
+
+```bash
+echo '{"text":"use the staging DB"}' >> ~/.local/state/opencode/steer-inbox.jsonl
+```
+
+An `<inbox>.offset` byte-offset sidecar steers each line once within a running
+process (at-most-once); a crash between delivery and the offset write can
+re-deliver one line after restart. Malformed lines are skipped, and a line with
+no known session waits for a later drain. **Routing:** an explicit
+`session`/`target` wins, otherwise the most-recently-active session (ambiguity
+resolves to most-recently-active). The inbox path is global per machine and has
+no cross-process lock — run a single opencode instance per machine, or give
+instances distinct `OPENCODE_STEER_INBOX` paths, to avoid the same line being
+steered twice.
+
+**Safe by default / opt-in:** an absent inbox file leaves the plugin completely
+inert. It never throws and never blocks (async fs, fire-and-forget), sends no
+model override, reads no credentials, and connects nothing — so the session's
+own already-available default Zen model is used. To use a preferred
+`opencode-go/deepseek-v4.1-flash`, connect the `opencode-go` integration once in
+the opencode UI; the session can then select it. No `opencode.json` entry is
+needed — local plugins auto-load from `plugins/`.
+
 ## Updating the config
 
 - **Change an agent's model/temperature** → edit the frontmatter of
@@ -162,7 +200,7 @@ Bash / WSL):
 bash tests/run-tests.sh
 ```
 
-It runs six suites, all exit-code driven (CI-ready):
+It runs seven suites, all exit-code driven (CI-ready):
 
 1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
    valid JSON, that the flat `agents/` layout is intact, that no agent uses the
@@ -184,6 +222,9 @@ It runs six suites, all exit-code driven (CI-ready):
    catch-all model, and the absence of fabricated runtime claims.
 6. **`tests/test-session-tool.py`** (session capability): the `session` plugin
    tool, the `/session` slash command, and the harness wiring.
+7. **`tests/test-steer-inbox.py`** (steering inbox): the `steer-inbox` plugin's
+   structure, safe/no-throw async behavior, v2 steer delivery channel, env
+   overrides, and `node --check` parse guard.
 
 ## Troubleshooting
 
