@@ -126,12 +126,14 @@ of the `## Resume instructions (if restart)` block in
 
 ## Helper script
 
-`scripts/session-recover.ps1` (PowerShell 5.1+) wraps every endpoint
-above as a sub-command (`health`, `list`, `status`, `inspect`, `children`,
-`abort`, `messages`, `todo`, `diff`, `resume`). The script is **dumb**: it does
-HTTP and prints JSON to stdout. All decisions about what to do with the data
-live in this protocol. It is invoked manually by the user or by a future
-orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
+No helper script ships with this repo; the former PowerShell wrapper was
+retired (the project is Linux-only) and a bash twin was never written. Drive the
+endpoints above directly (e.g. with `curl`) as a sub-command (`health`, `list`,
+`status`, `inspect`, `children`, `abort`, `messages`, `todo`, `diff`, `resume`).
+Any helper is **dumb**: it does HTTP and prints JSON to stdout. All decisions
+about what to do with the data live in this protocol. It is invoked manually by
+the user or by a future orchestrator on STUCK recovery — never by `delivery` or
+`interpreter`.
 
 ## Cross-references
 
@@ -146,9 +148,9 @@ orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
 
 ## Caveats / non-goals
 
-- **PowerShell-only helper.** A bash twin of `session-recover.ps1` is out of
-  scope for now (the user's primary environment is Windows PowerShell); flagged
-  as future work.
+- **Helper only, no library.** Any recovery helper is a thin HTTP wrapper; the
+  decision logic stays in this protocol. A dedicated helper is out of scope for
+  now; the endpoints can be driven directly.
 - **Single-server assumption.** Multi-server orchestration is out of scope; the
   flow assumes one `sidecar` server.
 - **No automatic invocation.** The script is run manually by the user or by a

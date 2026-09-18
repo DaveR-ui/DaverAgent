@@ -1,38 +1,49 @@
 #!/usr/bin/env bash
 # test-docs-validator.sh - behavioral tests for the derived docs validator
-# (templates/docs-validate.js) plus a static drift guard on the PowerShell
-# scaffolder. Node is required for the behavioral part; if node is absent the
-# behavioral tests SKIP (exit 0) and only the static guard runs.
+# (templates/docs-validate.js) plus a static drift guard on the canonical docs
+# shape. The former PowerShell scaffolder is retired, so each canonical string
+# is now asserted against the live artifact that genuinely owns it. Node is
+# required for the behavioral part; if node is absent the behavioral tests SKIP
+# (exit 0) and only the static guard runs.
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VALIDATOR="${ROOT}/templates/docs-validate.js"
 FIX="${ROOT}/tests/fixtures/docs-corpus"
 FAIL=0
 
-echo "== static drift guard: scaffolder emits the canonical structure =="
-for s in \
-  "| Slice | Description | Keywords | Entry points | Primary agents |" \
-  "repository_structure" \
-  "context-index.md" \
-  "Build-TagIndex" \
-  "BEGIN GENERATED: tags" \
-  "Build-Index" \
-  "BEGIN GENERATED: index"; do
-  if grep -qF -- "$s" "${ROOT}/scripts/install-agent.ps1"; then
-    echo "  [ok] install-agent.ps1 contains: $s"
+echo "== static drift guard: canonical docs shape survives in the live artifacts =="
+# The retired generator's internal identifiers (Build-TagIndex, Build-Index,
+# repository_structure) have no surviving home and were dropped rather than
+# asserted vacuously. The two index builders survive in the validator as
+# renderIndexRegion / renderTagsRegion.
+guard() { # <file> <literal>
+  if grep -qF -- "$2" "$1"; then
+    echo "  [ok] $(basename "$1") contains: $2"
   else
-    echo "  [FAIL] install-agent.ps1 missing: $s"
+    echo "  [FAIL] $(basename "$1") missing: $2"
     FAIL=1
   fi
-done
+}
 
-# Negative guard: the parity fix replaced the hand-rolled tag-index heading
-# with the validator's generated region, so the obsolete literal must be gone.
-if grep -qF -- "## Generated tag index" "${ROOT}/scripts/install-agent.ps1"; then
-  echo "  [FAIL] install-agent.ps1 still contains obsolete literal: ## Generated tag index"
+# The installer protocol documents the canonical shape.
+guard "${ROOT}/protocols/agent-installer.md" "context-index.md"
+# The validator owns both generated regions (index + tags) and their markers.
+guard "${VALIDATOR}" "renderIndexRegion"
+guard "${VALIDATOR}" "renderTagsRegion"
+guard "${VALIDATOR}" "BEGIN GENERATED:"
+# The valid corpus carries the literal canonical shapes.
+guard "${ROOT}/tests/fixtures/docs-corpus/valid/project.md" "| Slice | Description | Keywords | Entry points | Primary agents |"
+guard "${ROOT}/tests/fixtures/docs-corpus/valid/tag-index.md" "BEGIN GENERATED: tags"
+guard "${ROOT}/tests/fixtures/docs-corpus/valid/index.md" "BEGIN GENERATED: index"
+
+# Negative guard: the obsolete hand-rolled tag-index heading must not return.
+# The validator emits "## Generated index"; the old "## Generated tag index"
+# literal is gone (the validator is the live owner of the generated heading).
+if grep -qF -- "## Generated tag index" "${VALIDATOR}"; then
+  echo "  [FAIL] docs-validate.js still contains obsolete literal: ## Generated tag index"
   FAIL=1
 else
-  echo "  [ok] install-agent.ps1 omits obsolete literal: ## Generated tag index"
+  echo "  [ok] docs-validate.js omits obsolete literal: ## Generated tag index"
 fi
 
 if ! command -v node >/dev/null 2>&1; then

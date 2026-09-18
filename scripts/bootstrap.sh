@@ -118,6 +118,24 @@ backup_name() {
   printf '%s.bak.%s' "$1" "$(date +%Y%m%d-%H%M%S)"
 }
 
+install_plugin_deps() {
+  # Plugin dependencies are pinned by the committed package-lock.json; the
+  # portable plugins cannot load without node_modules. Idempotent.
+  local root="$1"
+  if [ "${VERIFY_ONLY}" -eq 1 ]; then
+    log "would install plugin dependencies in ${root} (npm install)"
+    return 0
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    die "node not found on PATH; required to install plugin dependencies. Install Node.js (with npm) and re-run."
+  fi
+  if ! command -v npm >/dev/null 2>&1; then
+    die "npm not found on PATH; required to install plugin dependencies. Install Node.js (with npm) and re-run."
+  fi
+  log "Installing plugin dependencies in ${root} ..."
+  ( cd "${root}" && npm install ) || die "npm install failed in ${root}"
+}
+
 log "DaverAgent bootstrap"
 log "  source : ${SOURCE_ROOT}"
 log "  target : ${TARGET}"
@@ -129,6 +147,7 @@ log ""
 if same_path "${TARGET}" "${SOURCE_ROOT}"; then
   log "Target is the source repository; nothing to clone."
   if verify_layout "${SOURCE_ROOT}"; then log "OK: layout is valid."; else die "layout check failed."; fi
+  install_plugin_deps "${SOURCE_ROOT}"
   exit 0
 fi
 
@@ -136,6 +155,7 @@ fi
 if [ ! -e "${TARGET}" ]; then
   if [ "${VERIFY_ONLY}" -eq 1 ]; then
     log "would clone ${REPO_URL} -> ${TARGET}"
+    install_plugin_deps "${TARGET}"
     log ""
     if verify_layout "${SOURCE_ROOT}"; then
       log "OK: source layout is valid; verify-only, no writes."
@@ -148,6 +168,7 @@ if [ ! -e "${TARGET}" ]; then
   clone_into "${TARGET}" || die "git clone failed"
   log ""
   if verify_layout "${TARGET}"; then
+    install_plugin_deps "${TARGET}"
     log "OK: installed at ${TARGET}."
     log "Next:  cd \"${TARGET}\" && bash tests/run-tests.sh"
     exit 0
@@ -159,6 +180,7 @@ fi
 if is_our_install "${TARGET}"; then
   if [ "${VERIFY_ONLY}" -eq 1 ]; then
     log "would update existing clone at ${TARGET} (git pull --ff-only)"
+    install_plugin_deps "${TARGET}"
     log ""
     if verify_layout "${TARGET}"; then log "OK: layout is valid; verify-only, no writes."; exit 0; fi
     die "layout check failed."
@@ -167,6 +189,7 @@ if is_our_install "${TARGET}"; then
   git -C "${TARGET}" pull --ff-only || die "git pull failed (local changes?)"
   log ""
   if verify_layout "${TARGET}"; then
+    install_plugin_deps "${TARGET}"
     log "OK: updated ${TARGET}."
     exit 0
   fi
@@ -178,6 +201,7 @@ BACKUP="$(backup_name "${TARGET}")"
 if [ "${VERIFY_ONLY}" -eq 1 ]; then
   log "would back up ${TARGET} -> ${BACKUP}"
   log "would clone ${REPO_URL} -> ${TARGET}"
+  install_plugin_deps "${TARGET}"
   log ""
   if verify_layout "${SOURCE_ROOT}"; then log "OK: source layout is valid; verify-only, no writes."; exit 0; fi
   die "source layout check failed."
@@ -188,6 +212,7 @@ mv "${TARGET}" "${BACKUP}" || die "could not back up ${TARGET}"
 clone_into "${TARGET}" || { warn "clone failed; restoring backup"; mv "${BACKUP}" "${TARGET}"; die "git clone failed"; }
 log ""
 if verify_layout "${TARGET}"; then
+  install_plugin_deps "${TARGET}"
   log "OK: installed at ${TARGET} (previous config backed up at ${BACKUP})."
   log "Next:  cd \"${TARGET}\" && bash tests/run-tests.sh"
   exit 0

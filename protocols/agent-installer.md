@@ -1,17 +1,20 @@
 # Protocol: Agent Installer
 
-How the agent system is installed and reconfigured. There are two distinct
-install paths — do not conflate them:
+How the agent system is installed and reconfigured. There is one install path:
 
-1. **Global install (per machine)** — `scripts/bootstrap.sh` (or
-   `bootstrap.ps1`) clones/updates this repository into `~/.config/opencode`.
-   This carries the agents, protocols, workflows, and `opencode.json`.
-2. **Per-project docs bootstrap (per repository)** — `scripts/install-agent.ps1`
-   generates a project's `docs/project.md`, `docs/context/*.md` stubs, the
+1. **Global install (per machine)** — `scripts/bootstrap.sh` clones/updates this
+   repository into `~/.config/opencode`. This carries the agents, protocols,
+   workflows, and `opencode.json`.
+2. **Per-project docs bootstrap (per repository)** — done **by hand**. A project's
+   `docs/project.md`, `docs/context/*.md` stubs, the
    `docs/context/context-index.md` hub, the generated `docs/index.md` and
-   `docs/tag-index.md`, and the slang snapshot, then installs the derived
-   validator at `docs/validate.js` and runs it (best-effort; needs Node). It does
-   **not** create agents or `opencode.json`.
+   `docs/tag-index.md` and the slang snapshot are authored following the shape in
+   this protocol; the derived validator (`templates/docs-validate.js`, copied to
+   `docs/validate.js`) then checks the corpus and must exit 0. No generator
+   creates agents or `opencode.json`.
+
+The former PowerShell generator (`install-agent.ps1`) is **retired**; this
+project is Linux-only.
 
 Path rules live in `opencode.json` → `references.agent-system`: opencode injects
 that reference's absolute root into agent context, so agent-system assets are
@@ -20,10 +23,8 @@ inside the project.
 
 ## Source of truth
 
-- **Global bootstrap**: `scripts/bootstrap.sh` / `scripts/bootstrap.ps1`
-- **Docs bootstrap**: `scripts/install-agent.ps1`
-- **Schema**: `scripts/install-agent.schema.json` — data-driven question list
-  for the docs bootstrap (3 phases below)
+- **Global bootstrap**: `scripts/bootstrap.sh`
+- **Docs bootstrap**: by hand (shape defined in this protocol)
 - **Path contract**: `opencode.json` → `references.agent-system`
 
 ## When this protocol applies
@@ -32,10 +33,11 @@ The human wants to:
 
 - **Install** the agent system on a new machine (`bash scripts/bootstrap.sh`)
 - **Update** the agent system after a change (`bash scripts/bootstrap.sh`)
-- **Bootstrap a project's docs** for the first time (`install-agent.ps1`)
+- **Bootstrap a project's docs** for the first time (author the files by hand,
+  following this protocol)
 - **Add a slice** to the routing table in a project's `docs/project.md`
 - **Add or update a subagent** (edit `agents/<id>.md`)
-- **Audit** what the bootstrap would change (`--verify-only` / `-VerifyOnly`)
+- **Audit** what the bootstrap would change (`--verify-only`)
 
 Do NOT use this for:
 
@@ -55,9 +57,6 @@ Do NOT use this for:
    bootstrap backs it up to `~/.config/opencode.bak.<timestamp>` first.
 4. Restart opencode so it reloads `opencode.json` and `agents/`.
 
-Windows: `& ".\scripts\bootstrap.ps1" -VerifyOnly` then
-`& ".\scripts\bootstrap.ps1"`.
-
 ## Per-project docs bootstrap (3 phases)
 
 | Phase | Generates | Questions |
@@ -76,23 +75,20 @@ shape or the thin variant, plus the `output_schema` ↔ sibling schema bridge.
 
 ### How to drive the docs bootstrap
 
-```powershell
-# From the global config directory, targeting a project:
-& "$HOME\.config\opencode\scripts\install-agent.ps1" -RepoPath "C:\path\to\project" -NonInteractive -VerifyOnly
-& "$HOME\.config\opencode\scripts\install-agent.ps1" -RepoPath "C:\path\to\project" -NonInteractive
-```
-
-1. Run with `-VerifyOnly` to see the planned output (zero writes).
-2. Run without it to apply. With `-NonInteractive` the script takes defaults for
-   every question; omit the flag to drive the 3 phases interactively.
-3. Fill in the substance of each generated `docs/context/*.md` stub.
+1. Ask the human the three phases' questions (project metadata incl. the
+   **slices**, which context docs to enable, initial slang entries).
+2. Author or update the files by hand, following the shape in this protocol.
+3. Copy `templates/docs-validate.js` to the project's `docs/validate.js`, then
+   run `node docs/validate.js --write` followed by `node docs/validate.js`; the
+   latter must exit 0.
+4. Fill in the substance of each generated `docs/context/*.md` stub.
 
 ## Update (existing docs bootstrap)
 
-1. Run `install-agent.ps1 -VerifyOnly` to see the diff.
+1. Diff the project's `docs/` against the shape in this protocol.
 2. Walk the human through the affected phases, reusing answers where unchanged.
-3. Run `install-agent.ps1 -Update`. Existing files are backed up to
-   `<project>/.agent-backups/<timestamp>/` before any overwrite.
+3. Back up every file before overwriting it to
+   `<project>/.agent-backups/<timestamp>/`.
 4. Report what changed and where the backups are.
 
 ## Add a slice
@@ -167,8 +163,8 @@ You: Run `bash scripts/bootstrap.sh --verify-only`, show the plan, then
 
 **Human**: "Set up the docs for this project."
 
-You: Run `install-agent.ps1 -RepoPath <project> -NonInteractive -VerifyOnly`,
-then without the flag. The 3 phases walk through everything.
+You: Walk through the 3 phases with the human, author the files by hand per this
+protocol, then run the derived validator until it exits 0.
 
 **Human**: "I added a new context doc called `cache-strategy.md`."
 
@@ -183,7 +179,7 @@ Confirm by reading the file back.
 
 **Human**: "What would the bootstrap change if I ran it now?"
 
-You: Run `install-agent.ps1 -VerifyOnly` (or `bootstrap.sh --verify-only`).
+You: Run `bash scripts/bootstrap.sh --verify-only`.
 Report the diff.
 
 ## Rules

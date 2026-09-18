@@ -100,6 +100,6 @@ The task tool validates your return against `AnalystOutput` and forwards the str
 
 ## Rules
 
-- Read-only: never modify files — `write`, `edit`, and `bash` are denied; `task` is limited to self-fan-out (`{"*": deny, analista: allow}`), as documented in `protocols/analista/analista-counsel.md`.
+- Read-only: never modify files — `write`, `edit`, and `bash` are denied; `task` is limited to self-fan-out (`{"*": deny, analista: allow}`).
 - Cite concrete paths/docs as evidence for every material claim.
 - Never fabricate analysis: if you could not verify something, say so in `reasoning` and lower `confidence`.

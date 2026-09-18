@@ -10,7 +10,8 @@ same agents.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
 - **Portable.** The install is a git clone plus `scripts/bootstrap.sh`; no
-  absolute paths are hardcoded anywhere.
+  absolute paths are hardcoded anywhere except the documented `engram` binary
+  path in `opencode.json` (and its fallback default in `plugins/engram.ts`).
 
 ## Install (per machine)
 
@@ -48,7 +49,8 @@ reference's absolute root into every agent's context).
 own `opencode.json`.
 
 **Golden rule:** never create a global `docs/`, and never hardcode an absolute
-path. The read tool does not expand `~`.
+path (the `engram` binary path noted above is the one documented exception). The
+read tool does not expand `~`.
 
 ## Structure
 
@@ -77,15 +79,16 @@ path. The read tool does not expand `~`.
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
 ├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, steer inbox, session export, GitKraken hooks)
-├── scripts/                     # bootstrap.sh / bootstrap.ps1 + installer + validators
+├── plugins/                     # Portable plugins (session tool, steer inbox, session export, engram, GitKraken hooks)
+├── scripts/                     # bootstrap.sh + validators
 ├── tests/                       # Test suite of the agent tree
 └── templates/                   # Optional per-project opencode.json shim
 ```
 
-> `plugins/`, `commands/` and the root `package.json` + lockfile are tracked.
-> `plugins/` holds portable plugin modules; `commands/` holds slash commands;
-> any plugin `node_modules/` is gitignored.
+> `plugins/`, `commands/` and the root `package.json` + `package-lock.json` are
+> tracked (the committed lockfile pins the plugin dependency so `npm install` is
+> reproducible; `node_modules/` stays gitignored). `plugins/` holds portable
+> plugin modules; `commands/` holds slash commands.
 
 ## Available agents
 
@@ -108,10 +111,11 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
 
-Models and temperatures live in **each agent's frontmatter**
-(`agents/<id>.md`). Changing a model = editing the agent's frontmatter and
-restarting opencode. Without a declared `model:`, a subagent inherits the model
-of the primary agent that invokes it.
+Temperature lives in **each agent's frontmatter** (`agents/<id>.md`). No agent
+currently declares `model:`, so a subagent inherits the model of the primary
+agent that invokes it — model is inherited unless an agent adds an explicit
+`model:` override in its frontmatter. Changing either = editing the agent's
+frontmatter and restarting opencode.
 
 ## Protocols
 
@@ -217,13 +221,15 @@ the plugin for it to load.
 
 ## Updating the config
 
-- **Change an agent's model/temperature** → edit the frontmatter of
-  `agents/<id>.md` (`model` / `temperature`), then restart opencode.
+- **Change an agent's temperature** → edit the `temperature:` in the frontmatter
+  of `agents/<id>.md`, then restart opencode. The model is inherited from the
+  invoking primary unless the agent declares an explicit `model:` override.
 - **Change an agent's definition** (prompt, tools, permissions, schema) → edit
   `agents/<id>.md`.
-- **Add an agent** → create `agents/<id>.md` with its full frontmatter
-  (`description`, `mode`, `model`, `temperature`, `permission`,
-  `output_schema`). Do not touch `opencode.json` (it has no `agent` block).
+- **Add an agent** → create `agents/<id>.md` with its frontmatter
+  (`description`, `mode`, `temperature`, `permission`, `output_schema`, plus an
+  optional `model:` override). Do not touch `opencode.json` (it has no `agent`
+  block).
 - **Update the global install** → `bash scripts/bootstrap.sh` (or
   `--verify-only` first).
 

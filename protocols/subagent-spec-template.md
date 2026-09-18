@@ -86,7 +86,7 @@ Existing sections keep working names where renaming adds no value (e.g. reviewer
 - Ordering: anchors if present must be strictly increasing `1 < 2 < 3`, no duplicates. A file with fewer than 3 macros (thin variants) passes if present anchors are ordered.
 - Grep stability: `grep -n '<!-- Section [123]:' <file>` is the source of truth for macro order. Do not rely on bare `##` text.
 - Renderer tolerance: validators MUST strip trailing `<!-- ... -->` before matching the markdown heading, so a formatter that moves the comment to the next line still matches leniently, but the canonical form is same-line.
-- Scope: anchors are required for NEW and edited subagent specs going forward. Existing 14 subagents are not mass-retrofitted; audits harmonize, they do not churn.
+- Scope: anchors are required for NEW and edited subagent specs going forward. Existing subagents are not mass-retrofitted; audits harmonize, they do not churn.
 
 ### Alias tolerance (30-day migration)
 
@@ -101,7 +101,7 @@ During one cycle (30 days from this spec's `last_updated`), tolerant aliases are
 Notes:
 - `### Approach` is NOT an alias for `### Rules`. `explorer.md` has both `## Approach` (operational, grep/glob + fan-out) and `## Rules` (hard rules) — `Approach` belongs to the operational slot inside Section 2.
 - `### Contract` is NOT an alias for `### Structured Return`. In thin Variant B, `### Contract` means Role+Scope merged (the prose return is described inside `### Structured Return` or the contract itself for text-return adapters). Document its dual role explicitly; do not alias it to Structured Return.
-- `Minimal shape` remains a legacy term for thin adapters — six external cross-refs (`agent-installer.md`, `ia-dev.md`, `protocols/readme.md`, etc.) still use it; treat it as an alias for "thin variants" during migration.
+- `Minimal shape` remains a legacy term for thin adapters — external cross-refs (`protocols/readme.md`, etc.) still use it; treat it as an alias for "thin variants" during migration.
 
 ### Ordering lint examples
 
@@ -210,7 +210,7 @@ Rules for thin variants:
 - Variant A is explicitly exempt from `### Role` and `### Scope` in Sec1 — it delegates identity/scope to the `docs/context/` slice table. Do not add empty `Role`/`Scope` to satisfy the shell.
 - Variant B's `### Contract` is the merged Role+Scope; it is NOT an alias for `### Structured Return` — the return is prose/text described in the contract.
 - Both variants remain valid inside the 3-section shell via omitted macros + alias annotations where needed; the full shape (3 macros, all H3s) remains the default for all other subagents (`architect`, `explorer`, `reviewer`, `documenter`, `analista`, `interpreter`, `project-context`) — `tester` is now Variant A (framework-parameterized thin adapter, 2026-08-25) alongside `coder`.
-- Legacy term `Minimal shape (thin adapters)` is retained as an alias for this section — six external cross-refs still use it (`agent-installer.md` lines 19/66, `ia-dev.md`, `protocols/readme.md` line 29). Update those cross-refs in a follow-up pass.
+- Legacy term `Minimal shape (thin adapters)` is retained as an alias for this section — external cross-refs still use the phrase (e.g. `protocols/readme.md`). Update those cross-refs in a follow-up pass.
 
 ## The `output_schema` ↔ sibling schema bridge
 
@@ -249,7 +249,7 @@ The coders were centralized into a single thin adapter on 2026-08-24, replacing 
 ```
 coder.md
 ────────────────────────────────────────────
-frontmatter: mode, model, permission,
+frontmatter: mode, permission,
   output_schema
 ## 1 — Init / Preconditions  (Section 1)
    ### Stack / Context → branch by language:
@@ -268,7 +268,7 @@ frontmatter: mode, model, permission,
      English
 ```
 
-It shares the sibling schema `coder.schema.json` (`CoderOutput`). Model + temperature live in the coder's frontmatter (`model: opencode-go/deepseek-v4-flash`). Under the 3-section shell this maps to Sec1 `Stack / Context` + Sec2 minimal slot + Sec3 `Rules` + `Structured Return` (Variant A).
+It shares the sibling schema `coder.schema.json` (`CoderOutput`). The coder declares no `model:` or `temperature:` — the model is inherited from the invoking primary unless an agent adds an override in its own frontmatter. Under the 3-section shell this maps to Sec1 `Stack / Context` + Sec2 minimal slot + Sec3 `Rules` + `Structured Return` (Variant A).
 
 ## Composition rules (documented future)
 
@@ -276,66 +276,6 @@ It shares the sibling schema `coder.schema.json` (`CoderOutput`). Model + temper
 2. Structural sections are **inherited, not copied-and-edited**: if a structural section must change, change the parent and re-compose every specialization.
 3. Template resolution: `<role>.<specialization>.md` composes with `<role>.md`. **No runtime implementation exists yet** — this protocol fixes only the boundary. When the first template is introduced, decide storage (suggestion: `templates/agents/`, i.e. **outside** the auto-loaded `agents/` tree) and the composition mechanism. Everything under `agents/` is auto-loaded recursively, so templates and partials must never live there.
 4. Frontmatter composition: the child template's frontmatter **wins over the parent's for any field it declares**; undeclared fields are inherited from the parent. (`mode: subagent` and the `output_schema` bridge are normally inherited, not overridden.)
-
-## Dual-file convention (retired 2026-08-02)
-
-The legacy dual-file convention is retired: there is exactly **one** definition file per agent, flat under `agents/<id>.md` (the runtime loads it directly; opencode scans `agent(s)/**/*.md`). A second file declaring the same agent name — e.g. a leftover under `agents/subagents/` — creates a duplicate agent. Do not recreate one.
-
-## Audit results — 2026-07-29
-
-Status of the 10 subagents under `agents/` after the canonical-shape audit (Phase B of the same change that introduced this protocol):
-
-| Subagent | Shape | Gaps found (before) | Status (after) |
-|---|---|---|---|
-| `architect` | full | Missing Role, Scope, Anti-Patterns; Principles served as Standards; context inline | Canonical |
-| `coder` | full | Missing Role; stale "Go implementation" reference in description (Q3 fix) | Canonical |
-| `documenter` | full | Missing Role, Stack / Context, Standards | Canonical |
-| `explorer` | full | Missing Role, Scope, Anti-Patterns; stale opencode-monorepo references (Q3 fix) | Canonical |
-| `external-scout` | minimal | — (thin adapter) | Minimal |
-| `interpreter` | full | Missing Role, Scope (partial in "When you are called"), Stack / Context, Standards, Anti-Patterns | Canonical |
-| `project-context` | full | Missing Role, Scope, Standards, Anti-Patterns; text return undocumented | Canonical |
-| `reviewer` | full | Missing Role, Scope, Anti-Patterns; Stack / Context partial | Canonical |
-| `tester` | full | Missing Role, Scope, Anti-Patterns; Stack / Context partial | Canonical |
-| `vision-relay` | minimal | — (thin adapter) | Minimal |
-
-## Audit results — 2026-07-29 (centralization)
-
-Frontmatter is the source of truth for per-agent config; `output_schema` lives in frontmatter as a path pointing at a sibling `<id>.schema.json` file; `opencode.json` carries no per-agent config (simplification ratified 2026-08-02); the `permission.task` fan-out for `delivery` / `orchestrator` lives in their frontmatter.
-
-| Subagent | `permission` in frontmatter | `output_schema` in frontmatter | Sibling schema file |
-|---|---|---|---|
-| `coder-angular` | ✅ | `./coder.schema.json` | ✅ |
-| `coder-go` | ✅ | `./coder.schema.json` | ✅ |
-| `tester` | ✅ | `./tester.schema.json` | ✅ |
-| `reviewer` | ✅ | `./reviewer.schema.json` | ✅ |
-| `architect` | ✅ | `./architect.schema.json` | ✅ |
-| `explorer` | ✅ | `./explorer.schema.json` | ✅ |
-| `analista` | ✅ | `./analista.schema.json` | ✅ |
-| `documenter` | ✅ | `./documenter.schema.json` | ✅ |
-| `interpreter` | ✅ | `./interpreter.schema.json` | ✅ |
-| `project-context` | ✅ | — (text return) | — |
-| `vision-relay` | ✅ (tool allow/deny map) | — (text return) | — |
-| `external-scout` | ✅ (tool allow/deny map) | — (text return) | — |
-
-## Audit results — 2026-08-24 (coder centralization + image inspection)
-
-`vision-relay`, `coder-angular.md`, and `coder-go.md` were **deleted**; implementation is centralized into a single language-parameterized `coder.md`, and image inspection is absorbed by `interpreter.md`.
-
-| Subagent | Change |
-|---|---|
-| `coder` | New thin adapter (Variant A) replacing `coder-angular.md` / `coder-go.md`; branches by `language=angular\|go` task payload; reuses `./coder.schema.json` (`CoderOutput`) |
-| `coder-angular` | **deleted** |
-| `coder-go` | **deleted** |
-| `vision-relay` | **deleted**; image inspection absorbed by `interpreter` (adds `read: allow`, image path + one focused question → compact textual answer) |
-| `interpreter` | Absorbed vision-relay; still `./interpreter.schema.json` (`InterpreterOutput`) |
-
-## Audit results — 2026-08-25 (tester framework-parameterization)
-
-`tester` moved from full shape (80L) to thin Variant A framework-parameterized adapter (66L), branching by `framework=vitest|karma-jasmine|playwright|go` plus conditional `linter=eslint|biome`, reusing `failures[]` for lint and explicit not-run `tests_run=0, failures=["no framework informed — test ignored"]`.
-
-| Subagent | Change |
-|---|---|
-| `tester` | Thin adapter (Variant A) replacing full shape; branches by `framework=vitest\|karma-jasmine\|playwright\|go` via task payload plus conditional `linter=eslint\|biome`; reuses `./tester.schema.json` (`TesterOutput`) unchanged; coverage tri-state documented |
 
 ## Rules
 

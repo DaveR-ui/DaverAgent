@@ -81,7 +81,7 @@ Schemas by agent:
 | `architect` | `ArchitectOutput` | `decisions[]`, `files_to_touch`, `summary` |
 | `explorer` | `ExplorerOutput` | `files_found`, `summary`, `confidence` |
 
-Do not instruct subagents to write `summary.md` / `output-full.md` / `manifest.md` to disk. The runtime returns each subagent's structured JSON through the `task` tool. Live child sessions of a session are listed via `GET /session/:id/children`, which returns `Session[]` (`id`, `parentID`, `title`, `time`, `summary` diff-stats); per-session run state comes from `GET /session/status` (a map of session id → `idle`/`busy`/`retry`). There is no `ChildInfo` type and no per-subagent lifecycle event in opencode 1.18.29.
+Do not instruct subagents to write `summary.md` / `output-full.md` / `manifest.md` to disk. The runtime returns each subagent's structured JSON through the `task` tool. Live child sessions of a session are listed via `GET /session/:id/children`, which returns `Session[]` (`id`, `parentID`, `title`, `time`, `summary` diff-stats); per-session run state comes from `GET /session/status` (a map of session id → `idle`/`busy`/`retry`). There is no `ChildInfo` type and no per-subagent lifecycle event in the opencode runtime.
 
 ## Fan-out: launching N instances of the same subagent
 
