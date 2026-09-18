@@ -78,8 +78,5 @@
     }
   },
   "small_model": "opencode-go/deepseek-v4.1-flash",
-  "subagent_depth": 4,
-  "plugin": [
-    "oh-my-openagent@5.0.0-beta.62"
-  ]
+  "subagent_depth": 4
 }
