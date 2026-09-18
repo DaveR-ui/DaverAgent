@@ -57,6 +57,7 @@ const STATUS_RANK = { busy: 0, retry: 1, idle: 2, unknown: 3 };
 
 export const server = async (ctx) => {
   // --- closure state -------------------------------------------------------
+  // Tracked for the log line only; it has no routing effect in this plugin.
   let activeSessionID = "";
   let refreshing = false;
   let dirty = false;

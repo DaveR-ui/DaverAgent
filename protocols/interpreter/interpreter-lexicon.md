@@ -28,7 +28,7 @@ Capture how interpreter normalizes raw human prompt into an English routing pack
 
 ## Lexicon rule
 
-Every ambiguous term lands in exactly one of `resolved_by_lookup` (with source) or `unresolved_questions`. Batched `question` call at most once.
+Every ambiguous term lands in exactly one of `resolved_by_lookup` (with source) or `unresolved_questions`. Batched `question` call at most once, leaning toward asking when an ambiguity is load-bearing (changes route, scope, or acceptance criteria).
 
 ## Presentation note
 

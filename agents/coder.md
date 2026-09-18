@@ -47,6 +47,7 @@ Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 
 - Read the relevant code before modifying.
 - Follow `docs/context/*.md`; do not mimic legacy `src/` anti-patterns.
+- **No single-use helper extraction.** Do not extract a private/helper method, anonymous function/closure, or local block whose only call site is one place, when it exists just to shorten or "add readability" to the caller — inline it at the call site instead. Extraction is justified when: the helper serves 2+ call sites; a complexity/size/lint limit requires it; it isolates a unit under test or a dependency-injection/side-effect seam; a Go `defer`/cleanup idiom needs it; or a documented `docs/context/*.md` standard calls for it. Single-use extraction added purely for readability forces the reader to jump across the file for zero reuse benefit. Applies to both `language=angular` and `language=go`.
 - Go conventions: `gofmt` / `go vet` clean, explicit error handling, standard project layout (when `language=go`).
 - Run the canonical test/lint/build commands from `docs/project.md` (Common Commands) before reporting done.
 - Comments and docs in ENGLISH.

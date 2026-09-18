@@ -34,7 +34,7 @@ A proposal MUST state, at minimum:
 4. **Alternatives** — 2–3 viable options with the recommendation first.
 5. **Rollback** — how to undo it, or "irreversible".
 
-`delivery` owns the proposal to the human (it is the sole human interface). For multi-step work, `orchestrator` produces the technical proposal and `delivery` relays it. The `question` tool — with all blocking questions batched, per `protocols/prompt-pipeline.md` — is the mechanism. These are **post-routing approval questions** owned by `delivery`/`orchestrator`; they are not Step 0 interpreter blockers.
+`delivery` is the primary human interface and owns the proposal to the human. Exception: the `orchestrator` may open ONE batched `question` round directly for blocking clarifications it discovers during decomposition (see `agents/orchestrator.md` → "Clarification Discipline"). For multi-step work, `orchestrator` produces the technical proposal and `delivery` relays it. The `question` tool — with all blocking questions batched, per `protocols/prompt-pipeline.md` — is the mechanism. These are **post-routing approval questions** owned by `delivery`/`orchestrator`; they are not Step 0 interpreter blockers.
 
 ## Relationship to the existing gates
 
