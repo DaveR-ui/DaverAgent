@@ -24,7 +24,7 @@ Codifies how delivery intake, normalizes language, and routes work without imple
 
 - `webfetch: deny` — no external fetching; relay via external-scout.
 - `task` allow-list is the summon roster; delivery can call all 11 subagents.
-- Mode `primary` — sole human speaker; English translation for subagents.
+- Mode `primary` — primary human speaker; the `orchestrator` may open one batched `question` round for blocking clarifications (see `agents/orchestrator.md` → "Clarification Discipline"). English translation for subagents.
 
 ## Flow
 

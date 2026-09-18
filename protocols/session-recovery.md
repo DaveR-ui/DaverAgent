@@ -108,8 +108,8 @@ child failures are managed by the existing `STATUS: STUCK` path.
 
 ## Output shape
 
-The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the four
-fields of the `## Resume instructions (if restart)` block in
+The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the fields
+of the `## Resume instructions (if restart)` block in
 `agents/orchestrator.md#resume-instructions-if-restart`:
 
 - **Original task** ← recovered from `GET /session/:id` title or the first
@@ -119,6 +119,10 @@ fields of the `## Resume instructions (if restart)` block in
   (`GET /session/:id/message?limit=20`).
 - **Next concrete step** ← the first unchecked todo item, or inferred from the
   last assistant message.
+- **Human decisions received** ← recovered from the last messages (already
+  answered `question` rounds); a fresh instance must not re-ask them.
+- **Open questions still unanswered** ← pending `question` requests or open
+  questions in the last messages.
 
 ## Helper script
 
