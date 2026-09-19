@@ -1,39 +1,44 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "compaction": {
-    "auto": true,
-    "prune": true,
-    "reserved": 10000
-  },
-  "default_agent": "delivery",
+
   "instructions": [
     "docs/project.md"
   ],
-  "mcp": {
-    "angular-cli": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@angular/cli",
-        "mcp"
-      ],
-      "enabled": true
-    },
-    "engram": {
-      "command": [
-        "/home/admin/.local/bin/engram",
-        "mcp",
-        "--tools=agent"
-      ],
-      "enabled": true,
-      "type": "local"
+
+  "model": "llama.cpp/qwen35-local",
+  "small_model": "llama.cpp/qwen35-local",
+
+  "provider": {
+    "llama.cpp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Qwen Local - llama.cpp",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      },
+      "models": {
+        "qwen35-local": {
+          "name": "Qwen3.5-35B-A3B Local",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      }
     }
   },
-  "model": "opencode-go/deepseek-v4.1-flash",
+
+  "compaction": {
+    "auto": true,
+    "keep": {
+      "tokens": 4096
+    },
+    "buffer": 4096
+  },
+
   "permission": {
     "question": "ask",
     "session_send": "ask",
+
     "read": {
       "*": "allow",
       ".env": "deny",
@@ -45,6 +50,7 @@
       "*.env.example": "allow",
       "**/*.env.example": "allow"
     },
+
     "edit": {
       "*": "allow",
       ".env": "deny",
@@ -62,6 +68,7 @@
       "*.pem": "deny",
       "**/*.pem": "deny"
     },
+
     "bash": {
       "*": "allow",
       "sudo *": "deny",
@@ -71,12 +78,13 @@
       "docker *": "ask"
     }
   },
+
   "references": {
     "agent-system": {
       "path": ".",
-      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, workflows/, agents/, scripts/, tests/, templates/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
+      "description": "Global agent-system root. Resolve agent-system assets such as agents/, protocols/, workflows/, scripts/, tests/, templates/, plugins/, and commands/ against this root."
     }
   },
-  "small_model": "opencode-go/deepseek-v4.1-flash",
+
   "subagent_depth": 4
 }
