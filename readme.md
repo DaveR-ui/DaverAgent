@@ -1,35 +1,38 @@
 # DaverAgent — Global opencode Configuration
 
 This repository **is** the global configuration of the opencode agent system
-(delivery, orchestrator, coder, tester, …). Clone it into `~/.config/opencode`
-(or `$XDG_CONFIG_HOME/opencode`) and every project on the machine shares the
-same agents.
+(delivery, orchestrator, coder, tester, …). Copy (or clone) this folder to
+`~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`) and every project on the
+machine shares the same agents.
 
 - **One copy per machine.** No per-project `.opencode/` copies, no duplicated
   agent prompts.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
-- **Portable.** The install is a git clone plus `scripts/bootstrap.sh`; no
+- **Portable.** The install is a copy of this folder to `~/.config/opencode`
+  (or a git clone of this repository); there is no bootstrap script. No
   absolute paths are hardcoded anywhere except the documented `engram` binary
-  path in `opencode.json` (and its fallback default in `plugins/engram.ts`).
+  path in `opencode.json` (the machine-local `plugins/engram.ts` carries a
+  fallback default for the same binary).
 
 ## Install (per machine)
 
+The repository root **is** the opencode config directory. Install it by placing
+this folder at `~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`):
+
 ```bash
+# keep it as a git clone ...
 git clone https://github.com/DaveR-ui/DaverAgent.git ~/.config/opencode
-bash ~/.config/opencode/scripts/bootstrap.sh        # install or update
+
+# ... or copy an existing checkout into place
+cp -r /path/to/DaverAgent ~/.config/opencode
 ```
 
-`scripts/bootstrap.sh` is idempotent and adds a `--verify-only` mode:
-
-```bash
-bash scripts/bootstrap.sh --verify-only   # report what would change, write nothing
-```
-
-If the target already exists and is **not** a clone of this repository, the
-script backs it up to `~/.config/opencode.bak.<timestamp>` before cloning. See
-[`install.md`](./install.md) for the full checklist and the optional per-project
-documentation bootstrap.
+There is no bootstrap script: the folder **is** the global config. If a config
+directory already exists at the target, back it up before replacing it
+(`mv ~/.config/opencode ~/.config/opencode.bak.<timestamp>`); copying over it
+would silently mix two configs. **Restart opencode** after installing or
+updating so it reloads `opencode.json` and `agents/`.
 
 ## Path contract
 
@@ -43,10 +46,9 @@ reference's absolute root into every agent's context).
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
 `opencode.json` lists `docs/project.md` under `instructions`; projects without a
-`docs/` folder are silently skipped. A project that wants explicit
-`docs/context` / `docs/protocols` references can drop
-[`templates/project-opencode.json`](./templates/project-opencode.json) in as its
-own `opencode.json`.
+`docs/` folder are silently skipped. Project `docs/` paths resolve against the
+session working directory, so no per-project shim is needed: agents read
+`docs/project.md` and `docs/context/*.md` directly.
 
 **Golden rule:** never create a global `docs/`, and never hardcode an absolute
 path (the `engram` binary path noted above is the one documented exception). The
@@ -58,7 +60,6 @@ read tool does not expand `~`.
 ~/.config/opencode/              # == this repository
 ├── opencode.json                # Canonical global runtime config (no `agent` block)
 ├── readme.md                    # This file
-├── install.md                   # Install / update checklist
 │
 ├── agents/                      # FLAT global agents (the runtime scans agents/*.md)
 │   ├── delivery.md              # Interface with the human (primary)
@@ -79,16 +80,20 @@ read tool does not expand `~`.
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
 ├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, steer inbox, session export, engram, GitKraken hooks)
-├── scripts/                     # bootstrap.sh + validators
+├── plugins/                     # Portable plugins (session tool, steer inbox, session export)
+│                                #   + machine-local, gitignored ones (engram, GitKraken hooks)
+├── scripts/                     # Validators
 ├── tests/                       # Test suite of the agent tree
-└── templates/                   # Optional per-project opencode.json shim
+└── templates/                   # Docs validator + conformance register
 ```
 
 > `plugins/`, `commands/` and the root `package.json` + `package-lock.json` are
 > tracked (the committed lockfile pins the plugin dependency so `npm install` is
 > reproducible; `node_modules/` stays gitignored). `plugins/` holds portable
-> plugin modules; `commands/` holds slash commands.
+> plugin modules; `commands/` holds slash commands. Two plugins are
+> **machine-local and gitignored** — `plugins/engram.ts` (Engram memory) and
+> `plugins/gk-hooks.js` (GitKraken hooks) — so the machine that needs them keeps
+> them while they never reach the shared repo.
 
 ## Available agents
 
@@ -219,6 +224,33 @@ local plugins auto-load from `plugins/`.
 **Restart required:** opencode must be **restarted** after adding or changing
 the plugin for it to load.
 
+## Engram memory (machine-local)
+
+Engram is a persistent memory service the user runs locally; it is **not** part
+of the portable install.
+
+- **Plugin** — `plugins/engram.ts` is **gitignored** (machine-local). It
+  auto-starts `engram serve` and injects the memory protocol; the file stays on
+  the machine that needs it.
+- **MCP** — `opencode.json` declares the `engram` MCP server, which is what
+  exposes the `mem_*` tools. Its binary path (`/home/admin/.local/bin/engram`)
+  is the one documented absolute-path exception; the plugin carries the same
+  path as a fallback default.
+- **Global, not per-project** — the MCP command pins one bucket with
+  `--project=global`, so memory is repo-independent. `ENGRAM_PROJECT=global` is
+  the equivalent process override; the override is only honoured on engram
+  **v1.16.1+** (before that fix `global` was silently coerced to the cwd
+  project). Recall across buckets with `all_projects=true` / `--all`.
+  `engram doctor` is the health check.
+- **DB** — `~/.engram/engram.db`; HTTP API `127.0.0.1:7437`.
+- **Machine-specific config** — opencode has no in-file `include`/`extends`, so
+  a machine-specific MCP entry cannot be pulled in from a gitignored file by the
+  tracked `opencode.json` itself. The supported mechanism is the
+  `OPENCODE_CONFIG` env var pointing at an extra config file, which **merges**
+  between the global and project configs; the repo gitignores
+  `opencode.local.json` / `*.local.json` as a candidate for that file (opencode
+  does not auto-load it — the env var is what makes it count).
+
 ## Updating the config
 
 - **Change an agent's temperature** → edit the `temperature:` in the frontmatter
@@ -230,10 +262,8 @@ the plugin for it to load.
   (`description`, `mode`, `temperature`, `permission`, `output_schema`, plus an
   optional `model:` override). Do not touch `opencode.json` (it has no `agent`
   block).
-- **Update the global install** → `bash scripts/bootstrap.sh` (or
-  `--verify-only` first).
-
-The per-project documentation bootstrap is separate; see [`install.md`](./install.md).
+- **Update the global install** → `git pull --ff-only` in `~/.config/opencode`
+  (or re-copy the folder), then restart opencode.
 
 ## Validating the config
 
@@ -278,11 +308,11 @@ It runs eight suites, all exit-code driven (CI-ready):
 **"My config is not picked up"** — Verify `opencode.json` is valid JSON:
 `python3 -m json.tool opencode.json`.
 
-**"I want to go back to the previous version"** — If the change was made by
-`scripts/bootstrap.sh`, restore the `~/.config/opencode.bak.<timestamp>`
-directory. If you edited by hand, use your own version control.
+**"I want to go back to the previous version"** — Restore the
+`~/.config/opencode.bak.<timestamp>` directory you made before updating, or use
+your own version control.
 
 **"A project doesn't see its `docs/`"** — Confirm the project has
-`docs/project.md` (or drop in
-[`templates/project-opencode.json`](./templates/project-opencode.json) for
-explicit `docs/context` / `docs/protocols` references).
+`docs/project.md`; `opencode.json` lists it under `instructions` relative to the
+session working directory, and an absent file is silently skipped. No per-project
+`opencode.json` is needed.

@@ -3,14 +3,14 @@
 /*
  * DaverAgent documentation validator — DERIVED from `documentation-onrails`
  * validate.js (v1.4, snapshot 2026-09-12), adapted to a `docs/`-rooted consumer
- * corpus. This is NOT the upstream file and is NOT wired into the global agent
- * system; the per-project bootstrap copies it to <project>/docs/validate.js.
+ * corpus. This is NOT the upstream file and is NOT auto-loaded by the global
+ * agent system; copy it into a project as <project>/docs/validate.js.
  *
  * Usage:
  *   node validate.js [--root <dir>] [--write]
  *
  *   --root   corpus root (default: the directory containing this script, i.e. the
- *            project's docs/ when shipped there by install-agent.ps1)
+ *            project's docs/ after copying the script there)
  *   --write  regenerate the `index` and `tags` regions of the EXISTING index.md /
  *            tag-index.md, write-if-diff. A missing artifact is never created;
  *            it stays a `stale-generated-index` error.

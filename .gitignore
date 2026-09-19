@@ -5,6 +5,9 @@ node_modules/
 opencode.local.json
 *.local.json
 
+# opencode runtime server credentials (generated per machine, secret)
+service.json
+
 # Machine-local human slang / personal dictionaries (not created by this repo)
 humans/
 
@@ -24,4 +27,6 @@ __pycache__/
 
 # ── Machine-specific plugin scripts (portable plugin source only) ─
 plugins/**/gk-hooks.js
+# Engram memory adapter — machine-local; keeps working on this PC, never shared
+plugins/engram.ts
 

@@ -24,6 +24,7 @@
       "command": [
         "/home/admin/.local/bin/engram",
         "mcp",
+        "--project=global",
         "--tools=agent"
       ],
       "enabled": true,

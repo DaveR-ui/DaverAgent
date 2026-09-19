@@ -297,7 +297,6 @@ Each subagent inherits the invoking primary agent's model by default (each may o
 
 **Agent protocols** (in `protocols/`):
 - `prompt-pipeline` — Two-stage analysis (Step 0 Interpret via the `interpreter` subagent, then Phase 2 Reduce) the delivery agent runs on every prompt
-- `agent-installer` — global install/update + 3-phase project docs bootstrap
 - `broad-investigation-template` — 5-section scaffold (Goal / Search Strategy / Evidence / Coverage / DoD) for prompts that map, inventory, or audit a class of thing across the repo. Use when constructing the handoff to `explorer` (or a fan-out of `explorer`) on a wide-surface task. Complements the `Verification Path` from `prompt-pipeline` Phase 2.
 - `approval-gate` — propose → approve → execute rule for irreversible, secret-bearing, outward-facing, or config-mutating actions.
 - `task-plan` — machine-checkable JSON task plan (dependencies, parallelism, standards-vs-source file vocabularies) emitted after Phase 2 (Reduce).

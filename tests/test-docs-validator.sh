@@ -25,8 +25,9 @@ guard() { # <file> <literal>
   fi
 }
 
-# The installer protocol documents the canonical shape.
-guard "${ROOT}/protocols/agent-installer.md" "context-index.md"
+# The installer protocol was retired 2026-09-18; `documenter` now owns the
+# canonical docs shape and names the context hub.
+guard "${ROOT}/agents/documenter.md" "context-index.md"
 # The validator owns both generated regions (index + tags) and their markers.
 guard "${VALIDATOR}" "renderIndexRegion"
 guard "${VALIDATOR}" "renderTagsRegion"
