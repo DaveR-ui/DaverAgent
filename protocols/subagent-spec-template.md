@@ -64,7 +64,7 @@ The 7+1 canonical headings are grouped into 3 macro sections. The mapping is los
 | 2 — Execution / Standards | `<!-- Section 2: Execution -->` | `### Standards`, `### Anti-Patterns`, (slot) role-specific operational sections | how to work + what to avoid |
 | 3 — Finalization / Return | `<!-- Section 3: Finalization -->` | `### Structured Return`, `### Rules` | output contract + hard rules |
 
-SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permission` global, `instructions`, `references`, `compaction`) — no `agent` block. The shell does not move frontmatter fields. The former installer is retired; docs are authored by hand and checked with `templates/docs-validate.js`, and a manually created subagent MUST emit the three macro anchors.
+SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permission` global, `instructions`, `references`, `compaction`) — no `agent` block. The shell does not move frontmatter fields. Docs are authored by hand and checked with `templates/docs-validate.js`; a manually created subagent MUST emit the three macro anchors.
 
 Original canonical order preserved (for reference):
 

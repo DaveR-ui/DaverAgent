@@ -1,38 +1,16 @@
 # DaverAgent — Global opencode Configuration
 
-This repository **is** the global configuration of the opencode agent system
-(delivery, orchestrator, coder, tester, …). Copy (or clone) this folder to
-`~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`) and every project on the
-machine shares the same agents.
+This folder **is** the global configuration of the opencode agent system
+(delivery, orchestrator, coder, tester, …). Placed at `~/.config/opencode` (or
+`$XDG_CONFIG_HOME/opencode`), every project on the machine shares the same
+agents.
 
 - **One copy per machine.** No per-project `.opencode/` copies, no duplicated
   agent prompts.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
-- **Portable.** The install is a copy of this folder to `~/.config/opencode`
-  (or a git clone of this repository); there is no bootstrap script. No
-  absolute paths are hardcoded anywhere except the documented `engram` binary
-  path in `opencode.json` (the machine-local `plugins/engram.ts` carries a
-  fallback default for the same binary).
-
-## Install (per machine)
-
-The repository root **is** the opencode config directory. Install it by placing
-this folder at `~/.config/opencode` (or `$XDG_CONFIG_HOME/opencode`):
-
-```bash
-# keep it as a git clone ...
-git clone https://github.com/DaveR-ui/DaverAgent.git ~/.config/opencode
-
-# ... or copy an existing checkout into place
-cp -r /path/to/DaverAgent ~/.config/opencode
-```
-
-There is no bootstrap script: the folder **is** the global config. If a config
-directory already exists at the target, back it up before replacing it
-(`mv ~/.config/opencode ~/.config/opencode.bak.<timestamp>`); copying over it
-would silently mix two configs. **Restart opencode** after installing or
-updating so it reloads `opencode.json` and `agents/`.
+- **Portable.** No absolute paths are hardcoded anywhere except the documented
+  `engram` binary path (in `opencode.json`, and as the plugin's fallback default).
 
 ## Path contract
 
@@ -57,7 +35,7 @@ read tool does not expand `~`.
 ## Structure
 
 ```
-~/.config/opencode/              # == this repository
+~/.config/opencode/              # == this folder
 ├── opencode.json                # Canonical global runtime config (no `agent` block)
 ├── readme.md                    # This file
 │
@@ -80,20 +58,18 @@ read tool does not expand `~`.
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
 ├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, steer inbox, session export)
-│                                #   + machine-local, gitignored ones (engram, GitKraken hooks)
+├── plugins/                     # Plugins (engram, session tool, steer inbox, session export)
+│                                #   + machine-local gitignored GitKraken hooks
 ├── scripts/                     # Validators
 ├── tests/                       # Test suite of the agent tree
 └── templates/                   # Docs validator + conformance register
 ```
 
 > `plugins/`, `commands/` and the root `package.json` + `package-lock.json` are
-> tracked (the committed lockfile pins the plugin dependency so `npm install` is
-> reproducible; `node_modules/` stays gitignored). `plugins/` holds portable
-> plugin modules; `commands/` holds slash commands. Two plugins are
-> **machine-local and gitignored** — `plugins/engram.ts` (Engram memory) and
-> `plugins/gk-hooks.js` (GitKraken hooks) — so the machine that needs them keeps
-> them while they never reach the shared repo.
+> tracked (the committed lockfile pins the plugin dependency for reproducible
+> setups; `node_modules/` stays gitignored). `plugins/` holds the plugin
+> modules; `commands/` holds slash commands. `plugins/gk-hooks.js` (GitKraken
+> hooks) is machine-local and gitignored.
 
 ## Available agents
 
@@ -160,7 +136,7 @@ at the next step boundary.
 
 - **Inbox** — `$XDG_STATE_HOME/opencode/steer-inbox.jsonl`, else
   `~/.local/state/opencode/steer-inbox.jsonl`. It lives in the state dir
-  (outside this repo), so runtime state never pollutes `git status`.
+  (outside this repo), so runtime state never pollutes the tracked files.
 - **Override / kill switch** — `OPENCODE_STEER_INBOX` (absolute path);
   `OPENCODE_STEER_INBOX_DISABLE=1` disables the plugin.
 - **Line format** — `{"text":"...", "session":"ses_..."}`; `text` is required,
@@ -181,12 +157,9 @@ instances distinct `OPENCODE_STEER_INBOX` paths, to avoid the same line being
 steered twice.
 
 **Safe by default / opt-in:** an absent inbox file leaves the plugin completely
-inert. It never throws and never blocks (async fs, fire-and-forget), sends no
-model override, reads no credentials, and connects nothing — so the session's
-own already-available default Zen model is used. To use a preferred
-`opencode-go/deepseek-v4.1-flash`, connect the `opencode-go` integration once in
-the opencode UI; the session can then select it. No `opencode.json` entry is
-needed — local plugins auto-load from `plugins/`.
+inert. It never throws, never blocks (async fs, fire-and-forget), sends no model
+override, reads no credentials, and connects nothing. No `opencode.json` entry
+is needed — local plugins auto-load from `plugins/`.
 
 ## Session export
 
@@ -197,7 +170,7 @@ sessions without talking to the local server themselves.
 
 - **Output file** — `$XDG_STATE_HOME/opencode/sessions.json`, else
   `~/.local/state/opencode/sessions.json`. It lives in the state dir (outside
-  this repo), so runtime state never pollutes `git status`.
+  this repo), so runtime state never pollutes the tracked files.
 - **Override / kill switch** — `OPENCODE_SESSION_EXPORT` (absolute path);
   `OPENCODE_SESSION_EXPORT_DISABLE=1` disables the plugin.
 
@@ -218,20 +191,19 @@ status rank (busy, retry first), then by `updated` descending.
 **Safe by default / no-throw:** writes are async and fire-and-forget, atomic
 (temp file + `fs.rename`), and never throw. If the local server is unreachable
 the previous snapshot is left untouched. It sends no model override, reads no
-credentials, and connects nothing — no `opencode.json` entry is needed, since
-local plugins auto-load from `plugins/`.
+credentials, and connects nothing.
 
 **Restart required:** opencode must be **restarted** after adding or changing
 the plugin for it to load.
 
-## Engram memory (machine-local)
+## Engram memory
 
-Engram is a persistent memory service the user runs locally; it is **not** part
-of the portable install.
+Engram is a persistent memory service that ships with the agent system and runs
+locally.
 
-- **Plugin** — `plugins/engram.ts` is **gitignored** (machine-local). It
-  auto-starts `engram serve` and injects the memory protocol; the file stays on
-  the machine that needs it.
+- **Plugin** — [`plugins/engram.ts`](./plugins/engram.ts) auto-starts
+  `engram serve` and injects the memory protocol. Re-running
+  `engram setup opencode` overwrites this file with the upstream version.
 - **MCP** — `opencode.json` declares the `engram` MCP server, which is what
   exposes the `mem_*` tools. Its binary path (`/home/admin/.local/bin/engram`)
   is the one documented absolute-path exception; the plugin carries the same
@@ -243,13 +215,6 @@ of the portable install.
   project). Recall across buckets with `all_projects=true` / `--all`.
   `engram doctor` is the health check.
 - **DB** — `~/.engram/engram.db`; HTTP API `127.0.0.1:7437`.
-- **Machine-specific config** — opencode has no in-file `include`/`extends`, so
-  a machine-specific MCP entry cannot be pulled in from a gitignored file by the
-  tracked `opencode.json` itself. The supported mechanism is the
-  `OPENCODE_CONFIG` env var pointing at an extra config file, which **merges**
-  between the global and project configs; the repo gitignores
-  `opencode.local.json` / `*.local.json` as a candidate for that file (opencode
-  does not auto-load it — the env var is what makes it count).
 
 ## Updating the config
 
@@ -262,13 +227,10 @@ of the portable install.
   (`description`, `mode`, `temperature`, `permission`, `output_schema`, plus an
   optional `model:` override). Do not touch `opencode.json` (it has no `agent`
   block).
-- **Update the global install** → `git pull --ff-only` in `~/.config/opencode`
-  (or re-copy the folder), then restart opencode.
 
 ## Validating the config
 
-Before committing changes to the agent system, run the full test suite (Git
-Bash / WSL):
+Run the full test suite (bash; Git Bash / WSL on Windows):
 
 ```bash
 bash tests/run-tests.sh
@@ -307,10 +269,6 @@ It runs eight suites, all exit-code driven (CI-ready):
 
 **"My config is not picked up"** — Verify `opencode.json` is valid JSON:
 `python3 -m json.tool opencode.json`.
-
-**"I want to go back to the previous version"** — Restore the
-`~/.config/opencode.bak.<timestamp>` directory you made before updating, or use
-your own version control.
 
 **"A project doesn't see its `docs/`"** — Confirm the project has
 `docs/project.md`; `opencode.json` lists it under `instructions` relative to the

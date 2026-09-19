@@ -6,7 +6,7 @@ If a document mixes agent behavior with project facts, split it: agent behavior 
 
 ## Skill Migration Redirect
 
-All former repo-local skills have been migrated to agent protocols. A repo-local `skills/` directory does not exist here and should not be created. If the opencode runtime lists skills in `available_skills` pointing to agent-system `skills/*/SKILL.md` paths, those are phantom entries from a previous installation.
+All former repo-local skills have been migrated to agent protocols. A repo-local `skills/` directory does not exist here and should not be created.
 
 Step 0 (Normalize) is now executed by the [`interpreter`](../agents/interpreter.md) subagent. Phase 2 (Reduce) is described by the `prompt-pipeline` protocol (see below).
 
@@ -28,15 +28,6 @@ Step 0 (Normalize) is now executed by the [`interpreter`](../agents/interpreter.
 | [`subagent-spec-template.md`](./subagent-spec-template.md) | Canonical shape for subagent specs: structural/variable split (parent subagent vs. per-specialization template), frontmatter spec, full vs. minimal shape, `output_schema` ↔ sibling schema bridge, composition and naming rules, the reduced role of `opencode.json`. | `orchestrator`, `delivery` (when creating or auditing subagents) |
 | [`approval-gate.md`](./approval-gate.md) | Canonical propose → approve → execute rule for irreversible, secret-bearing, outward-facing, or config-mutating actions. The `delivery` review loop and the orchestrator Hard Limits are instances of it. | `delivery`, `orchestrator` (on any gated action) |
 | [`task-plan.md`](./task-plan.md) | Machine-checkable JSON task plan: dependencies, parallelism, `suggested_agent` vs. `agent_id`, and `context_files` (standards) vs. `reference_files` (source). Executable form of the Phase 2 (Reduce) decomposition. | `orchestrator` (before releasing subagents) |
-
-## Installer protocol (retired 2026-09-18)
-
-The `agent-installer` protocol, `install.md`, `scripts/bootstrap.sh` and the
-`templates/project-opencode.json` per-project shim were retired. The global
-config is now installed by copying this folder to `~/.config/opencode`; a
-project's `docs/` are authored by hand following the `documenter` subagent and
-checked with the derived `templates/docs-validate.js`. See
-[`readme.md`](../readme.md#install-per-machine).
 
 ## Former IA pipeline protocols (retired 2026-08-24)
 

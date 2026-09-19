@@ -23,10 +23,9 @@ __pycache__/
 
 # ── Drafts / logs ────────────────────────────────────────────────
 .draft/
+.omo/
 *.log
 
 # ── Machine-specific plugin scripts (portable plugin source only) ─
 plugins/**/gk-hooks.js
-# Engram memory adapter — machine-local; keeps working on this PC, never shared
-plugins/engram.ts
 
