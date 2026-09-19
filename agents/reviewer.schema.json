@@ -53,12 +53,19 @@
     "summary": {
       "type": "string",
       "description": "Free-form review report."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Calibrated confidence in this return (0 = no confidence, 1 = certain)."
     }
   },
   "required": [
     "verdict",
     "issues",
-    "summary"
+    "summary",
+    "confidence"
   ],
   "additionalProperties": false
 }

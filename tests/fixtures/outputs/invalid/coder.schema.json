@@ -3,5 +3,6 @@
   "tests_run": true,
   "tests_passed": true,
   "summary": "Implemented the feature",
+  "confidence": 0.9,
   "invented_field": "must be rejected"
 }

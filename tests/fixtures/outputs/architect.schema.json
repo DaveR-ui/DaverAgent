@@ -7,5 +7,6 @@
     }
   ],
   "files_to_touch": ["src/feature/foo.ts"],
-  "summary": "Design for the feature"
+  "summary": "Design for the feature",
+  "confidence": 0.8
 }

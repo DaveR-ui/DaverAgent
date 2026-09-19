@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentInstallerSchema",
+  "description": "Data-driven question list for install-agent.ps1 (per-project docs bootstrap). Three phases: project metadata, context docs, project slang. Agent selection is obsolete under the global model (agents live in ~/.config/opencode).",
+  "type": "object",
+  "properties": {
+    "phases": {
+      "type": "array",
+      "items": { "type": "object" }
+    }
+  },
+  "phases": [
+    {
+      "title": "Project Metadata",
+      "description": "Answers drive docs/project.md generation.",
+      "questions": [
+        {
+          "id": "project_display_name",
+          "prompt": "Display name of the project",
+          "default_from": "repo_dir_name"
+        },
+        {
+          "id": "project_name",
+          "prompt": "Repository/project name",
+          "default_from": "repo_dir_name"
+        },
+        {
+          "id": "project_description",
+          "prompt": "One-line project description",
+          "default": ""
+        },
+        {
+          "id": "primary_language",
+          "prompt": "Primary language",
+          "default": "go",
+          "options": ["typescript", "go", "python", "javascript", "java", "other"]
+        },
+        {
+          "id": "framework",
+          "prompt": "Framework",
+          "default": ""
+        },
+        {
+          "id": "database",
+          "prompt": "Database",
+          "default": ""
+        },
+        {
+          "id": "orm",
+          "prompt": "ORM",
+          "default": ""
+        },
+        {
+          "id": "auth",
+          "prompt": "Auth",
+          "default": ""
+        },
+        {
+          "id": "secrets",
+          "prompt": "Secrets management",
+          "default": ""
+        },
+        {
+          "id": "architecture_pattern",
+          "prompt": "Architecture pattern",
+          "default": "layered",
+          "options": ["layered", "hexagonal", "modular", "monolithic", "microservices"]
+        },
+        {
+          "id": "slices",
+          "prompt": "Slices table rows (id | description | entry points | primary agents), one per line",
+          "type": "multiline",
+          "default": ""
+        },
+        {
+          "id": "dev_command",
+          "prompt": "Dev command",
+          "default": ""
+        },
+        {
+          "id": "db_command",
+          "prompt": "Start DB command",
+          "default": ""
+        },
+        {
+          "id": "db_reset_command",
+          "prompt": "Reset DB command",
+          "default": ""
+        },
+        {
+          "id": "docker_command",
+          "prompt": "Docker command",
+          "default": ""
+        },
+        {
+          "id": "backend_structure",
+          "prompt": "Backend structure lines, one per line",
+          "type": "multiline",
+          "default": ""
+        },
+        {
+          "id": "domain_entities",
+          "prompt": "Domain entities (comma-separated)",
+          "default": ""
+        },
+        {
+          "id": "doc_language",
+          "prompt": "Documentation language for docs/",
+          "default": "en",
+          "options": ["en", "es", "pt", "other"]
+        }
+      ]
+    },
+    {
+      "title": "Context Docs",
+      "description": "Which docs/context/*.md stubs to enable.",
+      "questions": [
+        {
+          "id": "context_selection",
+          "prompt": "Context docs to enable (comma-separated ids)",
+          "default": "architecture,project-rules",
+          "options": ["architecture", "project-rules", "api-endpoint-factory", "testing", "security-permissions"]
+        }
+      ],
+      "context_templates": {
+        "architecture": {
+          "title": "Architecture",
+          "filename": "architecture.md",
+          "default_body": "## Layers\n\n## Dependency Rules\n\n## Module Boundaries\n"
+        },
+        "project-rules": {
+          "title": "Project Rules",
+          "filename": "project-rules.md",
+          "default_body": "## Coding Standards\n\n## Error Handling\n\n## Security\n\n## Testing Conventions\n"
+        },
+        "api-endpoint-factory": {
+          "title": "API Endpoint Factory",
+          "filename": "api-endpoint-factory.md",
+          "default_body": "## Endpoint Template\n\n## Registration\n\n## Validation\n"
+        },
+        "testing": {
+          "title": "Testing",
+          "filename": "testing.md",
+          "default_body": "## Test Stack\n\n## Canonical Commands\n\n## Mocking\n"
+        },
+        "security-permissions": {
+          "title": "Security & Permissions",
+          "filename": "security-permissions.md",
+          "default_body": "## Permission Model\n\n## Guards / Middleware\n\n## Secrets\n"
+        }
+      }
+    },
+    {
+      "title": "Project Slang",
+      "description": "Initial project slang dictionary entries.",
+      "questions": [
+        {
+          "id": "slang_block",
+          "prompt": "Project slang entries (Term | Meaning | Location | Confidence), one per line",
+          "type": "multiline",
+          "default": ""
+        }
+      ]
+    }
+  ]
+}

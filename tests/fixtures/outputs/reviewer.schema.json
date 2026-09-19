@@ -8,5 +8,6 @@
       "message": "Handle the empty-array case"
     }
   ],
-  "summary": "One blocking issue"
+  "summary": "One blocking issue",
+  "confidence": 0.8
 }

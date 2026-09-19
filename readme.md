@@ -1,16 +1,26 @@
 # DaverAgent — Global opencode Configuration
 
-This folder **is** the global configuration of the opencode agent system
-(delivery, orchestrator, coder, tester, …). Placed at `~/.config/opencode` (or
-`$XDG_CONFIG_HOME/opencode`), every project on the machine shares the same
-agents.
+This repository **is** the global configuration of the opencode agent system
+(delivery, orchestrator, coder, tester, …). Clone it into `~/.config/opencode`
+(or `$XDG_CONFIG_HOME/opencode`) and every project on the machine shares the
+same agents.
 
 - **One copy per machine.** No per-project `.opencode/` copies, no duplicated
   agent prompts.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
-- **Portable.** No absolute paths are hardcoded anywhere except the documented
-  `engram` binary path (in `opencode.json`, and as the plugin's fallback default).
+- **Portable.** The install is a git clone; no absolute paths are hardcoded
+  anywhere.
+
+## Install (per machine)
+
+```bash
+git clone https://github.com/DaveR-ui/DaverAgent.git ~/.config/opencode
+```
+
+There is no separate install step: opencode reads the config directly from the
+clone. Update with `git pull` in the clone and validate with
+`bash tests/run-tests.sh`.
 
 ## Path contract
 
@@ -20,22 +30,21 @@ reference's absolute root into every agent's context).
 
 | Vocabulary | Examples | Resolves against |
 |---|---|---|
-| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `tests/`, `templates/` | The `agent-system` reference in `opencode.json` |
+| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `tests/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
 `opencode.json` lists `docs/project.md` under `instructions`; projects without a
-`docs/` folder are silently skipped. Project `docs/` paths resolve against the
-session working directory, so no per-project shim is needed: agents read
-`docs/project.md` and `docs/context/*.md` directly.
+`docs/` folder are silently skipped. A project that wants explicit
+`docs/context` / `docs/protocols` references declares them in its own
+`opencode.json` `references` block.
 
 **Golden rule:** never create a global `docs/`, and never hardcode an absolute
-path (the `engram` binary path noted above is the one documented exception). The
-read tool does not expand `~`.
+path. The read tool does not expand `~`.
 
 ## Structure
 
 ```
-~/.config/opencode/              # == this folder
+~/.config/opencode/              # == this repository
 ├── opencode.json                # Canonical global runtime config (no `agent` block)
 ├── readme.md                    # This file
 │
@@ -49,7 +58,6 @@ read tool does not expand `~`.
 │   ├── explorer.md              # Search and mapping (read-only)
 │   ├── project-context.md       # docs/ reading (read-only)
 │   ├── external-scout.md        # External docs via webfetch
-│   ├── standards-scout.md       # Standards/pattern discovery before coding (read-only)
 │   ├── interpreter.md           # Step 0 normalization + image inspection
 │   ├── analista.md              # Second opinion
 │   ├── documenter.md            # Documentation
@@ -57,19 +65,15 @@ read tool does not expand `~`.
 │
 ├── protocols/                   # Agent operating conventions (read on demand)
 ├── workflows/                   # Thinking instructions
-├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Plugins (engram, session tool, steer inbox, session export)
-│                                #   + machine-local gitignored GitKraken hooks
 ├── scripts/                     # Validators
-├── tests/                       # Test suite of the agent tree
-└── templates/                   # Docs validator + conformance register
+└── tests/                       # Test suite of the agent tree
 ```
 
-> `plugins/`, `commands/` and the root `package.json` + `package-lock.json` are
-> tracked (the committed lockfile pins the plugin dependency for reproducible
-> setups; `node_modules/` stays gitignored). `plugins/` holds the plugin
-> modules; `commands/` holds slash commands. `plugins/gk-hooks.js` (GitKraken
-> hooks) is machine-local and gitignored.
+> `plugins/` and a root `package.json` + lockfile are **optional**. They exist
+> only if you add portable plugins (or other JS dependencies); `.gitignore` does
+> **not** ignore them, so they are tracked when present, while any plugin
+> `node_modules/` is ignored. This repo currently ships neither — do not add an
+> empty `package.json` just to match the diagram.
 
 ## Available agents
 
@@ -88,15 +92,13 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `explorer` | Search and mapping in the repo. Returns `ExplorerOutput`. |
 | `project-context` | Lookups and context assembly from `docs/` (read-only). |
 | `external-scout` | Brings docs of external libraries via webfetch. |
-| `standards-scout` | Discovers the project's standards/patterns before coding (read-only, ranked output). Text return. |
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
 
-Temperature lives in **each agent's frontmatter** (`agents/<id>.md`). No agent
-currently declares `model:`, so a subagent inherits the model of the primary
-agent that invokes it — model is inherited unless an agent adds an explicit
-`model:` override in its frontmatter. Changing either = editing the agent's
-frontmatter and restarting opencode.
+Models and temperatures live in **each agent's frontmatter**
+(`agents/<id>.md`). Changing a model = editing the agent's frontmatter and
+restarting opencode. Without a declared `model:`, a subagent inherits the model
+of the primary agent that invokes it.
 
 ## Protocols
 
@@ -113,130 +115,27 @@ the `orchestrator`.
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
 
-## Session tool
-
-The session capability ships two ways:
-
-- **Agent tool** — [`plugins/session-tool.js`](./plugins/session-tool.js)
-  registers a `session` tool (`children`, `tree`, `parent`, `messages`,
-  `status`, `todo`, `diff`, `send`). Read ops target the caller's session by
-  default. `send` (which prompts another session) is restricted to the
-  `orchestrator` and `delivery` agents and asks for confirmation first.
-- **Slash command** — [`commands/session.md`](./commands/session.md) gives a
-  human-facing entry point: `/session <session-id> [op]`. Commands inject a
-  prompt, so the command delegates the actual read/write to the tool above.
-
-## Steering inbox
-
-[`plugins/steer-inbox.js`](./plugins/steer-inbox.js) is a file-based steering
-inbox. While an agent turn is running, append one JSON object per line (JSONL)
-to the inbox; the plugin delivers each message to the active session over
-opencode's **v2 steer channel** (`delivery:"steer"`), applied in the same turn
-at the next step boundary.
-
-- **Inbox** — `$XDG_STATE_HOME/opencode/steer-inbox.jsonl`, else
-  `~/.local/state/opencode/steer-inbox.jsonl`. It lives in the state dir
-  (outside this repo), so runtime state never pollutes the tracked files.
-- **Override / kill switch** — `OPENCODE_STEER_INBOX` (absolute path);
-  `OPENCODE_STEER_INBOX_DISABLE=1` disables the plugin.
-- **Line format** — `{"text":"...", "session":"ses_..."}`; `text` is required,
-  `session` (or `target`) optionally names the target session.
-
-```bash
-echo '{"text":"use the staging DB"}' >> ~/.local/state/opencode/steer-inbox.jsonl
-```
-
-An `<inbox>.offset` byte-offset sidecar steers each line once within a running
-process (at-most-once); a crash between delivery and the offset write can
-re-deliver one line after restart. Malformed lines are skipped, and a line with
-no known session waits for a later drain. **Routing:** an explicit
-`session`/`target` wins, otherwise the most-recently-active session (ambiguity
-resolves to most-recently-active). The inbox path is global per machine and has
-no cross-process lock — run a single opencode instance per machine, or give
-instances distinct `OPENCODE_STEER_INBOX` paths, to avoid the same line being
-steered twice.
-
-**Safe by default / opt-in:** an absent inbox file leaves the plugin completely
-inert. It never throws, never blocks (async fs, fire-and-forget), sends no model
-override, reads no credentials, and connects nothing. No `opencode.json` entry
-is needed — local plugins auto-load from `plugins/`.
-
-## Session export
-
-[`plugins/session-export.js`](./plugins/session-export.js) keeps a
-machine-readable snapshot of the opencode session list and each session's run
-state, so external consumers (e.g. a KDE Plasma widget) can render the active
-sessions without talking to the local server themselves.
-
-- **Output file** — `$XDG_STATE_HOME/opencode/sessions.json`, else
-  `~/.local/state/opencode/sessions.json`. It lives in the state dir (outside
-  this repo), so runtime state never pollutes the tracked files.
-- **Override / kill switch** — `OPENCODE_SESSION_EXPORT` (absolute path);
-  `OPENCODE_SESSION_EXPORT_DISABLE=1` disables the plugin.
-
-```json
-{
-  "updatedAt": "2026-09-13T22:30:00.000Z",
-  "sessions": [
-    {"id":"ses_...","title":"...","parentID":null,
-     "status":"idle","updated":1757800200000}
-  ]
-}
-```
-
-`status` is one of `idle`, `busy`, `retry` (or `unknown`); `parentID` is `null`
-for top-level sessions; `updated` is epoch milliseconds. Sessions are sorted by
-status rank (busy, retry first), then by `updated` descending.
-
-**Safe by default / no-throw:** writes are async and fire-and-forget, atomic
-(temp file + `fs.rename`), and never throw. If the local server is unreachable
-the previous snapshot is left untouched. It sends no model override, reads no
-credentials, and connects nothing.
-
-**Restart required:** opencode must be **restarted** after adding or changing
-the plugin for it to load.
-
-## Engram memory
-
-Engram is a persistent memory service that ships with the agent system and runs
-locally.
-
-- **Plugin** — [`plugins/engram.ts`](./plugins/engram.ts) auto-starts
-  `engram serve` and injects the memory protocol. Re-running
-  `engram setup opencode` overwrites this file with the upstream version.
-- **MCP** — `opencode.json` declares the `engram` MCP server, which is what
-  exposes the `mem_*` tools. Its binary path (`/home/admin/.local/bin/engram`)
-  is the one documented absolute-path exception; the plugin carries the same
-  path as a fallback default.
-- **Global, not per-project** — the MCP command pins one bucket with
-  `--project=global`, so memory is repo-independent. `ENGRAM_PROJECT=global` is
-  the equivalent process override; the override is only honoured on engram
-  **v1.16.1+** (before that fix `global` was silently coerced to the cwd
-  project). Recall across buckets with `all_projects=true` / `--all`.
-  `engram doctor` is the health check.
-- **DB** — `~/.engram/engram.db`; HTTP API `127.0.0.1:7437`.
-
 ## Updating the config
 
-- **Change an agent's temperature** → edit the `temperature:` in the frontmatter
-  of `agents/<id>.md`, then restart opencode. The model is inherited from the
-  invoking primary unless the agent declares an explicit `model:` override.
+- **Change an agent's model/temperature** → edit the frontmatter of
+  `agents/<id>.md` (`model` / `temperature`), then restart opencode.
 - **Change an agent's definition** (prompt, tools, permissions, schema) → edit
   `agents/<id>.md`.
-- **Add an agent** → create `agents/<id>.md` with its frontmatter
-  (`description`, `mode`, `temperature`, `permission`, `output_schema`, plus an
-  optional `model:` override). Do not touch `opencode.json` (it has no `agent`
-  block).
+- **Add an agent** → create `agents/<id>.md` with its full frontmatter
+  (`description`, `mode`, `model`, `temperature`, `permission`,
+  `output_schema`). Do not touch `opencode.json` (it has no `agent` block).
+- **Update the global install** → `git pull` in the `~/.config/opencode` clone.
 
 ## Validating the config
 
-Run the full test suite (bash; Git Bash / WSL on Windows):
+Before committing changes to the agent system, run the full test suite (Git
+Bash / WSL):
 
 ```bash
 bash tests/run-tests.sh
 ```
 
-It runs eight suites, all exit-code driven (CI-ready):
+It includes two suites, both exit-code driven (CI-ready):
 
 1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
    valid JSON, that the flat `agents/` layout is intact, that no agent uses the
@@ -249,28 +148,14 @@ It runs eight suites, all exit-code driven (CI-ready):
    is rejected, the golden routing packets validate against
    `interpreter.schema.json`, and the JSON examples documented in the agent
    `.md` files stay in sync with their schemas.
-3. **`tests/test-docs-validator.sh`** (docs validator): the bundled
-   `templates/docs-validate.js` derives from upstream onrails without drift.
-4. **`tests/test-conformance-register.py`** (divergence register): the declared
-   onrails divergences in `templates/docs-conformance.json` are machine-checked.
-5. **`tests/test-agent-hardening.py`** (permission matrix): `subagent_depth: 4`,
-   no `lsp` block, the read-only/edit/`websearch` denies, the `permission.task`
-   catch-all model, and the absence of fabricated runtime claims.
-6. **`tests/test-session-tool.py`** (session capability): the `session` plugin
-   tool, the `/session` slash command, and the harness wiring.
-7. **`tests/test-steer-inbox.py`** (steering inbox): the `steer-inbox` plugin's
-   structure, safe/no-throw async behavior, v2 steer delivery channel, env
-   overrides, and `node --check` parse guard.
-8. **`tests/test-session-export.py`** (session export): the `session-export`
-   plugin's structure, safe/no-throw async behavior, atomic write, env
-   overrides, and `node --check` parse guard, plus the runner wiring.
 
 ## Troubleshooting
 
 **"My config is not picked up"** — Verify `opencode.json` is valid JSON:
 `python3 -m json.tool opencode.json`.
 
+**"I want to go back to the previous version"** — Use your own version control
+(Git) to check out the previous state of the clone.
+
 **"A project doesn't see its `docs/`"** — Confirm the project has
-`docs/project.md`; `opencode.json` lists it under `instructions` relative to the
-session working directory, and an absent file is silently skipped. No per-project
-`opencode.json` is needed.
+`docs/project.md`; it is listed under `instructions` in `opencode.json`.

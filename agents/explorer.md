@@ -4,9 +4,7 @@ mode: subagent
 temperature: 0.1
 permission:
   edit: deny
-  bash: deny
   task:
-    "*": deny
     explorer: allow
 output_schema: ./explorer.schema.json
 ---
@@ -15,7 +13,7 @@ output_schema: ./explorer.schema.json
 
 Read and analyze the codebase — never modify code.
 
-**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/context-index.md`).
+**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/README.md`).
 
 ## Role
 
@@ -100,7 +98,6 @@ The task tool validates your return against `ExplorerOutput`. Do not write `summ
 
 ## Rules
 
-- NEVER modify code or run shell commands
-- Read-only is enforced by permission: `edit: deny` and `bash: deny`. The `grep`, `glob` and `read` tools remain available — `grep` is a distinct tool, not a shell command, so `bash: deny` does not disable it
+- NEVER modify code
 - All output in ENGLISH
 - Always report absolute paths from the repo root (e.g. `src/feature/foo.ts`), not relative

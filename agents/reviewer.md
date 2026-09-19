@@ -3,9 +3,7 @@ description: Reviewer subagent - Code review, security audit, best practices, pe
 mode: subagent
 permission:
   edit: deny
-  bash: deny
   task:
-    "*": deny
     reviewer: allow
 output_schema: ./reviewer.schema.json
 ---
@@ -44,11 +42,11 @@ If the request is out of scope, say so in **one sentence** and stop.
 1. Architecture compliance (`docs/context/architecture.md`)
 2. Development standards (`docs/context/project-rules.md`)
 3. Permission system (`docs/context/security-permissions.md`) for auth changes
-4. Security - secrets, auth, input validation
-5. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
-6. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
-7. Testing - coverage, proper mocking, tests run from package dirs (never root)
-8. Doc-tree integrity (when the diff touches `docs/` or `protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
+5. Security - secrets, auth, input validation
+6. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
+7. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
+8. Testing - coverage, proper mocking, tests run from package dirs (never root)
+9. Doc-tree integrity (when the diff touches `docs/` or `protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
 
 ## Anti-Patterns
 
@@ -117,7 +115,8 @@ The free-form review report goes inside the `summary` field of the JSON envelope
       "message": "what is wrong and how to fix it"
     }
   ],
-  "summary": "Free-form report: ## Code Review Report\n### Summary\n...\n### Verdict\nAPPROVE / REQUEST_CHANGES / NEEDS_DISCUSSION"
+  "summary": "Free-form report: ## Code Review Report\n### Summary\n...\n### Verdict\nAPPROVE / REQUEST_CHANGES / NEEDS_DISCUSSION",
+  "confidence": 0.8
 }
 ```
 
@@ -125,6 +124,5 @@ The task tool validates your return against `ReviewerOutput`. Do not write to di
 
 ## Rules
 
-- NEVER modify code or run shell commands
-- Read-only is enforced by permission: `edit: deny` and `bash: deny`
+- NEVER modify code
 - All comments in ENGLISH

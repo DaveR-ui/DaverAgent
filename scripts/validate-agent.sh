@@ -17,6 +17,11 @@
 #   6. config instructions/references paths resolve (docs/ paths are warnings -
 #      they live in the target project; the `agent-system` reference resolves here)
 #   7. every *.schema.json parses as valid JSON
+#   8. every agents/*.schema.json is structurally closed: draft 2020-12, root
+#      additionalProperties:false with a non-empty required array, and a
+#      description on every property (recursively, through properties/items)
+#   9. every re_route_to enum value resolves to agents/<value>.md; a
+#      re_route_language enum only allows angular|go
 #
 # Exit code: 0 = OK (warnings allowed), 1 = errors found.
 # Pure bash + python3 (no jq/node required).
@@ -59,7 +64,7 @@ frontmatter() {
 
 # --- 1. config JSON validity -------------------------------------------------
 
-echo "== [1/7] config JSON =="
+echo "== [1/9] config JSON =="
 if ! have_python; then
   warn "python3 not found; skipping JSON validation of ${CONFIG}"
 else
@@ -76,7 +81,7 @@ fi
 # omission means the subagent inherits the invoking primary agent's model.
 # The only hard frontmatter error here is the deprecated `tools:` field.
 
-echo "== [2/7] flat agents/ layout + frontmatter (model optional; tools: check) =="
+echo "== [2/9] flat agents/ layout + frontmatter (model optional; tools: check) =="
 if [ -d "${ROOT}/agents/subagents" ]; then
   err "legacy agents/subagents/ layout found; agents must be flat under agents/"
 fi
@@ -99,7 +104,7 @@ fi
 
 # --- 3. output_schema resolution ---------------------------------------------
 
-echo "== [3/7] output_schema files =="
+echo "== [3/9] output_schema files =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   schema="$(frontmatter "${md}" | awk -F': *' '/^output_schema:/{gsub(/ /,"",$2); print $2; exit}')"
@@ -115,7 +120,7 @@ done
 
 # --- 4. permission.task entries ---------------------------------------------
 
-echo "== [4/7] permission.task targets =="
+echo "== [4/9] permission.task targets =="
 for md in "${AGENTS_DIR}"/delivery.md "${AGENTS_DIR}"/orchestrator.md; do
   [ -f "${md}" ] || continue
   targets="$(frontmatter "${md}" | awk '/^  task:/{f=1; next} /^[^ ]/{f=0} f && /^    [a-z0-9-]+: allow/{line=$1; sub(/:.*/,"",line); print line}')"
@@ -129,7 +134,7 @@ done
 
 # --- 5. required frontmatter -------------------------------------------------
 
-echo "== [5/7] required frontmatter =="
+echo "== [5/9] required frontmatter =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   name="$(basename "${md}")"
@@ -151,7 +156,7 @@ echo "ok: frontmatter scanned"
 
 # --- 6. instructions / references paths --------------------------------------
 
-echo "== [6/7] config instructions/references paths =="
+echo "== [6/9] config instructions/references paths =="
 if have_python; then
   PY_OUT="$(python3 - "${CONFIG}" "${ROOT}" <<'PY'
 import json, os, sys
@@ -195,7 +200,7 @@ fi
 
 # --- 7. schema JSON files ----------------------------------------------------
 
-echo "== [7/7] schema JSON files =="
+echo "== [7/9] schema JSON files =="
 for f in "${AGENTS_DIR}"/*.schema.json "${SCRIPT_DIR}"/*.schema.json; do
   [ -f "${f}" ] || continue
   if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "${f}" 2>/dev/null; then
@@ -204,6 +209,134 @@ for f in "${AGENTS_DIR}"/*.schema.json "${SCRIPT_DIR}"/*.schema.json; do
     echo "ok: $(basename "${f}")"
   fi
 done
+
+# --- 8. schema structural closure --------------------------------------------
+
+echo "== [8/9] schema structural closure =="
+if ! have_python; then
+  warn "python3 not found; skipping schema structural closure check"
+else
+  PY_OUT="$(python3 - "${AGENTS_DIR}" "${ROOT}" <<'PY'
+import glob, json, os, sys
+agents_dir = sys.argv[1]
+root = sys.argv[2]
+
+files = sorted(glob.glob(os.path.join(agents_dir, "*.schema.json")))
+if not files:
+    print("WARN: no agents/*.schema.json files found")
+
+def walk(node, ptr, rel, errors):
+    if not isinstance(node, dict):
+        return
+    if node.get("type") == "object" or "properties" in node:
+        if node.get("additionalProperties") is not False:
+            errors.append(f"{rel}#{ptr} is missing 'additionalProperties': false")
+        required = node.get("required")
+        if not isinstance(required, list) or not required:
+            errors.append(f"{rel}#{ptr} is missing a non-empty 'required' array")
+        for name, sub in node.get("properties", {}).items():
+            pptr = f"{ptr}/properties/{name}"
+            if not isinstance(sub, dict):
+                continue
+            desc = sub.get("description")
+            if not isinstance(desc, str) or not desc.strip():
+                errors.append(f"{rel}#{pptr} is missing 'description'")
+            walk(sub, pptr, rel, errors)
+    items = node.get("items")
+    if isinstance(items, dict):
+        walk(items, f"{ptr}/items", rel, errors)
+
+for f in files:
+    rel = os.path.relpath(f, root)
+    try:
+        schema = json.load(open(f))
+    except json.JSONDecodeError:
+        continue  # check 7 already reports malformed JSON
+    errors = []
+    uri = schema.get("$schema")
+    if not isinstance(uri, str) or "2020-12" not in uri:
+        errors.append(f"{rel} is missing a '$schema' containing '2020-12'")
+    walk(schema, "", rel, errors)
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}")
+    else:
+        print(f"ok: {rel}")
+PY
+)"
+  while IFS= read -r line; do
+    case "${line}" in
+      ERROR:*) err "${line#ERROR: }" ;;
+      WARN:*)  warn "${line#WARN: }" ;;
+      *)       echo "${line}" ;;
+    esac
+  done <<< "${PY_OUT}"
+fi
+
+# --- 9. schema enum agent targets resolve ------------------------------------
+
+echo "== [9/9] schema enum agent targets resolve =="
+if ! have_python; then
+  warn "python3 not found; skipping schema enum agent target check"
+else
+  PY_OUT="$(python3 - "${AGENTS_DIR}" "${ROOT}" <<'PY'
+import glob, json, os, sys
+agents_dir = sys.argv[1]
+root = sys.argv[2]
+
+files = sorted(glob.glob(os.path.join(agents_dir, "*.schema.json")))
+
+def collect(node, found):
+    if not isinstance(node, dict):
+        return
+    for key, sub in node.get("properties", {}).items():
+        if isinstance(sub, dict):
+            if key in ("re_route_to", "re_route_language") and isinstance(sub.get("enum"), list):
+                found.append((key, sub["enum"]))
+            collect(sub, found)
+    items = node.get("items")
+    if isinstance(items, dict):
+        collect(items, found)
+
+for f in files:
+    rel = os.path.relpath(f, root)
+    try:
+        schema = json.load(open(f))
+    except json.JSONDecodeError:
+        continue  # check 7 already reports malformed JSON
+    found = []
+    collect(schema, found)
+    errors = []
+    has_re_route_to = False
+    for key, values in found:
+        if key == "re_route_to":
+            has_re_route_to = True
+            for v in values:
+                if not os.path.isfile(os.path.join(agents_dir, f"{v}.md")):
+                    errors.append(f"{rel} re_route_to enum value '{v}' has no agents/{v}.md")
+        else:  # re_route_language
+            for v in values:
+                if v not in ("angular", "go"):
+                    errors.append(
+                        f"{rel} re_route_language enum value '{v}' is not one of angular|go"
+                    )
+    if errors:
+        for e in errors:
+            print(f"ERROR: {e}")
+    elif has_re_route_to:
+        print(f"ok: {rel} re_route_to targets resolve")
+    else:
+        print(f"ok: {rel} (no re_route_to enum)")
+PY
+)"
+  while IFS= read -r line; do
+    case "${line}" in
+      ERROR:*) err "${line#ERROR: }" ;;
+      WARN:*)  warn "${line#WARN: }" ;;
+      *)       echo "${line}" ;;
+    esac
+  done <<< "${PY_OUT}"
+fi
 
 # --- summary -----------------------------------------------------------------
 

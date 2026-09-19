@@ -5,9 +5,6 @@ node_modules/
 opencode.local.json
 *.local.json
 
-# opencode runtime server credentials (generated per machine, secret)
-service.json
-
 # Machine-local human slang / personal dictionaries (not created by this repo)
 humans/
 
@@ -25,7 +22,3 @@ __pycache__/
 .draft/
 .omo/
 *.log
-
-# ── Machine-specific plugin scripts (portable plugin source only) ─
-plugins/**/gk-hooks.js
-

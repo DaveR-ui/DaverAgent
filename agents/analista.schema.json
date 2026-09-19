@@ -36,7 +36,13 @@
     },
     "re_route_to": {
       "type": "string",
-      "description": "Optional agent id to send the work to instead (e.g. coder (language=angular|go), reviewer, architect, tester, explorer)."
+      "enum": ["coder", "tester", "reviewer", "architect", "explorer"],
+      "description": "Optional agent id to send the work to instead. When routing to `coder`, also set `re_route_language`."
+    },
+    "re_route_language": {
+      "type": "string",
+      "enum": ["angular", "go"],
+      "description": "Optional; only meaningful when re_route_to = coder. Selects the coder's language template."
     }
   },
   "required": [

@@ -37,8 +37,14 @@
     "summary": {
       "type": "string",
       "description": "One-line description of the design."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Calibrated confidence in this return (0 = no confidence, 1 = certain)."
     }
   },
-  "required": ["decisions", "files_to_touch", "summary"],
+  "required": ["decisions", "files_to_touch", "summary", "confidence"],
   "additionalProperties": false
 }

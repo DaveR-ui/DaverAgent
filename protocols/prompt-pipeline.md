@@ -4,7 +4,7 @@ Two-stage analysis convention for the Delivery agent. **Every prompt** passes th
 
 This protocol defines the two stages conceptually; the executor of each step may vary:
 
-- **Step 0: Interpret** is executed by the [`interpreter`](../agents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and asks the human one batch of clarifying questions when a load-bearing doubt survives its lookups.
+- **Step 0: Interpret** is executed by the [`interpreter`](../agents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
 - **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce delegating it is a one-line `task` call, and doing it on the cheap tier is the failure mode this protocol removes.
 
 ## When to apply
@@ -24,7 +24,7 @@ The `delivery` agent invokes the `interpreter` subagent with the raw prompt. The
 2. Normalizes vocabulary and aliases against the codebase (`grep`) and `docs/project.md`.
 3. Captures hard constraints and explicit non-goals.
 4. Identifies the smallest actionable slice, the hidden assumption, and expected output.
-5. Calls the `question` tool ONCE (all questions batched) when a **load-bearing doubt** survives its lookups — i.e. an answer that would change the route, scope, or acceptance criteria. Leans toward asking rather than guessing.
+5. Optionally calls the `question` tool ONCE, with a batch of all blocking questions, if the route would materially change based on the answer.
 6. Returns a compact routing packet written entirely in English (see [`interpreter.md`](../agents/interpreter.md) for the full shape).
 
 The full process and the routing packet schema are defined in [`agents/interpreter.md`](../agents/interpreter.md). Do not duplicate it here.
@@ -89,8 +89,9 @@ The full process and the routing packet schema are defined in [`agents/interpret
 - **Compute guard** — plans touching >5 files are hot spots by default.
 - **Hidden assumption is mandatory** — the routing packet from Step 0 already carries the hidden assumption. If the assumption feels load-bearing, surface it again in the scope.
 - **Hot spots are cumulative** — multiple hot spots bump the complexity level.
-- **Ask, don't guess (batched).** When an ambiguity is load-bearing — its answer changes the route, the scope, or the acceptance criteria — prefer one batched `question` round over a silent assumption. Step 0 (interpreter) asks before routing; Phase 2 (orchestrator) asks before decomposing. Non-load-bearing ambiguities proceed on a recorded assumption (`hidden_assumption` / `## Decisions`).
 - **One question block** — never ask the human 5 questions across 5 turns. Group all clarifications into a single message. The interpreter already follows this rule for Step 0; Phase 2 must follow it too.
+- **Confidence gate** — every decision-returning subagent return carries a calibrated `confidence` (0–1). A *load-bearing* decision (Phase 2 hot spot or an irreversibility class — see step 4) at `confidence < 0.5` MUST surface as `STATUS: NEEDS_HUMAN`; only a *reversible* decision may proceed on a documented default. Never silently treat low confidence as certain — see `agents/orchestrator.md` → Confidence Gate.
+- **Typed-decision panel** — when a scope has 2+ independent A/B hot spots, the orchestrator may release one `analista`/`architect` instance per hot spot against the frozen routing packet; the panel is advisory and stays internal (one question block, no extra human rounds).
 
 ## Integration
 
