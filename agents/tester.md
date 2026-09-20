@@ -1,6 +1,8 @@
 ---
 description: Tester - framework-parameterized test execution for vitest, karma-jasmine, playwright, and go. Thin adapter branching by framework (vitest|karma-jasmine|playwright|go) via task payload, with optional conditional linter, reusing tester.schema.json TesterOutput.
 mode: subagent
+permission:
+  edit: deny
 output_schema: ./tester.schema.json
 ---
 

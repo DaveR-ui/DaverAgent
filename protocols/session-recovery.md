@@ -142,8 +142,9 @@ returned JSON live in this protocol.
 - **Single-server assumption.** Multi-server orchestration is out of scope; the
   flow assumes one `sidecar` server.
 - **No automatic invocation.** The API walk is performed manually by the user
-  or by a future orchestrator recovering from STUCK. It is NOT invoked by
-  `delivery` or `interpreter`.
+  or by a recovering orchestrator. `delivery` and `interpreter` may **consult**
+  this protocol to route recovery (e.g. `delivery` links to it before declaring
+  `NEEDS_HUMAN`), but they do **not** perform the API walk themselves.
 - **No auto-deletion of failed sessions.** Failed sessions are left in place.
   The user may delete them via `DELETE /session/:id` if desired (endpoint noted
   here for reference; intentionally not scripted).

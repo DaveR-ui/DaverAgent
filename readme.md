@@ -138,19 +138,29 @@ The protocols live in `protocols/`:
   `permissions` array of `{ action, resource, effect }`. Each agent also carries
   its own `permission:` block in its `.md` frontmatter. Valid V2 permission
   actions include `read`, `edit`, `glob`, `grep`, `list`, `bash`, `task`,
-  `webfetch`, `websearch`, `question`, `external_directory`, `lsp`, and `skill`;
-  `task` is the subagent-dispatch gate. `webfetch`/`websearch` are first-class V2
-  actions — verified against the installed runtime — so `external-scout`'s
-  `webfetch: allow` and `delivery`'s `webfetch: deny` are legitimate rules, not
-  leftovers.
+  `webfetch`, `websearch`, `question`, `external_directory`, `lsp`, `skill`, and
+  `doom_loop`; `task` is the subagent-dispatch gate. `webfetch`/`websearch` are
+  first-class V2 actions — verified against the installed runtime — so
+  `external-scout`'s `webfetch: allow` and `delivery`'s `webfetch: deny` are
+  legitimate rules, not leftovers.
+- **Two permission vocabularies.** The top-level `permissions` array in
+  `opencode.json` uses the runtime's action names verbatim — notably `shell` for
+  shell execution (the shell tool asserts `action: "shell"`), `edit` for
+  edit/write/patch, and `subagent` for dispatch. Each agent's `permission:`
+  block in its `.md` frontmatter uses the agent-config keys (`bash`, `task`,
+  `edit`, `read`, …), which the runtime aliases to `shell` / `subagent` /
+  `edit`. Do NOT rename `shell` → `bash` in the global array: that turns the
+  shell rules inert, because the evaluated action is `shell`. Verified against
+  the installed runtime v2.0.8.
 - Self `permission.task` grants remain on `explorer` and `reviewer` only — the
   two agents whose bodies document self fan-out (`## Sampling and Fan-out`).
   Every other subagent does not recurse and carries no `task` grant.
-- `orchestrator` and the subagents have no external skills pre-enabled. The only
-  legitimate built-in skill is `customize-opencode` (part of the opencode
-  runtime, not repo-local). **This repo ships no skills by design**: conventions
-  are `protocols/*.md` — intentionally prose markdown, not `.opencode/skills/`,
-  because skills are strict-text and protocols are the preferred mechanism here.
+- `orchestrator` and the subagents have no external skills pre-enabled. Any
+  built-in skills come from the opencode runtime itself, not from this repo (the
+  runtime owns the skill names, which may change). **This repo ships no skills by
+  design**: conventions are `protocols/*.md` — intentionally prose markdown, not
+  `.opencode/skills/`, because skills are strict-text and protocols are the
+  preferred mechanism here.
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
 - **Structured returns are a prose contract, not runtime-enforced.** The V2
@@ -199,8 +209,9 @@ It is exit-code driven (CI-ready) and checks:
 - every `output_schema` resolves to an existing file;
 - `permission.task` grants fail closed (every allow target resolves to a real agent);
 - every `references` entry resolves;
-- every `*.schema.json` (in `agents/` and `scripts/`) parses as valid JSON and is
-  structurally closed;
+- every `*.schema.json` under `agents/` parses as valid JSON and is structurally
+  closed (any `scripts/*.schema.json` is included when present; this repo
+  currently ships none);
 - every schema enum target (e.g. `re_route_to`) resolves to an agent;
 - no dangling references: markdown links plus inline-code `agents/*.md` /
   `protocols/*.md` paths all resolve.

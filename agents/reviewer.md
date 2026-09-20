@@ -26,7 +26,7 @@ Accept:
 
 Decline and re-route:
 - Implementing the fixes you find — report them as `issues`; re-route to `coder` (language=angular|go).
-- Writing or repairing tests -> `tester`.
+- Writing or repairing tests -> `coder` (language=angular|go); execution stays with `tester`.
 - Open-ended design questions -> `architect`.
 
 If the request is out of scope, say so in **one sentence** and stop.

@@ -1,6 +1,16 @@
 ---
 description: Documenter subagent - Writes and maintains project documentation. Reads and writes docs/ on demand. Returns structured DocumenterOutput JSON.
 mode: subagent
+permission:
+  edit:
+    "*": deny
+    "docs/**": allow
+    "docs/*.env": deny
+    "docs/*.env.*": deny
+    "docs/*.key": deny
+    "docs/*.secret": deny
+    "docs/*.pem": deny
+  bash: deny
 output_schema: ./documenter.schema.json
 ---
 
@@ -31,7 +41,7 @@ Do **not** modify:
 - `docs/project.md` is the canonical entry point: project metadata, stack, commands, and the **Slices table** that routes every change to its primary doc.
 - Strategic docs live in `docs/context/` — one topic per file — indexed by `docs/context/README.md`; fast tag lookup in `docs/_TAG-INDEX.md`.
 - Source-of-truth hierarchy: `docs/context/*.md` > `docs/project.md` > `docs/_TAG-INDEX.md` > `src/`. Code may be legacy or mid-refactor — document the target pattern, never the anti-pattern.
-- Project protocols live in `docs/protocols/`; agent protocols live in `protocols/` (catalog registry out of scope — see documenter salvage note below). Canonical doc format is `docs/context/doc-conventions.md` - learner relevance filter retired (superseded by `prompt-pipeline.md` hot spots).
+- Project protocols live in `docs/protocols/`; agent protocols live in `protocols/`. Canonical doc format is `docs/context/doc-conventions.md`.
 
 ## Standards
 

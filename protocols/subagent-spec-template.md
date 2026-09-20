@@ -13,7 +13,7 @@ One canonical shape for every subagent spec, so the orchestrator, human reviewer
 | `description` | **required** | One line, routing-oriented — the orchestrator reads this to decide delegation. Name the discipline, the accepted task shapes, and the structured return if any. |
 | `mode` | **required** | Literal value (`primary` for delivery, `subagent` for everything else). |
 | `model` | optional | Fully qualified (`<provider>/<model>`). Declared in the agent's frontmatter as an explicit override; when omitted, the subagent inherits the invoking primary agent's model. Part of the cost contract — see the orchestrator's subagent table. |
-| `permission` | optional | The agent-level permission block (e.g. read-only adapters, `task` fan-out grants). `task` is the subagent-dispatch gate on V2: `task: deny` blocks recursion, `task: { <agent>: allow }` grants it. Valid V2 action keys include `read`, `edit`, `glob`, `grep`, `list`, `bash`, `task`, `webfetch`, `websearch`, `question`, `external_directory`, `lsp`, `skill` — `webfetch`/`websearch` are first-class, not legacy. |
+| `permission` | optional | The agent-level permission block (e.g. read-only adapters, `task` fan-out grants). `task` is the subagent-dispatch gate on V2: `task: deny` blocks recursion, `task: { <agent>: allow }` grants it. Valid V2 action keys include `read`, `edit`, `glob`, `grep`, `list`, `bash`, `task`, `webfetch`, `websearch`, `question`, `external_directory`, `lsp`, `skill`, `doom_loop` — `webfetch`/`websearch` are first-class, not legacy. |
 | `output_schema` | optional | Relative path to the sibling JSON Schema (`./<id>.schema.json`) — see the bridge below. |
 
 There is deliberately **no `temperature`**. On V2 an agent `temperature` is not sent with model requests, so the field would be dead config; agents omit it.
@@ -109,7 +109,7 @@ Rules for thin variants:
 
 - Variant A is explicitly exempt from `### Role` and `### Scope` in Sec1 — it delegates identity/scope to the `docs/context/` slice table. Do not add empty `Role`/`Scope` to satisfy the shell.
 - Variant B's `### Contract` is the merged Role+Scope; it is NOT an alias for `### Structured Return` — the return is prose/text described in the contract.
-- Both variants remain valid inside the 3-section shell via omitted macros. The full shape (3 macros, all H3s) remains the default for all other subagents (`architect`, `explorer`, `reviewer`, `documenter`, `analista`, `interpreter`); `coder` and `tester` are Variant A.
+- Both variants remain valid inside the 3-section shell via omitted macros. The full shape (3 macros, all H3s) remains the default for all other subagents — the **six** grandfathered agents (`architect`, `explorer`, `reviewer`, `documenter`, `analista`, `interpreter`), which predate the mandatory macro anchors and are not mass-retrofitted (see "Anchor contract"); `coder` and `tester` are Variant A.
 
 ## The `output_schema` ↔ sibling schema bridge
 

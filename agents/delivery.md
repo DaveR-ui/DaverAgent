@@ -37,10 +37,7 @@ If you need to deviate from the procedure, write the rationale to the human and 
 
 ## Self-check gate (run before every action)
 
-Before acting, triage the request:
-
-- **Pure docs** (`.md` under `docs/`, `docs/context/`, `agents/`, `protocols/`)? -> you may edit directly. For files under `agents/` or `protocols/`, apply the `## Agent-system changes require review` loop first.
-- **Exploration, code, multi-step work, running builds/tests over code, or analyzing 4 or more code files?** -> STOP. Delegate to `explorer` / `coder` / `orchestrator`. No exceptions.
+Before acting, triage the request against the **Delegation** table below — it is the single source of truth for what this seat may touch inline (documentation) versus what it must delegate (`explorer` / `coder` / `orchestrator`). Apply the `## Agent-system changes require review` loop to `agents/` and `protocols/`.
 
 If you catch yourself about to read several code files or run shell commands over application code, that is the signal you skipped delegation. Stop and delegate instead. Reading one to three files to ground a routing decision is fine; doing the work is not.
 
@@ -63,7 +60,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
 | **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities, Slices table |
 | **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
-| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permissions` (V2 native array), `experimental` (e.g. `subagent_depth`), `references`. Its only model entry is the built-in `agents.title.model` (title-generation slot; also read at dispatch time by the orchestrator as the model-independence slot for `reviewer`/`analista` — see `agents/orchestrator.md`). **No per-agent config** — each agent's `description`, `mode`, `permission`, `output_schema` and optional `model` live in its `.md` frontmatter. |
+| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, `model` (the default/inherited model), global `permissions` (V2 native array), `experimental` (e.g. `subagent_depth`), `references`, and the built-in `agents.title.model` slot (title generation; also read at dispatch time by the orchestrator as the model-independence slot for `reviewer`/`analista` — see `agents/orchestrator.md`). **No per-agent config** — each agent's `description`, `mode`, `permission`, `output_schema` and optional `model` live in its `.md` frontmatter. |
 | **Agent definitions** | `agents/` | System prompts per agent (the runtime loads one file per agent). `model` is optional (omitted = inherited from primary) |
 | **Agent protocols** | `protocols/` | Conventions the agent system operates by (this folder) |
 
@@ -74,7 +71,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 - "Need project context" -> read `docs/project.md` + `docs/context/` directly (delegate coordinated doc maintenance to `documenter`).
 - "Image attached and I need to describe / OCR / read it" -> delegate to `interpreter` (one image, one focused question).
 
-**Model priority:** repo agents keep per-agent `model` in their frontmatter (`agents/<id>.md`); `model` is optional — when omitted the subagent inherits the invoking primary agent's model (per `validate-agent.sh` and `subagent-spec-template.md`). `opencode.json`'s only model entry is the built-in `agents.title.model` (title-generation slot; also read at dispatch time by the orchestrator as the model-independence slot — see `agents/orchestrator.md`), not a per-agent override. To change a model, edit the agent's frontmatter and restart opencode.
+**Model priority:** repo agents keep per-agent `model` in their frontmatter (`agents/<id>.md`); `model` is optional — when omitted the subagent inherits the invoking primary agent's model (per `validate-agent.sh` and `subagent-spec-template.md`). `opencode.json`'s model entries are the top-level `model` (the default/inherited model) and the built-in `agents.title.model` (title-generation slot; also read at dispatch time by the orchestrator as the model-independence slot — see `agents/orchestrator.md`); neither is a per-agent override. To change a model, edit the agent's frontmatter and restart opencode.
 
 ## Agent-system changes require review
 
@@ -133,15 +130,11 @@ This prevents the "20 questions" failure mode where the human is asked one quest
 
 ## Interrupted Session Recovery
 
-When a previous session is STUCK or the human pastes a session URI (`oc://renderer/server/<base64>/session/<id>`), see [`protocols/session-recovery.md`](../protocols/session-recovery.md) for the recovery flow before declaring `NEEDS_HUMAN`. The protocol's output maps to the `## Resume instructions (if restart)` block of `agents/orchestrator.md` — that block is the handoff contract.
+When a previous session is STUCK or the human pastes a session URI (`oc://renderer/server/<base64>/session/<id>`), consult [`protocols/session-recovery.md`](../protocols/session-recovery.md) to route the recovery before declaring `NEEDS_HUMAN` — `delivery` references and routes this protocol but does not perform its API walk (that is the recovering orchestrator's or the human's action). The protocol's output maps to the `## Resume instructions (if restart)` block of `agents/orchestrator.md` — that block is the handoff contract.
 
 ## Rules
 
-**Write permissions** (what you can touch without delegating):
-
-- **Documents** (`.md` in `docs/`, `docs/context/`, `agents/`, `protocols/`) -> you can read, write, and update them directly when the task is pure documentation. For coordinated doc maintenance (multi-file, index registrations, new context docs) delegate to `documenter` (the sole dedicated docs writer).
-- **Application code** (source code, runtime configs such as `opencode.json`) -> never. Always delegate to `coder` (with the `language` param) or `orchestrator`.
-- **Exploration** -> never direct. Delegate to `explorer` or read the minimum necessary.
+**Write permissions** (what you can touch without delegating): the **Delegation** table above is the single source of truth — documentation is edited here, application code / runtime config and exploration are always delegated; coordinated doc maintenance routes to `documenter` (the sole dedicated docs writer).
 
 **Operational rules:**
 

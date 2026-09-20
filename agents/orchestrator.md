@@ -20,7 +20,7 @@ You are a **persistent coordinator**. You are released once by the `delivery` ag
 1. Receive a handoff prompt from `delivery` (task + acceptance criteria + state snapshot).
 2. Decompose the task into subagent work units.
 3. Release subagents (`coder` (language-parameterized via `language=angular|go`), `tester`, `reviewer`, `architect`, `explorer`, etc.) in parallel when independent. When a single subagent type has too much work for one instance, **release multiple instances of the same subagent in parallel** (see "Fan-out" below).
-4. Aggregate their returns. Subagents declare `output_schema` by convention; you receive the child's final text in the subagent tool return, not as files on disk. Parse and verify each return yourself — see `## Structured return`.
+4. Aggregate their returns. Subagents declare `output_schema` by convention; you receive the child's final text in the subagent tool return, not as files on disk. Parse and verify each return yourself — see `## Hard Limits`.
 5. Produce a structured **agent-snapshot** and return it to `delivery`.
 
 You do NOT own the human conversation, session state, or language translation.
@@ -46,11 +46,11 @@ When instructions conflict, resolve them in this order. A higher-priority rule a
 
 ## Structured return
 
-`output_schema` is not runtime-enforced: on V2 it is captured as a legacy extra into `request.body` (preserved but not sent), and the subagent tool returns the child's final text as an opaque string. You MUST parse that text and verify it against the expected shape yourself before trusting it — a malformed or non-conforming return is a failed subagent to re-invoke. See [`protocols/subagent-spec-template.md`](../protocols/subagent-spec-template.md) (output_schema bridge) for the full V2 behavior.
+`output_schema` is not runtime-enforced on V2 — the full behavior explanation is the SSOT in [`protocols/subagent-spec-template.md`](../protocols/subagent-spec-template.md) (output_schema bridge). The enforcement duty (parse the child's final text, verify it against the expected shape, re-invoke on any malformed or non-conforming return) is owned by `## Hard Limits`; do not duplicate it here.
 
 The per-agent schema names and key fields are listed once in `## Available Subagents` below.
 
-Do not instruct subagents to write `summary.md` / `output-full.md` / `manifest.md` to disk. The runtime captures everything in the EventV2 bus and exposes it through `GET /session/:id/children` (the `ChildInfo` shape with `status`, `summary`, `agentType`, `durationMs`).
+The runtime captures returns on the EventV2 bus and exposes them through `GET /session/:id/children` (the `ChildInfo` shape with `status`, `summary`, `agentType`, `durationMs`). Never instruct subagents to write scratch files to disk — see `## Hard Limits`.
 
 ## Fan-out: launching N instances of the same subagent
 
@@ -280,7 +280,7 @@ The `interpreter` runs Step 0 (Interpret) in `delivery`, upstream of this seat, 
 
 **Built-in skills** (from opencode runtime):
 
-_(none — all opencode runtime skills have been replaced by agent protocols or on-demand `docs/context/` reads. The "customize-opencode" skill is built into the opencode runtime itself.)_
+_(none — conventions live in agent protocols and on-demand `docs/context/` reads. Any built-in skills are provided by the opencode runtime itself, not this repo.)_
 
 Project context (security permissions, identity, LaunchDarkly flags, naming) is **on demand** — see `## Project Context Source`; there is no preloaded protocol for it.
 

@@ -125,6 +125,12 @@ fi
 # The unsupported lists mirror the installed runtime's config normalizer
 # (core/src/config/normalize.ts, verified on v2.0.8). Re-verify against the
 # runtime source if the opencode major version changes.
+#
+# These branches are INTENTIONALLY retained as anti-regression guards: the
+# current opencode.json passes cleanly, so they never fire today — but they
+# exist to catch a future re-introduction of a retired field (git history shows
+# several of these were present in earlier revisions). Do NOT delete a branch
+# just because it is currently dormant.
 
 echo "== [3/13] unsupported / forbidden config fields =="
 if ! have_python; then
@@ -141,6 +147,8 @@ except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 # Keep in sync with core/src/config/normalize.ts (installed runtime v2.0.8).
+# Retained deliberately as anti-regression guards even when the current config
+# is clean; see the shell-level note above.
 unsupported_top = ["logLevel", "server", "subagent_depth", "layout"]
 unsupported_experimental = [
     "disable_paste_summary",
