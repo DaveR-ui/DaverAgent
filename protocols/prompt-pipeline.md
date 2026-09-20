@@ -65,7 +65,7 @@ The full process and the routing packet schema are defined in [`agents/interpret
    - **Media-Alta** — conditional branching by env/type, state changes.
    - **Alta** — multi-environment behavior, external integrations, shared state.
    - **Muy Alta** — data migration, schema changes, breaking changes.
-4. **Hot spots** — flag any critical decision point. Each hot spot needs: the decision, two approaches with risk/benefit, a mandatory A/B question.
+4. **Hot spots** — flag any critical decision point. Each hot spot needs: the decision, two approaches with risk/benefit, a mandatory A/B question — and a **branch-map** entry (§ "Branch map (machine-readable)"): a closed-choice question with enumerated outcomes.
    - State ownership pivot.
    - Breaking refactor (>900 lines touched).
    - Ambiguous data flow.
@@ -99,6 +99,41 @@ The full process and the routing packet schema are defined in [`agents/interpret
 - <observable behavior>
 ```
 
+### Branch map (machine-readable)
+
+When the scope has one or more hot spots, the scope also emits a **branch map**:
+each hot spot is a closed-choice decision with enumerated outcomes, so downstream
+consumers (the Typed-Decision Panel, the Confidence Gate) read fields instead of
+re-parsing prose. The map is the machine-readable twin of the `**Hot spots:**`
+line — the prose stays for humans; the map is what the orchestrator branches on.
+
+```json
+{
+  "hot_spots": [
+    {
+      "id": "HS1",
+      "decision": "state ownership pivot",
+      "locus": "design",
+      "question": "Should X own the state, or Y?",
+      "outcomes": ["x-owns", "y-owns"],
+      "load_bearing": true,
+      "chosen": null
+    }
+  ]
+}
+```
+
+- `locus` is `design` (boundaries, layering, pattern choice) or `proposal` (is
+  this plan sound / which alternative) — it selects the panel seat
+  (`architect` / `analista`) per `agents/orchestrator.md` → `## Typed-Decision Panel`.
+  A hot spot that is both is recorded as `design`.
+- `outcomes` is the enum: two or more mutually exclusive, closed-choice results.
+- `load_bearing` mirrors the Phase 2 hot-spot test and feeds the Confidence Gate.
+  Every emitted hot spot is load-bearing by definition, so the field is always
+  `true` on emitted entries — it is written explicitly, not as a discriminator.
+- `chosen` stays `null` until the panel/stakeholder resolves the branch.
+- No hot spots → no branch map (omit it; an empty `hot_spots` array is equivalent).
+
 ## Decision Rules
 
 - **No validation, no execution** — for Alta / Muy Alta complexity, the plan MUST be validated by the human before any implementation begins.
@@ -108,7 +143,7 @@ The full process and the routing packet schema are defined in [`agents/interpret
 - **Hot spots are cumulative** — multiple hot spots bump the complexity level.
 - **One question block** — never ask the human 5 questions across 5 turns. Group all clarifications into a single message. The interpreter already follows this rule for Step 0; Phase 2 must follow it too.
 - **Confidence gate** — every decision-returning subagent return carries a calibrated `confidence` (0–1). A *load-bearing* decision (Phase 2 hot spot or an irreversibility class — see step 4) at `confidence < 0.5` MUST surface as `STATUS: NEEDS_HUMAN`; only a *reversible* decision may proceed on a documented default. Never silently treat low confidence as certain — see `agents/orchestrator.md` → Confidence Gate.
-- **Typed-decision panel** — when a scope has 2+ independent A/B hot spots, the orchestrator may release one `analista`/`architect` instance per hot spot against the frozen routing packet; the panel is advisory and stays internal (one question block, no extra human rounds).
+- **Typed-decision panel** — when a scope has 2+ independent A/B hot spots, the orchestrator may release one `analista`/`architect` instance per hot spot against the frozen routing packet and the scope's **branch map**; the panel is advisory and stays internal (one question block, no extra human rounds).
 
 ## Integration
 

@@ -169,7 +169,11 @@ The protocols live in `protocols/`:
   (the SSOT), and `scripts/validate-agent.sh` performs the structural check on
   `agents/*.schema.json`.
 - **`delivery`, `orchestrator`, and `external-scout` are prose-only contracts by
-  design** — no `output_schema` is intended for them.
+  design** — no `output_schema` is intended for them. `delivery` and `orchestrator`
+  do carry a typed **coordination envelope** on the two hops between them (`status`
+  / `files_changed` / `subagent_outcomes` around the markdown report), defined in
+  `agents/orchestrator.md` → `## Handoff Protocol`; the envelope is a convention,
+  not an `output_schema`, so the prose-only statement still holds.
 
 ## Updating the config
 
