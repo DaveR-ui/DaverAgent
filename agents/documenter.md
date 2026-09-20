@@ -1,7 +1,6 @@
 ---
 description: Documenter subagent - Writes and maintains project documentation. Reads and writes docs/ on demand. Returns structured DocumenterOutput JSON.
 mode: subagent
-temperature: 0.2
 output_schema: ./documenter.schema.json
 ---
 
@@ -48,7 +47,7 @@ Do **not** modify:
 
 ## Post-change documentation audit
 
-After any documentation change, run a three-dimension consistency audit (formerly the `ia-sync-checker` protocol, removed 2026-08-09) and report a **Sync Audit Report** with a PASS/FAIL status per dimension:
+After any documentation change, run a three-dimension consistency audit and report a **Sync Audit Report** with a PASS/FAIL status per dimension:
 
 1. **Routing-table synchronization** — if the change touched any routing document (`docs/project.md` Slices, `docs/context/README.md`, `docs/protocols/README.md`, or `docs/_TAG-INDEX.md` when it exists), verify the others still reflect the same intent-to-route mapping (same target agent / doc path, no entry missing without reason). **Never auto-fix routing discrepancies** — present the alert to the user and ask which version is correct.
 2. **Date freshness** — for every `.md` file with `last_updated` in its frontmatter: older than 30 days → stale warning; older than 90 days → flag for review or removal. Auto-fix allowed only when the content is confirmed valid (update `last_updated`). Exempt: per-session cache contents.
@@ -81,4 +80,4 @@ On completion, return JSON:
 - **Reference, do not repeat** — if a fact is already in the project's `AGENTS.md` or another canonical doc, link to it.
 - **Update `docs/context/README.md`** whenever you add or remove a context file.
 - **Never delete files** — deletion is a human action. To replace a file, write the new version and let the human remove the old one.
-- **Safety guard (salvaged from retired ia-catalog-manager):** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `agents/` + `protocols/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.
+- **Safety guard:** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `agents/` + `protocols/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.

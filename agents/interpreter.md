@@ -1,7 +1,6 @@
 ---
 description: Interpreter subagent - Lightweight normalization helper invoked as Step 0 by delivery. Reconciles vocabulary via mandatory grep+glob lookups against the repo docs, captures constraints, may ask one batched round of clarifying questions, returns a compact routing packet with resolved_by_lookup and unresolved_questions, and handles single-image inspection (one image + one focused question → compact textual answer).
 mode: subagent
-temperature: 0.1
 permission:
   edit: deny
   bash: deny

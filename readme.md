@@ -77,8 +77,12 @@ path. The read tool does not expand `~`.
 ## Available agents
 
 Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
-`primary`). Invoked from `delivery` or `orchestrator` via the subagent tool
-(named `task` on opencode V1, `subagent` on V2).
+`primary`). Invoked from `delivery` or `orchestrator` via the subagent tool.
+
+This table owns the **purposes** (all agents, including `delivery`, `orchestrator`
+and `interpreter`). The dispatch contract — structured returns and the
+model-independence dispatch rule — is the authoritative table in
+`agents/orchestrator.md` → `## Available Subagents`; it is not duplicated here.
 
 | Agent | Purpose |
 |---|---|
@@ -94,22 +98,18 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
 
-Models and temperatures live in **each agent's frontmatter**
+Model lives in **each agent's frontmatter**
 (`agents/<id>.md`). Changing a model = editing the agent's frontmatter and
 restarting opencode. Without a declared `model:`, a subagent inherits the model
 of the primary agent that invokes it. `opencode.json` carries the built-in
-`agents.title.model = opencode-go/glm-5.3-flash` slot (title generation, and —
-by orchestrator convention — the cheap, different-family slot read at dispatch
-time for `reviewer`/`analista` and every Typed-Decision Panel panelist). The
-orchestrator dispatches those seats with the model configured at `agents.title.model`,
-a different model family from the primary, so the independent second opinions stay
-independent. Invariant: that slot must stay cheap and from a *different model family*
-than the primary — if it is pointed at a same-family model, the second opinions silently
-degrade to a monoculture.
-**On opencode V2 an agent `temperature`
-is currently inert**: on a file carrying legacy-only keys, the V2 loader moves
-`temperature` into `request.body`, which is preserved but not sent with model
-requests. The field is retained for V1 compatibility.
+`agents.title.model` slot (title generation, and — by orchestrator convention —
+the cheap, different-family slot read at dispatch time for `reviewer`/`analista`
+and every Typed-Decision Panel panelist). The orchestrator dispatches those seats
+with the model configured at `agents.title.model`, a different model family from
+the primary, so the independent second opinions stay independent. Invariant: that
+slot must stay cheap and from a *different model family* than the primary — if it
+is pointed at a same-family model, the second opinions silently degrade to a
+monoculture.
 
 ## Protocols
 
@@ -120,10 +120,10 @@ The protocols live in `protocols/`:
   `orchestrator`.
 - [`dispatch.md`](./protocols/dispatch.md) — turn-entry procedure for the
   `delivery` seat: the interpreter-first gate, the "about to ask" tripwire, and
-  the hand-off into the pipeline. Formerly `workflows/dispatch.md`.
+  the hand-off into the pipeline.
 - [`orchestrate.md`](./protocols/orchestrate.md) — pre-action thinking process for
   the `orchestrator` seat: Protocol Discovery → Context Refresh → Proposal →
-  Implementation → Verification → Documentation. Formerly `workflows/orchestrate.md`.
+  Implementation → Verification → Documentation.
 - [`subagent-spec-template.md`](./protocols/subagent-spec-template.md) — canonical
   shape for subagent definitions.
 - [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
@@ -134,15 +134,15 @@ The protocols live in `protocols/`:
 
 ## Agent permissions
 
-- Global runtime permission rules live in `opencode.json` as the V2 native
-  top-level `permissions` array of `{ action, resource, effect }`. Each agent
-  also carries a singular `permission:` block in its `.md` frontmatter, which V2
-  auto-migrates (`task`→`subagent`, `bash`→`shell`, `write`/`patch`→`edit`).
-  Keep the singular form as the repo's chosen convention: V2 normalizes
-  supported legacy frontmatter in memory without rewriting the file, and unknown
-  keys (`output_schema`, `temperature`) are accepted as unrecognized extras
-  (`request.body`, preserved but not sent). No documented V2 rule drops
-  agent-level rules.
+- Global runtime permission rules live in `opencode.json` as the top-level
+  `permissions` array of `{ action, resource, effect }`. Each agent also carries
+  its own `permission:` block in its `.md` frontmatter. Valid V2 permission
+  actions include `read`, `edit`, `glob`, `grep`, `list`, `bash`, `task`,
+  `webfetch`, `websearch`, `question`, `external_directory`, `lsp`, and `skill`;
+  `task` is the subagent-dispatch gate. `webfetch`/`websearch` are first-class V2
+  actions — verified against the installed runtime — so `external-scout`'s
+  `webfetch: allow` and `delivery`'s `webfetch: deny` are legitimate rules, not
+  leftovers.
 - Self `permission.task` grants remain on `explorer` and `reviewer` only — the
   two agents whose bodies document self fan-out (`## Sampling and Fan-out`).
   Every other subagent does not recurse and carries no `task` grant.
@@ -157,18 +157,18 @@ The protocols live in `protocols/`:
   `output_schema` behavior is specified in
   [`protocols/subagent-spec-template.md`](./protocols/subagent-spec-template.md)
   (the SSOT), and `scripts/validate-agent.sh` performs the structural check on
-  `agents/*.schema.json`. `tests/test-output-schemas.py` no longer exists.
+  `agents/*.schema.json`.
 - **`delivery`, `orchestrator`, and `external-scout` are prose-only contracts by
   design** — no `output_schema` is intended for them.
 
 ## Updating the config
 
-- **Change an agent's model/temperature** → edit the frontmatter of
-  `agents/<id>.md` (`model` / `temperature`), then restart opencode.
+- **Change an agent's model** → edit the frontmatter of `agents/<id>.md`
+  (`model`), then restart opencode.
 - **Change an agent's definition** (prompt, tools, permissions, schema) → edit
   `agents/<id>.md`.
 - **Add an agent** → create `agents/<id>.md`. Required frontmatter: `description`
-  and `mode`. Optional frontmatter: `model`, `temperature`, `permission`,
+  and `mode`. Optional frontmatter: `model`, `permission`,
   `output_schema` — without a declared `model:`, the subagent inherits the
   invoking primary's model (see "Available agents" above). Then:
   - grant the new agent in `permission.task` in the delegating agents
@@ -177,7 +177,7 @@ The protocols live in `protocols/`:
   - if you declare `output_schema: ./<id>.schema.json`, also create the sibling
     `agents/<id>.schema.json`.
   Do not add a per-agent block to `opencode.json`; it carries only the built-in
-  `agents.title.model` slot, and per-agent model/temperature stay in each
+  `agents.title.model` slot, and per-agent `model` stays in each
   agent's frontmatter.
 - **Update the global install** → `git pull` in the `~/.config/opencode` clone.
 
@@ -199,9 +199,11 @@ It is exit-code driven (CI-ready) and checks:
 - every `output_schema` resolves to an existing file;
 - `permission.task` grants fail closed (every allow target resolves to a real agent);
 - every `references` entry resolves;
-- every `*.schema.json` parses as valid JSON and is structurally closed;
+- every `*.schema.json` (in `agents/` and `scripts/`) parses as valid JSON and is
+  structurally closed;
 - every schema enum target (e.g. `re_route_to`) resolves to an agent;
-- no dangling protocol references.
+- no dangling references: markdown links plus inline-code `agents/*.md` /
+  `protocols/*.md` paths all resolve.
 
 ## Troubleshooting
 

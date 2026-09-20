@@ -37,8 +37,10 @@
 #   12. schema enum agent targets resolve (re_route_to -> agents/<v>.md;
 #       re_route_language in angular|go).
 #   13. no dangling markdown refs: links of the form ../protocols/<x>.md,
-#       ./protocols/<x>.md, or (inside protocols/) ./<x>.md must resolve; links
-#       into the retired workflows/ directory are ERRORs.
+#       ./protocols/<x>.md, ../agents/<x>.md or (inside protocols/) ./<x>.md
+#       must resolve, as must inline-code paths `agents/<x>.md` /
+#       `protocols/<x>.md`; links or inline-code paths into the retired
+#       workflows/ directory are ERRORs.
 #
 # Exit code: 0 = OK (warnings allowed), 1 = one or more ERRORs.
 # Pure bash + python3.
@@ -93,7 +95,7 @@ else
 fi
 
 # --- 2. flat agent layout + frontmatter cross-check --------------------------
-# NOTE: model/temperature live in the agent frontmatter, not in opencode.json.
+# NOTE: model lives in the agent frontmatter, not in opencode.json.
 # `model:` is an OPTIONAL per-agent override. The only hard frontmatter error
 # here is the deprecated `tools:` field.
 
@@ -499,9 +501,12 @@ import glob, json, os, sys
 agents_dir = sys.argv[1]
 root = sys.argv[2]
 
-files = sorted(glob.glob(os.path.join(agents_dir, "*.schema.json")))
+files = sorted(
+    glob.glob(os.path.join(agents_dir, "*.schema.json"))
+    + glob.glob(os.path.join(root, "scripts", "*.schema.json"))
+)
 if not files:
-    print("WARN: no agents/*.schema.json files found")
+    print("WARN: no *.schema.json files found under agents/ or scripts/")
 
 def walk(node, ptr, rel, errors):
     if not isinstance(node, dict):
@@ -630,6 +635,11 @@ agents_dir = os.path.join(root, "agents")
 protocols_dir = os.path.join(root, "protocols")
 
 link_re = re.compile(r"\]\(([^)]+)\)")
+# Inline-code agent-system paths, e.g. `agents/delivery.md`. The name class
+# excludes glob/placeholder forms (`agents/<id>.md`, `agents/*.schema.json`),
+# which are diagrams, not references. Backticked `workflows/<x>.md` is banned
+# like a workflows/ link.
+inline_re = re.compile(r"`((?:agents|protocols|workflows)/[A-Za-z0-9._-]+\.md)`")
 
 
 def scan_file(path, base_dir, in_protocols):
@@ -653,7 +663,11 @@ def scan_file(path, base_dir, in_protocols):
         resolved = None
         if target.startswith("./protocols/"):
             resolved = os.path.join(root, target[2:])
+        elif target.startswith("./agents/"):
+            resolved = os.path.join(root, target[2:])
         elif target.startswith("../protocols/"):
+            resolved = os.path.normpath(os.path.join(base_dir, target))
+        elif target.startswith("../agents/"):
             resolved = os.path.normpath(os.path.join(base_dir, target))
         elif in_protocols and target.startswith("./") and target.endswith(".md"):
             resolved = os.path.normpath(os.path.join(base_dir, target))
@@ -662,6 +676,18 @@ def scan_file(path, base_dir, in_protocols):
         if not os.path.exists(resolved):
             errors.append(
                 f"{rel}: dangling link {raw!r} -> {os.path.relpath(resolved, root)}"
+            )
+    for m in inline_re.finditer(text):
+        ref = m.group(1)
+        if ref.startswith("workflows/"):
+            errors.append(
+                f"{rel}: inline-code path points into retired 'workflows/' directory: `{ref}`"
+            )
+            continue
+        resolved = os.path.join(root, ref)
+        if not os.path.exists(resolved):
+            errors.append(
+                f"{rel}: dangling inline-code path `{ref}` -> {ref}"
             )
     return errors
 

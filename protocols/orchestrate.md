@@ -2,7 +2,7 @@
 
 Pre-action thinking process for the **`orchestrator`** seat (and any coordinating seat). Apply it before you act on a handoff: **Protocol Discovery → Context Refresh → Proposal → Implementation → Verification → Documentation**.
 
-It was formerly `workflows/orchestrate.md`. The `workflows/` layer was retired in the V2 consolidation; this protocol is now the single source of truth for the seat's thinking and coordination discipline.
+This protocol is the single source of truth for the seat's thinking and coordination discipline.
 
 > The stages below are **named, not Phase-numbered**. `Phase 2 (Reduce)` is [`prompt-pipeline.md`](./prompt-pipeline.md)'s label and is executed as stage 3 here; this protocol must not mint competing `Phase N` labels. See "Stage naming" below.
 
@@ -34,7 +34,7 @@ These are the orchestrator's own thinking stages. `prompt-pipeline` Step 0 (Inte
 
 ## Stage naming
 
-The retired `workflows/orchestrate.md` labeled these stages `Phase 0`–`Phase 5`. That numbering collided with [`prompt-pipeline.md`](./prompt-pipeline.md), which owns `Step 0 (Interpret)` and `Phase 2 (Reduce)` for different concepts. This protocol therefore uses **named stages only** — no `Phase N` labels. When you need the scope-reduction step, cite `prompt-pipeline` Phase 2 explicitly.
+[`prompt-pipeline.md`](./prompt-pipeline.md) owns `Step 0 (Interpret)` and `Phase 2 (Reduce)` for different concepts, so this protocol uses **named stages only** — no `Phase N` labels. When you need the scope-reduction step, cite `prompt-pipeline` Phase 2 explicitly.
 
 ## Source of truth
 
@@ -54,5 +54,5 @@ Where a rule legitimately appears in two files, the split is exactly the procedu
 
 ## Notes
 
-- The `workflows/` layer was deleted; `workflows/orchestrate.md` and `workflows/dispatch.md` no longer exist. Do not recreate them.
+- There is no `workflows/` layer; do not reintroduce one.
 - This protocol is the thinking cadence; `prompt-pipeline` is the prompt-processing pipeline. Composed: Step 0 runs in `delivery`, Phase 2 is stage 3 here, and the remaining stages govern how the orchestrator acts on the resulting scope.

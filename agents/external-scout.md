@@ -1,7 +1,6 @@
 ---
 description: External Scout - Fetches live documentation for external libraries/packages on demand. Receives a package name, version, and one focused question, returns a compact textual answer.
 mode: subagent
-temperature: 0.1
 permission:
   edit: deny
   bash: deny
@@ -43,8 +42,7 @@ Fetch only what is needed to answer the question. Do not crawl.
 
 ## When to use
 
-Callers (orchestrator, delivery) invoke you with the subagent tool and
-`subagent_type: "external-scout"`, passing the module path, version, and a
+Callers (orchestrator, delivery) invoke you with the subagent tool (agent `external-scout`), passing the module path, version, and a
 focused question. Typical use cases:
 
 - Verify the current API signature of an AG Grid method before the coder uses it.
