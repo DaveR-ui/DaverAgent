@@ -9,8 +9,9 @@ same agents.
   agent prompts.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
-- **Portable.** The install is a git clone; no absolute paths are hardcoded
-  anywhere.
+- **Portable.** The install is a git clone; no absolute paths are hardcoded.
+  Machine-specific paths (e.g. an MCP server binary) must be provided through a
+  gitignored `opencode.local.json` override, never committed here.
 
 ## Install (per machine)
 
@@ -30,13 +31,15 @@ reference's absolute root into every agent's context).
 
 | Vocabulary | Examples | Resolves against |
 |---|---|---|
-| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `tests/` | The `agent-system` reference in `opencode.json` |
+| **Agent-system assets** | `agents/`, `protocols/`, `scripts/`, `tests/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
-`opencode.json` lists `docs/project.md` under `instructions`; projects without a
-`docs/` folder are silently skipped. A project that wants explicit
-`docs/context` / `docs/protocols` references declares them in its own
-`opencode.json` `references` block.
+`opencode.json` lists `docs/project.md` under `instructions`. Under opencode V1,
+relative instruction paths are resolved against the session working directory
+(searched upward to the git worktree root), so a project without a `docs/`
+folder is silently skipped. A project that wants explicit `docs/context` /
+`docs/protocols` references declares them in its own `opencode.json`
+`references` block.
 
 **Golden rule:** never create a global `docs/`, and never hardcode an absolute
 path. The read tool does not expand `~`.
@@ -56,7 +59,6 @@ path. The read tool does not expand `~`.
 │   ├── reviewer.md              # Code review
 │   ├── architect.md             # Design
 │   ├── explorer.md              # Search and mapping (read-only)
-│   ├── project-context.md       # docs/ reading (read-only)
 │   ├── external-scout.md        # External docs via webfetch
 │   ├── interpreter.md           # Step 0 normalization + image inspection
 │   ├── analista.md              # Second opinion
@@ -64,16 +66,14 @@ path. The read tool does not expand `~`.
 │   └── *.schema.json            # Structured-return schemas
 │
 ├── protocols/                   # Agent operating conventions (read on demand)
-├── workflows/                   # Thinking instructions
 ├── scripts/                     # Validators
 └── tests/                       # Test suite of the agent tree
 ```
 
-> `plugins/` and a root `package.json` + lockfile are **optional**. They exist
-> only if you add portable plugins (or other JS dependencies); `.gitignore` does
-> **not** ignore them, so they are tracked when present, while any plugin
-> `node_modules/` is ignored. This repo currently ships neither — do not add an
-> empty `package.json` just to match the diagram.
+> A `plugins/` directory and a root `package.json` + lockfile are **optional**:
+> they exist only if you add portable plugins (or other JS dependencies). This
+> repo ships **neither** — do not add an empty `package.json` just to match a
+> diagram. Any `node_modules/` is gitignored.
 
 ## Available agents
 
@@ -90,7 +90,6 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `architect` | Design, boundaries, patterns. Returns `ArchitectOutput`. |
 | `analista` | Second opinion, plan critique, stuck-recovery. Returns `AnalystOutput`. |
 | `explorer` | Search and mapping in the repo. Returns `ExplorerOutput`. |
-| `project-context` | Lookups and context assembly from `docs/` (read-only). |
 | `external-scout` | Brings docs of external libraries via webfetch. |
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
@@ -102,10 +101,18 @@ of the primary agent that invokes it.
 
 ## Protocols
 
-The protocols live in [`protocols/`](./protocols/readme.md). The most important
-is [`protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md): Step 0
-(Interpret) is executed by the `interpreter`; Phase 2 (Reduce) is executed by
-the `orchestrator`.
+The protocols live in `protocols/`:
+
+- [`prompt-pipeline.md`](./protocols/prompt-pipeline.md) — Step 0 (Interpret) is
+  executed by the `interpreter`; Phase 2 (Reduce) is executed by the
+  `orchestrator`.
+- [`subagent-spec-template.md`](./protocols/subagent-spec-template.md) — canonical
+  shape for subagent definitions.
+- [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
+  interrupted or STUCK sessions in the delivery → orchestrator → subagent
+  hierarchy.
+- [`broad-investigation-template.md`](./protocols/broad-investigation-template.md) —
+  5-section scaffold for prompts that map, inventory, or audit the repo.
 
 ## Agent permissions
 
@@ -128,8 +135,7 @@ the `orchestrator`.
 
 ## Validating the config
 
-Before committing changes to the agent system, run the full test suite (Git
-Bash / WSL):
+Before committing changes to the agent system, run the full test suite:
 
 ```bash
 bash tests/run-tests.sh
@@ -137,17 +143,23 @@ bash tests/run-tests.sh
 
 It includes two suites, both exit-code driven (CI-ready):
 
-1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
-   valid JSON, that the flat `agents/` layout is intact, that no agent uses the
-   deprecated `tools:` field, that every `output_schema` points to an existing
-   file, that `delivery`/`orchestrator` `permission.task` targets are real
-   agents, and that the mandatory frontmatter (`description`/`mode`) exists.
-   Project `docs/` paths are reported as WARN, not errors.
+1. **`scripts/validate-agent.sh`** (integrity lint), nine checks: that
+   `opencode.json` is valid JSON; that the flat `agents/` layout is intact and
+   no agent uses the deprecated `tools:` field; that every `output_schema`
+   points to an existing file; that every `permission.task` allow target in any
+   agent resolves to a real agent; that the mandatory frontmatter
+   (`description`/`mode`) exists; that config `instructions`/`references` paths
+   resolve (project `docs/` paths are reported as WARN, not errors); that every
+   `*.schema.json` parses as valid JSON; that every `agents/*.schema.json` is
+   structurally closed (draft 2020-12, `additionalProperties: false`, non-empty
+   `required`, a description on every property); and that every `re_route_to`
+   enum value resolves to an agent.
 2. **`tests/test-output-schemas.py`** (output contracts): every valid fixture in
    `tests/fixtures/outputs/` validates against its schema, every invalid fixture
    is rejected, the golden routing packets validate against
-   `interpreter.schema.json`, and the JSON examples documented in the agent
-   `.md` files stay in sync with their schemas.
+   `interpreter.schema.json`, the JSON examples documented in the agent `.md`
+   files stay in sync with their schemas, and every `required` field is
+   exercised by its valid fixture.
 
 ## Troubleshooting
 

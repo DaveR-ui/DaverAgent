@@ -33,7 +33,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 ## Approach
 
-- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `agents/`, `protocols/`, `workflows/`
+- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `agents/`, `protocols/`
 - Report file paths and line numbers relative to the repo root
 - For architectural questions, consult `docs/context/architecture.md` and the `docs/project.md` Slices table
 - For business rules / feature context, consult the slice's primary doc in `docs/context/` (per the Slices table)

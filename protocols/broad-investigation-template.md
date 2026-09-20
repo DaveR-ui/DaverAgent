@@ -48,7 +48,7 @@ Compact scaffold for prompts that ask an agent to **map, inventory, or audit a c
 
 ## Notes
 
-- The template is a **prompt-side scaffold** — the agent's return still goes through its standard structured format (`ExplorerOutput` for `explorer`, free text for `project-context`, etc.). Do not duplicate the output schema here.
+- The template is a **prompt-side scaffold** — the agent's return still goes through its standard structured format (`ExplorerOutput` for `explorer`, free text for `external-scout`, etc.). Do not duplicate the output schema here.
 - Customize the **Coverage Checklist** per task. The defaults above are storage-flavored; for permission or session audits, swap the anchors.
 - This protocol complements, does not replace, the **Acceptance Criteria** from `prompt-pipeline` Step 0 and the **Verification Path** from Phase 2. Use it after both phases, when constructing the actual subagent prompt.
 - The **Verified / Likely / Inferred** scale is per-finding evidence quality; it is separate from the overall `ExplorerOutput.confidence` (low / medium / high), which rates the whole return. Do not merge the two scales.

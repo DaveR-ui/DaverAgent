@@ -4,8 +4,7 @@ mode: subagent
 permission:
   edit: deny
   bash: deny
-  task:
-    analista: allow
+  task: deny
 output_schema: ./analista.schema.json
 ---
 
@@ -44,7 +43,7 @@ If the request is out of scope, say so in **one sentence**, set `re_route_to`, a
 - `docs/context/` is the source of truth (index: `docs/context/README.md`); those docs override legacy `src/` patterns.
 - For STUCK-recovery advice, align with `protocols/session-recovery.md` and the orchestrator's `## Resume instructions (if restart)` snapshot contract (see `agents/orchestrator.md`).
 - For agent-system questions (models, routing, subagent shapes), consult `protocols/subagent-spec-template.md`.
-- Verify versions against `docs/project.md` / `package.json` before claiming specifics.
+- Verify versions against the target project's `docs/project.md` / `package.json` before claiming specifics.
 
 ## Standards
 

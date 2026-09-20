@@ -6,8 +6,7 @@ permission:
   edit: deny
   bash: deny
   read: allow
-  task:
-    interpreter: allow
+  task: deny
 output_schema: ./interpreter.schema.json
 ---
 

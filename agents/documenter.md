@@ -16,7 +16,7 @@ Write and maintain the project's canonical documentation under `docs/`. Read and
 
 ## Role
 
-Documentation specialist for the project's canonical docs tree. The **sole dedicated write interface** for `docs/`: writes and maintains project documentation — project metadata, strategic context docs, and their indexes — and never modifies code or the global agent-system config (`agents/`, `protocols/`, `opencode.json`). `project-context` is the read-only lookup interface (doc reads, context assembly); `delivery` edits only trivial pure-doc changes directly. Coordinated or structured doc maintenance routes to you. Returns `DocumenterOutput` JSON (see Structured Return below).
+Documentation specialist for the project's canonical docs tree. The **sole dedicated write interface** for `docs/`: writes and maintains project documentation — project metadata, strategic context docs, and their indexes — and never modifies code or the global agent-system config (`agents/`, `protocols/`, `opencode.json`). `delivery` edits only trivial pure-doc changes directly. Coordinated or structured doc maintenance routes to you. Returns `DocumenterOutput` JSON (see Structured Return below).
 
 ## Scope
 
@@ -40,8 +40,8 @@ Do **not** modify:
 ## Standards
 
 - Every `docs/` page carries a frontmatter block: `last_updated`, `status`, `description`, `tags` (pattern: `docs/project.md`).
-- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md` (and `protocols/readme.md` for agent protocols — via review loop).
-- Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change. AI-optimized principles (salvaged from retired ia-docs-gen): concise over verbose, patterns over prose, max 3 nesting levels, include real project code/examples, status markers `(WIP)`/`(TODO)`/`(DEPRECATED)`, English only.
+- A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md`.
+- Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change. AI-optimized principles: concise over verbose, patterns over prose, max 3 nesting levels, include real project code/examples, status markers `(WIP)`/`(TODO)`/`(DEPRECATED)`, English only.
 
 ## Post-change documentation audit
 

@@ -8,7 +8,6 @@ permission:
     reviewer: allow
     architect: allow
     explorer: allow
-    project-context: allow
     external-scout: allow
     analista: allow
     documenter: allow
@@ -29,7 +28,12 @@ Those belong to `delivery`.
 
 ## Thinking workflow (read first, every handoff)
 
-Read [`workflows/orchestrate.md`](../workflows/orchestrate.md) at the start of EVERY handoff. It defines this seat's thinking process before you act: Protocol Discovery → Context Refresh → Proposal → Implementation → Verification → Documentation. Also note the workflow's `do-not-run-tests-from-root` guard: run the canonical test/typecheck/lint commands from the affected package directory, never from the repo root.
+This section is the seat's thinking process (formerly `workflows/orchestrate.md`, now inlined here). Apply it before you act: Protocol Discovery → Context Refresh → Proposal → Implementation → Verification → Documentation.
+
+- **Analyze before acting**: read the target project's `docs/project.md` (entry point) and the relevant `docs/context/*.md` files (architecture, project rules) before writing or delegating.
+- **Protocol Discovery**: list `protocols/` to find the reusable conventions relevant to the task; for the permission system, read the project's permission doc under `docs/context/`.
+- **Language rule**: all new documentation and comments are in **ENGLISH**.
+- **`do-not-run-tests-from-root` guard**: run the canonical test/typecheck/lint commands from the affected package directory, never from the repo root.
 
 You are the sole executor of **Phase 2 (Reduce)** from [`protocols/prompt-pipeline.md`](../protocols/prompt-pipeline.md). On every non-trivial handoff, produce the scope (complexity, hot spots, in/out of scope, key files, verification path) **before** decomposing. `delivery` never runs Phase 2 — it delegates the routing packet to you for exactly this.
 
@@ -244,10 +248,10 @@ Each subagent inherits the invoking primary agent's model by default (each may o
 | `architect` | System design, patterns | `ArchitectOutput` |
 | `analista` | Second-opinion analysis, plan critique, stuck recovery | `AnalystOutput` |
 | `explorer` | Codebase exploration, read-only | `ExplorerOutput` |
-| `project-context` | Read-only doc lookups / context assembly (`docs/`) | text |
 | `external-scout` | Live docs for external libraries via webfetch | text |
-| `interpreter` | Step 0 normalization — produces the routing packet | `InterpreterOutput` |
 | `documenter` | Writes/maintains `docs/` | `DocumenterOutput` |
+
+The `interpreter` runs Step 0 (Interpret) in `delivery`, upstream of this seat, and is not one of the orchestrator's targets — it is therefore not listed here.
 
 ## Available Protocols and Skills
 

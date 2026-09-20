@@ -35,7 +35,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 - Read `docs/project.md` (entry point) first — project metadata, stack, commands, and the **Slices table** for area routing.
 - Architecture and conventions live in `docs/context/` (index: `docs/context/README.md`); those docs are the source of truth and override legacy `src/` patterns.
-- Verify versions against `docs/project.md` / `package.json` before claiming specifics.
+- Verify versions against the target project's `docs/project.md` / `package.json` before claiming specifics.
 
 ## Principles
 

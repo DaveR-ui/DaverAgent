@@ -60,7 +60,7 @@ How to parse (pseudo-steps, not code):
   `OPENCODE_SERVER_USERNAME`), password from `OPENCODE_SERVER_PASSWORD`.
 - **The password comes from the environment only — never from disk, never from
   command-line arguments, never into logs.**
-- Advanced (not covered by the helper script): mDNS discovery via `--mdns` /
+- Advanced (not covered by this protocol): mDNS discovery via `--mdns` /
   `--mdns-domain opencode.local`.
 
 ## Recovery flow per depth level
@@ -117,14 +117,11 @@ fields of the `## Resume instructions (if restart)` block in
 - **Next concrete step** ← the first unchecked todo item, or inferred from the
   last assistant message.
 
-## Helper script
+## No helper script
 
-`scripts/session-recover.ps1` (PowerShell 5.1+) wraps every endpoint
-above as a sub-command (`health`, `list`, `status`, `inspect`, `children`,
-`abort`, `messages`, `todo`, `diff`, `resume`). The script is **dumb**: it does
-HTTP and prints JSON to stdout. All decisions about what to do with the data
-live in this protocol. It is invoked manually by the user or by a future
-orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
+No helper script ships with this protocol. Perform the API walk above manually
+with any HTTP client (e.g. `curl`) — all decisions about what to do with the
+returned JSON live in this protocol.
 
 ## Cross-references
 
@@ -139,14 +136,14 @@ orchestrator on STUCK recovery — never by `delivery` or `interpreter`.
 
 ## Caveats / non-goals
 
-- **PowerShell-only helper.** A bash twin of `session-recover.ps1` is out of
-  scope for now (the user's primary environment is Windows PowerShell); flagged
-  as future work.
+- **No shipped helper.** The API walk is performed manually (or by an
+  orchestrator instrumenting it directly); a packaged helper script is out of
+  scope.
 - **Single-server assumption.** Multi-server orchestration is out of scope; the
   flow assumes one `sidecar` server.
-- **No automatic invocation.** The script is run manually by the user or by a
-  future orchestrator recovering from STUCK. It is NOT invoked by `delivery`
-  or `interpreter`.
+- **No automatic invocation.** The API walk is performed manually by the user
+  or by a future orchestrator recovering from STUCK. It is NOT invoked by
+  `delivery` or `interpreter`.
 - **No auto-deletion of failed sessions.** Failed sessions are left in place.
   The user may delete them via `DELETE /session/:id` if desired (endpoint noted
   here for reference; intentionally not scripted).

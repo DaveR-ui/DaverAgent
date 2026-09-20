@@ -12,7 +12,9 @@
 #      deprecated `tools:` frontmatter field (use `permission:`); `model:` is
 #      optional (omission inherits the invoking primary agent's model)
 #   3. every output_schema frontmatter path resolves to an existing schema file
-#   4. every permission.task entry in delivery/orchestrator maps to a real agent
+#   4. every permission.task allow target in any agent maps to a real agent
+#      (scalar `task: allow|ask|deny` is valid and has no targets; wildcard
+#      targets are skipped; a file with no permission.task is fine)
 #   5. required frontmatter (description, mode) on every agent file
 #   6. config instructions/references paths resolve (docs/ paths are warnings -
 #      they live in the target project; the `agent-system` reference resolves here)
@@ -121,15 +123,27 @@ done
 # --- 4. permission.task entries ---------------------------------------------
 
 echo "== [4/9] permission.task targets =="
-for md in "${AGENTS_DIR}"/delivery.md "${AGENTS_DIR}"/orchestrator.md; do
+for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
-  targets="$(frontmatter "${md}" | awk '/^  task:/{f=1; next} /^[^ ]/{f=0} f && /^    [a-z0-9-]+: allow/{line=$1; sub(/:.*/,"",line); print line}')"
+  name="$(basename "${md}")"
+  # Accept both forms: scalar `task: allow|ask|deny` (no targets) and the map
+  # form `task:` followed by indented `<agent>: <action>` entries.
+  targets="$(frontmatter "${md}" | awk '
+    /^permission:/{p=1; next}
+    p && /^[^ ]/{p=0}
+    p && /^  task:/{t=1; rest=$0; sub(/^  task:[ ]*/,"",rest); if (rest!=""){t=0}; next}
+    t && /^    [^ ]/{print $1; next}
+    t && /^  [^ ]/{t=0}
+  ' | awk '{sub(/:.*/,""); print}')"
   for id in ${targets}; do
+    case "${id}" in
+      *'*'*|*'?'*|*'['*) continue ;;   # wildcard pattern: nothing to resolve
+    esac
     if [ ! -f "${AGENTS_DIR}/${id}.md" ]; then
-      err "$(basename "${md}") grants task access to '${id}' but agents/${id}.md does not exist"
+      err "${name} grants task access to '${id}' but agents/${id}.md does not exist"
     fi
   done
-  if [ -n "${targets}" ]; then echo "ok: $(basename "${md}") task targets exist"; fi
+  if [ -n "${targets}" ]; then echo "ok: ${name} task targets exist"; fi
 done
 
 # --- 5. required frontmatter -------------------------------------------------
@@ -201,14 +215,19 @@ fi
 # --- 7. schema JSON files ----------------------------------------------------
 
 echo "== [7/9] schema JSON files =="
-for f in "${AGENTS_DIR}"/*.schema.json "${SCRIPT_DIR}"/*.schema.json; do
-  [ -f "${f}" ] || continue
-  if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "${f}" 2>/dev/null; then
-    err "invalid JSON schema: ${f}"
-  else
-    echo "ok: $(basename "${f}")"
-  fi
-done
+if ! have_python; then
+  warn "python3 not found; skipping schema JSON validation"
+else
+  for f in "${AGENTS_DIR}"/*.schema.json "${SCRIPT_DIR}"/*.schema.json; do
+    # `[ -f ]` also skips an unmatched glob literal (e.g. no scripts/*.schema.json).
+    [ -f "${f}" ] || continue
+    if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "${f}" 2>/dev/null; then
+      err "invalid JSON schema: ${f}"
+    else
+      echo "ok: $(basename "${f}")"
+    fi
+  done
+fi
 
 # --- 8. schema structural closure --------------------------------------------
 

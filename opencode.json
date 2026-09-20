@@ -2,8 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "compaction": {
     "auto": true,
-    "prune": true,
-    "reserved": 10000
+    "buffer": 10000
   },
   "default_agent": "delivery",
   "instructions": [
@@ -19,65 +18,50 @@
         "mcp"
       ],
       "enabled": true
-    },
-    "engram": {
-      "command": [
-        "/home/admin/.local/bin/engram",
-        "mcp",
-        "--project=global",
-        "--tools=agent"
-      ],
-      "enabled": true,
-      "type": "local"
     }
   },
   "model": "opencode-go/deepseek-v4.1-flash",
-  "permission": {
-    "question": "ask",
-    "session_send": "ask",
-    "read": {
-      "*": "allow",
-      ".env": "deny",
-      "**/.env": "deny",
-      "*.env": "deny",
-      "**/*.env": "deny",
-      "*.env.*": "deny",
-      "**/*.env.*": "deny",
-      "*.env.example": "allow",
-      "**/*.env.example": "allow"
-    },
-    "edit": {
-      "*": "allow",
-      ".env": "deny",
-      "**/.env": "deny",
-      "*.env": "deny",
-      "**/*.env": "deny",
-      "*.env.*": "deny",
-      "**/*.env.*": "deny",
-      "*.env.example": "allow",
-      "**/*.env.example": "allow",
-      "*.key": "deny",
-      "**/*.key": "deny",
-      "*.secret": "deny",
-      "**/*.secret": "deny",
-      "*.pem": "deny",
-      "**/*.pem": "deny"
-    },
-    "bash": {
-      "*": "allow",
-      "sudo *": "deny",
-      "rm -rf *": "deny",
-      "curl *": "ask",
-      "wget *": "ask",
-      "docker *": "ask"
-    }
-  },
+  "permissions": [
+    { "action": "question", "resource": "*", "effect": "ask" },
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": ".env", "effect": "deny" },
+    { "action": "read", "resource": "**/.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "**/*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "**/*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" },
+    { "action": "read", "resource": "**/*.env.example", "effect": "allow" },
+    { "action": "edit", "resource": "*", "effect": "allow" },
+    { "action": "edit", "resource": ".env", "effect": "deny" },
+    { "action": "edit", "resource": "**/.env", "effect": "deny" },
+    { "action": "edit", "resource": "*.env", "effect": "deny" },
+    { "action": "edit", "resource": "**/*.env", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.*", "effect": "deny" },
+    { "action": "edit", "resource": "**/*.env.*", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.example", "effect": "allow" },
+    { "action": "edit", "resource": "**/*.env.example", "effect": "allow" },
+    { "action": "edit", "resource": "*.key", "effect": "deny" },
+    { "action": "edit", "resource": "**/*.key", "effect": "deny" },
+    { "action": "edit", "resource": "*.secret", "effect": "deny" },
+    { "action": "edit", "resource": "**/*.secret", "effect": "deny" },
+    { "action": "edit", "resource": "*.pem", "effect": "deny" },
+    { "action": "edit", "resource": "**/*.pem", "effect": "deny" },
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "sudo *", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
+    { "action": "shell", "resource": "curl *", "effect": "ask" },
+    { "action": "shell", "resource": "wget *", "effect": "ask" },
+    { "action": "shell", "resource": "docker *", "effect": "ask" }
+  ],
   "references": {
     "agent-system": {
       "path": ".",
-      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, workflows/, agents/, scripts/, tests/, templates/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
+      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, agents/, scripts/, tests/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
   "small_model": "opencode-go/deepseek-v4.1-flash",
-  "subagent_depth": 4
+  "experimental": {
+    "subagent_depth": 4
+  }
 }
