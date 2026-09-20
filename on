@@ -1,0 +1,107 @@
+[1mdiff --git a/opencode.json b/opencode.json[m
+[1mindex 3a81818..5fade07 100644[m
+[1m--- a/opencode.json[m
+[1m+++ b/opencode.json[m
+[36m@@ -1,39 +1,44 @@[m
+ {[m
+   "$schema": "https://opencode.ai/config.json",[m
+[31m-  "compaction": {[m
+[31m-    "auto": true,[m
+[31m-    "prune": true,[m
+[31m-    "reserved": 10000[m
+[31m-  },[m
+[31m-  "default_agent": "delivery",[m
+[32m+[m
+   "instructions": [[m
+     "docs/project.md"[m
+   ],[m
+[31m-  "mcp": {[m
+[31m-    "angular-cli": {[m
+[31m-      "type": "local",[m
+[31m-      "command": [[m
+[31m-        "npx",[m
+[31m-        "-y",[m
+[31m-        "@angular/cli",[m
+[31m-        "mcp"[m
+[31m-      ],[m
+[31m-      "enabled": true[m
+[31m-    },[m
+[31m-    "engram": {[m
+[31m-      "command": [[m
+[31m-        "/home/admin/.local/bin/engram",[m
+[31m-        "mcp",[m
+[31m-        "--tools=agent"[m
+[31m-      ],[m
+[31m-      "enabled": true,[m
+[31m-      "type": "local"[m
+[32m+[m
+[32m+[m[32m  "model": "llama.cpp/qwen35-local",[m
+[32m+[m[32m  "small_model": "llama.cpp/qwen35-local",[m
+[32m+[m
+[32m+[m[32m  "provider": {[m
+[32m+[m[32m    "llama.cpp": {[m
+[32m+[m[32m      "npm": "@ai-sdk/openai-compatible",[m
+[32m+[m[32m      "name": "Qwen Local - llama.cpp",[m
+[32m+[m[32m      "options": {[m
+[32m+[m[32m        "baseURL": "http://127.0.0.1:8080/v1"[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "models": {[m
+[32m+[m[32m        "qwen35-local": {[m
+[32m+[m[32m          "name": "Qwen3.5-35B-A3B Local",[m
+[32m+[m[32m          "limit": {[m
+[32m+[m[32m            "context": 32768,[m
+[32m+[m[32m            "output": 4096[m
+[32m+[m[32m          }[m
+[32m+[m[32m        }[m
+[32m+[m[32m      }[m
+     }[m
+   },[m
+[31m-  "model": "opencode-go/deepseek-v4.1-flash",[m
+[32m+[m
+[32m+[m[32m  "compaction": {[m
+[32m+[m[32m    "auto": true,[m
+[32m+[m[32m    "keep": {[m
+[32m+[m[32m      "tokens": 4096[m
+[32m+[m[32m    },[m
+[32m+[m[32m    "buffer": 4096[m
+[32m+[m[32m  },[m
+[32m+[m
+   "permission": {[m
+     "question": "ask",[m
+     "session_send": "ask",[m
+[32m+[m
+     "read": {[m
+       "*": "allow",[m
+       ".env": "deny",[m
+[36m@@ -45,6 +50,7 @@[m
+       "*.env.example": "allow",[m
+       "**/*.env.example": "allow"[m
+     },[m
+[32m+[m
+     "edit": {[m
+       "*": "allow",[m
+       ".env": "deny",[m
+[36m@@ -62,6 +68,7 @@[m
+       "*.pem": "deny",[m
+       "**/*.pem": "deny"[m
+     },[m
+[32m+[m
+     "bash": {[m
+       "*": "allow",[m
+       "sudo *": "deny",[m
+[36m@@ -71,12 +78,13 @@[m
+       "docker *": "ask"[m
+     }[m
+   },[m
+[32m+[m
+   "references": {[m
+     "agent-system": {[m
+       "path": ".",[m
+[31m-      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, workflows/, agents/, scripts/, tests/, templates/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."[m
+[32m+[m[32m      "description": "Global agent-system root. Resolve agent-system assets such as agents/, protocols/, workflows/, scripts/, tests/, templates/, plugins/, and commands/ against this root."[m
+     }[m
+   },[m
+[31m-  "small_model": "opencode-go/deepseek-v4.1-flash",[m
+[32m+[m
+   "subagent_depth": 4[m
+ }[m
