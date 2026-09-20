@@ -5,19 +5,17 @@
     "buffer": 10000
   },
   "default_agent": "delivery",
-  "instructions": [
-    "docs/project.md"
-  ],
   "mcp": {
-    "angular-cli": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@angular/cli",
-        "mcp"
-      ],
-      "enabled": true
+    "servers": {
+      "angular-cli": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@angular/cli",
+          "mcp"
+        ]
+      }
     }
   },
   "model": "opencode-go/deepseek-v4.1-flash",
@@ -57,10 +55,14 @@
   "references": {
     "agent-system": {
       "path": ".",
-      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, agents/, scripts/, tests/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
+      "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, agents/, scripts/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
-  "small_model": "opencode-go/deepseek-v4.1-flash",
+  "agents": {
+    "title": {
+      "model": "opencode-go/glm-5.3-flash"
+    }
+  },
   "experimental": {
     "subagent_depth": 4
   }

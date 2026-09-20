@@ -16,6 +16,19 @@ The only branch happens AFTER Step 0, based on the interpreter's routing packet:
 - **Packet says trivial** (single-line fix, factual lookup, "how do I...", pure doc edit with unambiguous scope) -> Delivery handles it directly per its Delegation table; Phase 2 is skipped.
 - **Packet says non-trivial** -> Delivery delegates to `orchestrator`, which runs Phase 2 (Reduce) and then decomposes the work. Phase 2 never runs on `delivery`.
 
+## Ambient instructions (never relied upon)
+
+This system **never** relies on auto-loaded ambient instruction files. There is no global
+`AGENTS.md` in this repository and creating one is forbidden, and `opencode.json` carries
+no `instructions` entry. Project context is read **on demand** from explicit paths
+(`docs/project.md`, `docs/context/*.md`). This is deliberate: on opencode V2 the
+`instructions` config field is accepted but **not loaded**, and `AGENTS.md` is V2's only
+ambient instruction source — silently discovered, injected, and invisible in the prompt
+inventory. Step 0 reads `docs/project.md` explicitly; never assume ambient context.
+
+This bans *ambient* files, not *on-demand* reads: explicit `docs/context/*.md` reads
+remain expected.
+
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 
 The `delivery` agent invokes the `interpreter` subagent with the raw prompt. The interpreter:

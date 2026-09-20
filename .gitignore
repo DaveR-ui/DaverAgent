@@ -22,3 +22,12 @@ __pycache__/
 .draft/
 .omo/
 *.log
+
+# ── Secrets (never commit) ───────────────────────────────────────
+service.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.secret

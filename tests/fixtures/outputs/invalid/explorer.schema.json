@@ -1,6 +1,0 @@
-{
-  "files_found": ["src/feature/foo.ts"],
-  "summary": "Found the handlers",
-  "confidence": "high",
-  "extra_field": true
-}

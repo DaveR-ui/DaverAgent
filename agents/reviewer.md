@@ -42,11 +42,11 @@ If the request is out of scope, say so in **one sentence** and stop.
 1. Architecture compliance (`docs/context/architecture.md`)
 2. Development standards (`docs/context/project-rules.md`)
 3. Permission system (`docs/context/security-permissions.md`) for auth changes
-5. Security - secrets, auth, input validation
-6. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
-7. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
-8. Testing - coverage, proper mocking, tests run from package dirs (never root)
-9. Doc-tree integrity (when the diff touches `docs/` or `protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
+4. Security - secrets, auth, input validation
+5. Performance - N+1 requests, missing memoization, unnecessary change detection / re-renders
+6. Anti-patterns - `any` types, state-management approaches that fight the project's documented pattern (`docs/context/architecture.md`), `setTimeout`/timers for state sync, copying legacy `src/` patterns against `docs/`
+7. Testing - coverage, proper mocking, tests run from package dirs (never root)
+8. Doc-tree integrity (when the diff touches `docs/` or `protocols/`) - routing-table sync, date freshness (`last_updated`), and link integrity; see the documenter's Post-change documentation audit
 
 ## Anti-Patterns
 
@@ -86,15 +86,15 @@ disjoint.
 
 **Review perspective split (optional, when the diff is large AND has clear separation between concerns):** if the diff is large but the changes split naturally by concern (e.g. one chunk is pure infrastructure, another is pure business logic, another is tests), you may also run separate reviewers with **focused checklists** in parallel:
 
-- A **security-focused reviewer**: items 4 and 5 of the checklist, plus a secrets scan.
-- A **performance-focused reviewer**: item 6, plus any DB migrations in the diff.
-- A **standards-focused reviewer**: items 1, 2, 3, 7, 8.
+- A **security-focused reviewer**: items 3 and 4 of the checklist, plus a secrets scan.
+- A **performance-focused reviewer**: item 5, plus any DB migrations in the diff.
+- A **standards-focused reviewer**: items 1, 2, 3, 6, 7.
 
 Run all three in parallel when the diff is `> 30` files AND the concerns are clearly separable. Otherwise use the single-perspective partition by file.
 
 **When NOT to fan out:**
 
-- Diffs under 10 files. Always single-pass.
+- Diffs of 10 files or fewer (`<= 10`). Always single-pass.
 - Diffs that are coupled (see step 3). Always single-pass.
 - Diffs that are mostly test-only. A test-only diff has no security/perf concerns; the standards reviewer alone is enough — do not fan out to three.
 
