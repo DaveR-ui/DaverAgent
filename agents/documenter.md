@@ -40,6 +40,12 @@ Do **not** modify:
 - A new doc is done only when it is registered: row in `docs/context/README.md` (for context docs), tag entry in `docs/_TAG-INDEX.md`, and a Slices-table row in `docs/project.md` when it introduces a new slice. Registry files that must stay in sync on Create/Rename/Delete: `docs/project.md` Slices, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/protocols/README.md`.
 - Concise technical prose — contracts, tables, and checklists over narrative; the smallest edit that achieves the change. AI-optimized principles: concise over verbose, patterns over prose, max 3 nesting levels, include real project code/examples, status markers `(WIP)`/`(TODO)`/`(DEPRECATED)`, English only.
 
+## Anti-Patterns
+
+- Creating a duplicate of content that already exists in the project's `AGENTS.md` or another canonical doc
+- Long pages that mix multiple unrelated topics
+- Speculative documentation for features that do not exist yet
+
 ## Post-change documentation audit
 
 After any documentation change, run a three-dimension consistency audit (formerly the `ia-sync-checker` protocol, removed 2026-08-09) and report a **Sync Audit Report** with a PASS/FAIL status per dimension:
@@ -49,16 +55,6 @@ After any documentation change, run a three-dimension consistency audit (formerl
 3. **Link integrity** — for every relative markdown link in the touched files (ignore `http://`/`https://`), resolve the target and confirm it exists. A broken link in a routing document is critical — fix it or flag immediately.
 
 Also run this audit as a smoke-test before declaring any documentation milestone complete.
-
-## Rules
-
-- **One topic per file** in `docs/context/`. Cross-reference instead of duplicating.
-- **Language follows `docs/project.md` → `doc_language`** — doc content is written in the project's configured doc language (this repo: ENGLISH). Agent-system files and code comments are always in ENGLISH.
-- **Match the existing tone** of the file you are editing — do not rewrite the whole file when a small edit is enough.
-- **Reference, do not repeat** — if a fact is already in the project's `AGENTS.md` or another canonical doc, link to it.
-- **Update `docs/context/README.md`** whenever you add or remove a context file.
-- **Never delete files** — deletion is a human action. To replace a file, write the new version and let the human remove the old one.
-- **Safety guard (salvaged from retired ia-catalog-manager):** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `agents/` + `protocols/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.
 
 ## Structured Return
 
@@ -77,8 +73,12 @@ On completion, return JSON:
 }
 ```
 
-## Anti-patterns
+## Rules
 
-- Creating a duplicate of content that already exists in the project's `AGENTS.md` or another canonical doc
-- Long pages that mix multiple unrelated topics
-- Speculative documentation for features that do not exist yet
+- **One topic per file** in `docs/context/`. Cross-reference instead of duplicating.
+- **Language follows `docs/project.md` → `doc_language`** — doc content is written in the project's configured doc language (this repo: ENGLISH). Agent-system files and code comments are always in ENGLISH.
+- **Match the existing tone** of the file you are editing — do not rewrite the whole file when a small edit is enough.
+- **Reference, do not repeat** — if a fact is already in the project's `AGENTS.md` or another canonical doc, link to it.
+- **Update `docs/context/README.md`** whenever you add or remove a context file.
+- **Never delete files** — deletion is a human action. To replace a file, write the new version and let the human remove the old one.
+- **Safety guard (salvaged from retired ia-catalog-manager):** before any Move/Rename/Delete, run impact scan — `grep` old name/path across `docs/` + `agents/` + `protocols/` and report N references + ask to proceed. Protected files never deleted/renamed without explicit human confirmation: `docs/project.md`, `docs/context/README.md`, `docs/_TAG-INDEX.md`, `docs/context/architecture.md`, `docs/context/project-rules.md`. Deduplicate on Create — if similar doc exists, propose Update instead. After Create/Move/Delete, run link validation: scan all `.md` for `[text](path)` and confirm target exists; broken link in routing doc is critical.

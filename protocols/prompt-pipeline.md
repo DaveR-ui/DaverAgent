@@ -5,7 +5,7 @@ Two-stage analysis convention for the Delivery agent. **Every prompt** passes th
 This protocol defines the two stages conceptually; the executor of each step may vary:
 
 - **Step 0: Interpret** is executed by the [`interpreter`](../agents/interpreter.md) subagent. The interpreter reconciles vocabulary via grep/glob, captures constraints, and may ask the human one batch of clarifying questions.
-- **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce delegating it is a one-line subagent call (named `task` on V1, `subagent` on V2), and doing it on the cheap tier is the failure mode this protocol removes.
+- **Phase 2: Reduce** (this protocol) is executed by the **`orchestrator`** for every non-trivial prompt. `delivery` never performs Phase 2 — Reduce delegating it is a one-line subagent call, and doing it on the cheap tier is the failure mode this protocol removes.
 
 ## When to apply
 

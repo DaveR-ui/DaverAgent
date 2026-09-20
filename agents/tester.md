@@ -25,7 +25,7 @@ Linter (optional, conditional): only when a `linter` parameter is also informed 
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->
 
-Minimal slot — testing standards and flaky-test playbooks are delegated to `docs/project.md` (Common Commands) and the relevant `docs/context/*.md` docs (see `docs/context/README.md` index). Run the canonical command for the selected framework from the affected package directory — never from the repo root (guard `do-not-run-tests-from-root`). When `framework` and `linter` are both informed, merge lint diagnostics into `failures[]` and report `coverage` only for test coverage (lint-only → `coverage` omitted, not 0).
+Minimal slot — testing standards and flaky-test playbooks are delegated to `docs/project.md` (Common Commands) and the relevant `docs/context/*.md` docs (see `docs/context/README.md` index). Run the canonical command for the selected framework from the affected package directory — never from the repo root. When `framework` and `linter` are both informed, merge lint diagnostics into `failures[]` and report `coverage` only for test coverage (lint-only → `coverage` omitted, not 0).
 
 ## 3 — Finalization / Return  <!-- Section 3: Finalization -->
 

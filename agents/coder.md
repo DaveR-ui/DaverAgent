@@ -48,4 +48,4 @@ Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 - Run the canonical test/lint/build commands from `docs/project.md` (Common Commands) before reporting done.
 - Comments and docs in ENGLISH.
 - Never commit without explicit instruction.
-- Cost discipline (cheap tier default; escalate when the task demands it) is a discretionary decision you participate in — not a rule.
+- Cost discipline: see `agents/orchestrator.md` → Decision Hierarchy #1.

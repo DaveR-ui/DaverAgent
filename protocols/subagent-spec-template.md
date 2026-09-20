@@ -87,11 +87,13 @@ Existing sections keep working names where renaming adds no value (e.g. reviewer
 - Renderer tolerance: validators MUST strip trailing `<!-- ... -->` before matching the markdown heading, so a formatter that moves the comment to the next line still matches leniently, but the canonical form is same-line.
 - Scope: anchors are required for NEW and edited subagent specs going forward. Existing subagents are not mass-retrofitted; audits harmonize, they do not churn.
 
-### Alias tolerance (30-day migration)
+### Alias tolerance (advisory — not yet enforced)
 
-During one cycle (30 days from this spec's `last_updated`), tolerant aliases are accepted via an HTML comment on the `###` line. The comment is grep-stable and exclusive-or with the canonical heading — a file MUST NOT contain both the canonical and an alias for the same concept (lint fails). After 30 days the alias is a hard error and the file must be rewritten to the canonical heading.
+During one cycle (30 days from this spec's `last_updated`), tolerant aliases are accepted via an HTML comment on the `###` line. The comment is grep-stable and exclusive-or with the canonical heading — a file MUST NOT contain both the canonical and an alias for the same concept. The intended (future) behavior is that after 30 days the alias becomes a hard error and the file is rewritten to the canonical heading.
 
-| Canonical (normative) | Tolerated aliases | Required annotation on `###` line | Example | Deadline |
+> **Not yet enforced.** No CI and no validator currently implements this lint — there is no `.github/` in this repo, and `scripts/validate-agent.sh` does not check heading aliases (nor this deadline). The alias tolerance and its 30-day promotion to a hard error are advisory guidance for future hardening, not an enforced gate today.
+
+| Canonical (normative) | Tolerated aliases | Required annotation on `###` line | Example | Deadline (intended, not enforced) |
 |---|---|---|---|---|
 | `### Standards` | `Principles`, `Checklist` | `<!-- alias: Standards -->` | `### Checklist <!-- alias: Standards -->` (reviewer) or `### Principles <!-- alias: Standards -->` (architect) | 30 days then rewrite to `### Standards` |
 | `### Structured Return` | `Output`, `Structured Output` | `<!-- alias: Structured Return -->` | `### Output <!-- alias: Structured Return -->` | 30 days then rewrite |
@@ -143,12 +145,16 @@ canonical = ["Role","Scope","Stack / Context","Standards","Anti-Patterns","Struc
 # Check alias-normalized names are in canonical order
 ```
 
-Alias lint (warnings → errors after 30 days):
+Alias lint (advisory only — future / unimplemented):
+
+No CI runs this today: `scripts/validate-agent.sh` performs no alias, heading-order, or deadline check, and the repo has no `.github/` workflows. The commands below document the intended future hardening.
 
 ```bash
-grep -n '^### .*<!-- alias:' agents/<id>.md  # emits warnings
-# CI promotes to error after 30d via: git log --diff-filter=A --format=%ad --date=short -- <file> vs. deadline
-# Exclusive-or check: fail if file contains both canonical and alias for same concept
+# Advisory: lists alias annotations a future lint would flag (nothing runs this yet).
+grep -n '^### .*<!-- alias:' agents/<id>.md  # advisory warnings
+# Intended future hardening: CI would promote to error after the 30d deadline,
+# derived from git log --diff-filter=A --format=%ad --date=short -- <file>, and
+# fail on the exclusive-or violation below.
 grep -q '^### Standards' file && grep -q '<!-- alias: Standards -->' file && echo "exclusive-or violation: both Standards and alias"
 ```
 
@@ -216,7 +222,7 @@ Rules for thin variants:
 - The subagent's `## Structured Return` section documents the JSON shape, names the schema, shows an example, and points at the sibling file.
 - The two MUST stay in sync: change one, change the other. The `.md` frontmatter and its sibling schema are authored together.
 - Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal/thin Variant B) describes the expected return in prose. Current subagents without a schema, **by design**: `delivery` (markdown turn contract), `orchestrator` (markdown agent-snapshot), `external-scout` (plain-text contract). These three are **prose-only contracts** — no `output_schema` is intended.
-- **`output_schema` is NOT runtime-enforced.** On opencode V2 it is not a recognized agent field: it is captured as a legacy rest key and routed to `request.body` (preserved, not sent), and the subagent tool returns the child's final text as an opaque string without validating it (the JSON is a convention the child is instructed to follow, not a runtime contract). Per `agents/orchestrator.md` → Hard Limits, verifying the return is a **MANUAL check the orchestrator performs**: a return that does not match its `output_schema` is a **subagent failure to be re-invoked**, and the raw text is never reinterpreted as a valid return. The runtime does not preserve raw text for diagnostics. This spec defers to the orchestrator contract. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
+- **`output_schema` is NOT runtime-enforced.** On opencode V2 it is not a recognized agent field: it is captured as a legacy rest key and routed to `request.body` (preserved, not sent), and the subagent tool returns the child's final text as an opaque string without validating it (the JSON is a convention the child is instructed to follow, not a runtime contract). Per `agents/orchestrator.md` → Hard Limits, verifying the return is a **MANUAL check the orchestrator performs**: a return that does not match its `output_schema` is a **subagent failure to be re-invoked**, and the raw text is never reinterpreted as a valid return. The runtime does not preserve raw text for diagnostics. This spec owns the **explanation** of the V2 `output_schema` behavior; `agents/orchestrator.md` → `## Hard Limits` owns the **enforcement duty** — the manual verify-and-re-invoke check the caller performs. Neither file is subordinate to the other. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
 
 ## `opencode.json` — top-level runtime knobs only
 

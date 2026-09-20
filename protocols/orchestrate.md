@@ -40,7 +40,7 @@ The retired `workflows/orchestrate.md` labeled these stages `Phase 0`–`Phase 5
 
 This protocol owns the seat's thinking **procedure** (the rules and stages above). It does not own the seat's operative contract:
 
-- `agents/orchestrator.md` is the runtime-loaded prompt and stays authoritative for **enforcement** — Decision Hierarchy, Confidence Gate, Hard Limits, Rules, Handoff Protocol, and the `do-not-run-tests-from-root` never-rule. The guard is *defined* here (thinking rule 6) and *enforced* there; it is not restated in the `## Thinking workflow` pointer.
+- `agents/orchestrator.md` is the runtime-loaded prompt and stays authoritative for **enforcement** — Decision Hierarchy, Confidence Gate, Hard Limits, Rules, Handoff Protocol, and the `do-not-run-tests-from-root` never-rule. The guard is *defined* here (thinking rule 6) and *enforced* in `agents/orchestrator.md` (`## Hard Limits`); the `## Thinking workflow` pointer only links back to this definition.
 - [`prompt-pipeline.md`](./prompt-pipeline.md) owns Step 0 (Interpret) and Phase 2 (Reduce); the orchestrator is the sole Phase 2 executor (stage 3).
 - The orchestrator's `## Project Context Source` and `## Rules` remain authoritative for *where* project context lives and for the seat's hard read-before-acting rule; thinking rules 1–4 state *which* files to read and *when*.
 

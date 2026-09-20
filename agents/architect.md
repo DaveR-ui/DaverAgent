@@ -41,7 +41,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 - Design for testability and maintainability
 - Document decisions with rationale
 - All documentation in ENGLISH
-- Cost discipline (cheap tier default; escalate when the task demands it) is a discretionary decision you participate in — not a rule.
+- Cost discipline: see `agents/orchestrator.md` → Decision Hierarchy #1.
 
 ## Anti-Patterns
 

@@ -153,14 +153,11 @@ The protocols live in `protocols/`:
   because skills are strict-text and protocols are the preferred mechanism here.
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
-- **Structured returns are a prose contract, not runtime-enforced.** On V2,
-  `output_schema` is not a recognized agent field: it is accepted as an
-  unrecognized extra into `request.body` (preserved, not sent). The subagent
-  tool returns the child's final text as an opaque string and validates nothing.
-  The `agents/*.schema.json` files are checked for structural validity only by
-  `scripts/validate-agent.sh`; `tests/test-output-schemas.py` no longer exists.
-  Agents are instructed to conform by prose, and the caller must parse and
-  verify.
+- **Structured returns are a prose contract, not runtime-enforced.** The V2
+  `output_schema` behavior is specified in
+  [`protocols/subagent-spec-template.md`](./protocols/subagent-spec-template.md)
+  (the SSOT), and `scripts/validate-agent.sh` performs the structural check on
+  `agents/*.schema.json`. `tests/test-output-schemas.py` no longer exists.
 - **`delivery`, `orchestrator`, and `external-scout` are prose-only contracts by
   design** — no `output_schema` is intended for them.
 
@@ -170,11 +167,18 @@ The protocols live in `protocols/`:
   `agents/<id>.md` (`model` / `temperature`), then restart opencode.
 - **Change an agent's definition** (prompt, tools, permissions, schema) → edit
   `agents/<id>.md`.
-- **Add an agent** → create `agents/<id>.md` with its full frontmatter
-  (`description`, `mode`, `model`, `temperature`, `permission`,
-  `output_schema`). Do not add a per-agent block to `opencode.json`; it carries
-  only the built-in `agents.title.model` slot, and per-agent model/temperature
-  stay in each agent's frontmatter.
+- **Add an agent** → create `agents/<id>.md`. Required frontmatter: `description`
+  and `mode`. Optional frontmatter: `model`, `temperature`, `permission`,
+  `output_schema` — without a declared `model:`, the subagent inherits the
+  invoking primary's model (see "Available agents" above). Then:
+  - grant the new agent in `permission.task` in the delegating agents
+    (`agents/delivery.md` / `agents/orchestrator.md`) — otherwise the new agent
+    is never reachable;
+  - if you declare `output_schema: ./<id>.schema.json`, also create the sibling
+    `agents/<id>.schema.json`.
+  Do not add a per-agent block to `opencode.json`; it carries only the built-in
+  `agents.title.model` slot, and per-agent model/temperature stay in each
+  agent's frontmatter.
 - **Update the global install** → `git pull` in the `~/.config/opencode` clone.
 
 ## Validating the config
@@ -207,8 +211,5 @@ It is exit-code driven (CI-ready) and checks:
 **"I want to go back to the previous version"** — Use your own version control
 (Git) to check out the previous state of the clone.
 
-**"A project doesn't see its `docs/`"** — Expected: this repo declares **no**
-`instructions` key. On opencode V2 config `instructions` is a documented no-op
-(accepted but not loaded) and the only ambient instruction source is `AGENTS.md`,
-which this repo does not ship. Read project context **on demand** from explicit
-paths (`docs/project.md`, `docs/context/*.md`).
+**"A project doesn't see its `docs/`"** — Expected: this repo declares no
+`instructions` key. See "Path contract" above.
