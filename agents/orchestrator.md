@@ -98,6 +98,7 @@ Two distinct parallelism patterns, both supported:
 
 A third parallelism pattern, distinct from input-size fan-out: when a Phase 2 scope carries **two or more independent A/B hot spots** (`protocols/prompt-pipeline.md` → Phase 2, step 4), freeze the routing packet as the **shared state** and release N same-type instances (`analista`, or `architect` for structural decisions) in a single turn — each instance answers exactly **one** typed hot-spot question against that frozen state. Phrase each question as a closed choice (the enum-as-type pattern used by `analista.schema.json` `re_route_to`) so answers are comparable.
 
+- **Model independence:** every panelist runs on the model configured at `opencode.json` → `agents.title.model` (the cheap, different-family slot; read the current value at dispatch time), unless the caller supplied an explicit model — see `## Available Subagents`.
 - Each panelist still returns its normal schema (`AnalystOutput` / `ArchitectOutput`) with its own `confidence`.
 - Aggregate in memory and record the panel and each verdict in the agent-snapshot `## Decisions` block.
 - The panel is **advisory**: it informs Phase 2 and the gate above; it does not replace the mandatory human validation for Alta / Muy Alta complexity, and it must never turn into multiple human question rounds (`protocols/prompt-pipeline.md` → "One question block").
@@ -235,11 +236,28 @@ The **Subagent outcomes** block cites `Event.ID` values from the EventV2 bus. Su
 
 Each subagent inherits the invoking primary agent's model by default (each may optionally override via frontmatter `model` field) — the model is part of the cost contract when you fan out. Cost discipline is a discretionary decision you own: default to the cheap tier; escalate by complexity when the task demands it.
 
+### Model independence (reviewer / analista)
+
+The `reviewer` and `analista` seats are the system's independent second opinions: if they
+run on the same model family as the implementer, the check is a monoculture, not an
+independent view. When you dispatch `reviewer` or `analista`, pass the model configured at
+`opencode.json` → `agents.title.model` via the subagent tool (read the current value at
+dispatch time) — a cheap, different-family viewpoint. This repo's human operator has
+explicitly requested this independence, which satisfies the subagent tool's "only when
+explicitly asked" rule. The runtime exposes the subagent tool's `model` parameter; the
+published V2 docs do not document it, so treat it as a best-effort override and fall back
+to the agent's configured model if the runtime rejects it. If that fallback is
+same-family as the primary, record the resulting monoculture in the agent-snapshot
+`## Decisions` block rather than proceeding silently.
+
+**Guard:** do NOT override a model the caller explicitly supplied in the handoff — an
+explicit handoff model wins.
+
 | Subagent | Purpose | Returns |
 |---|---|---|---|
 | `coder` | Implementation for the Angular frontend and Go backend (language-parameterized via `language=angular` / `language=go` in the task payload) | `CoderOutput` |
 | `tester` | Tests, coverage, e2e | `TesterOutput` |
-| `reviewer` | Code review, security, performance (same model as `architect` and the coders; the previous model-family diversity was retired on 2026-07-31) | `ReviewerOutput` |
+| `reviewer` | Code review, security, performance (dispatched with a different-family model for independence — see `### Model independence`) | `ReviewerOutput` |
 | `architect` | System design, patterns | `ArchitectOutput` |
 | `analista` | Second-opinion analysis, plan critique, stuck recovery | `AnalystOutput` |
 | `explorer` | Codebase exploration, read-only | `ExplorerOutput` |

@@ -1,37 +1,47 @@
 #!/usr/bin/env bash
-# validate-agent.sh - static integrity check for the global opencode agent tree.
+# validate-agent.sh - single lean, fail-closed integrity gate for this
+# repository (the global opencode agent system, installed at ~/.config/opencode).
 #
-# This repository IS the global opencode config (installed at ~/.config/opencode),
-# so the layout is flat: agents/ at the root, no per-project .opencode/ prefix.
+# The layout is flat: agents/ at the repo root, no per-project .opencode/ prefix.
 #
-# Verifies the agent configuration the way a linter would, so broken installs
-# fail loudly instead of silently degrading the system:
-#
-#   1.  opencode.json is valid JSON
+# Checks (all static; no network, no jq/node required):
+#   1.  opencode.json parses as valid JSON.
 #   2.  flat agents/ layout (no legacy agents/subagents/); no agent uses the
-#       deprecated `tools:` frontmatter field (use `permission:`); `model:` is
-#       optional (omission inherits the invoking primary agent's model)
-#   3.  opencode.json declares no field the installed runtime ignores: the
-#       unsupported top-level keys (logLevel, server, subagent_depth, layout),
-#       the unsupported experimental keys (disable_paste_summary, batch_tool,
-#       openTelemetry, primary_tools, continue_loop_on_deny), and the
-#       unsupported compaction keys (prune, tail_turns)
-#   4.  every output_schema frontmatter path resolves to an existing schema file
-#   5.  every permission.task allow target in any agent maps to a real agent
-#       (scalar `task: allow|ask|deny` is valid and has no targets; wildcard
-#       targets are skipped; a file with no permission.task is fine)
-#   6.  required frontmatter (description, mode) on every agent file
-#   7.  config instructions/references paths resolve (docs/ paths are warnings -
-#       they live in the target project; the `agent-system` reference resolves here)
-#   8.  every *.schema.json parses as valid JSON
-#   9.  every agents/*.schema.json is structurally closed: draft 2020-12, root
-#       additionalProperties:false with a non-empty required array, and a
-#       description on every property (recursively, through properties/items)
-#   10. every re_route_to enum value resolves to agents/<value>.md; a
-#       re_route_language enum only allows angular|go
+#       deprecated `tools:` frontmatter field.
+#   3.  opencode.json declares no field the installed V2 runtime ignores, and
+#       no field retired by this repo:
+#         - unsupported top-level: logLevel, server, subagent_depth, layout
+#         - unsupported experimental: disable_paste_summary, batch_tool,
+#           openTelemetry, primary_tools, continue_loop_on_deny
+#         - unsupported compaction: prune, tail_turns
+#         - forbidden: `instructions` (V2 no-op; ambient reliance forbidden),
+#           `small_model` (superseded by agents.title.model),
+#           singular `agent` block (V2-native is plural `agents`)
+#   4.  no ambient AGENTS.md anywhere in the repo (rules live in agents/ +
+#       protocols/; ambient instruction files are never relied upon).
+#   5.  no secret-like file in the working tree (service.json, .env, *.env,
+#       *.pem, *.key, *.secret), excluding .git/, node_modules/, .draft/.
+#   6.  every output_schema frontmatter path resolves to an existing file.
+#   7.  every permission.task target resolves to agents/<id>.md. Scalar
+#       `task: allow|deny|ask` is valid (no targets); wildcard patterns are
+#       skipped; a file with no permission.task is fine. Parsing is
+#       fail-closed: a task block that cannot be parsed/attributed is an ERROR.
+#   8.  required frontmatter (description, mode) on every agent file; mode is
+#       `primary` for delivery.md and `subagent` for every other agent file.
+#   9.  config `references` paths resolve (docs/ paths are WARNINGS; anything
+#       missing at the repo root is an ERROR).
+#   10. every *.schema.json (in agents/ and scripts/) parses as valid JSON.
+#   11. schema structural closure: draft 2020-12 `$schema`, object nodes need
+#       `additionalProperties: false`, a non-empty `required` array, and a
+#       description on every property (recursively through properties/items).
+#   12. schema enum agent targets resolve (re_route_to -> agents/<v>.md;
+#       re_route_language in angular|go).
+#   13. no dangling markdown refs: links of the form ../protocols/<x>.md,
+#       ./protocols/<x>.md, or (inside protocols/) ./<x>.md must resolve; links
+#       into the retired workflows/ directory are ERRORs.
 #
-# Exit code: 0 = OK (warnings allowed), 1 = errors found.
-# Pure bash + python3 (no jq/node required).
+# Exit code: 0 = OK (warnings allowed), 1 = one or more ERRORs.
+# Pure bash + python3.
 
 set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
@@ -56,12 +66,12 @@ warn() { echo "WARN:  $*" >&2;  WARNINGS=$((WARNINGS + 1)); }
 
 have_python() { command -v python3 >/dev/null 2>&1; }
 
-resolve() {
-  # Resolve a path relative to the config root (no .opencode/ prefix anymore).
-  local p="$1"
-  if [ -e "${ROOT}/${p}" ]; then echo "${ROOT}/${p}"; return 0; fi
-  return 1
-}
+# python3 powers checks 1, 3, 7, 9, 10, 11, 12 and 13. Fail closed: a missing
+# interpreter must NOT let the gate report success.
+if ! have_python; then
+  echo "ERROR: python3 is required by validate-agent.sh; refusing to pass without it" >&2
+  exit 1
+fi
 
 frontmatter() {
   # Print the frontmatter block (between the first two --- lines) of a file.
@@ -71,7 +81,7 @@ frontmatter() {
 
 # --- 1. config JSON validity -------------------------------------------------
 
-echo "== [1/10] config JSON =="
+echo "== [1/13] config JSON =="
 if ! have_python; then
   warn "python3 not found; skipping JSON validation of ${CONFIG}"
 else
@@ -83,12 +93,11 @@ else
 fi
 
 # --- 2. flat agent layout + frontmatter cross-check --------------------------
-# NOTE: model/temperature live in the agent frontmatter, not in opencode.json's
-# (nonexistent) agent block. `model:` is an OPTIONAL per-agent override —
-# omission means the subagent inherits the invoking primary agent's model.
-# The only hard frontmatter error here is the deprecated `tools:` field.
+# NOTE: model/temperature live in the agent frontmatter, not in opencode.json.
+# `model:` is an OPTIONAL per-agent override. The only hard frontmatter error
+# here is the deprecated `tools:` field.
 
-echo "== [2/10] flat agents/ layout + frontmatter (model optional; tools: check) =="
+echo "== [2/13] flat agents/ layout + frontmatter (tools: check) =="
 if [ -d "${ROOT}/agents/subagents" ]; then
   err "legacy agents/subagents/ layout found; agents must be flat under agents/"
 fi
@@ -100,27 +109,22 @@ else
     err "no *.md agent files found in ${AGENTS_DIR}"
   fi
   while IFS= read -r md; do
+    [ -f "${md}" ] || continue
     name="$(basename "${md}")"
     fm="$(frontmatter "${md}")"
     if echo "${fm}" | grep -q '^tools:'; then
       err "${name} uses deprecated 'tools:' frontmatter; use 'permission:' with allow/deny/ask instead"
     fi
   done <<< "${AGENT_FILES}"
-  echo "ok: flat layout; frontmatter scanned (model optional; tools: check)"
+  echo "ok: flat layout; frontmatter scanned (tools: check)"
 fi
 
-# --- 3. unsupported config fields --------------------------------------------
-# SCHEMA-ONLY CHECK. The lists below mirror the installed runtime's config
-# normalizer (core/src/config/normalize.ts, verified on v2.0.8):
-#   unsupportedTopLevel      = logLevel, server, subagent_depth, layout
-#   unsupportedExperimental  = disable_paste_summary, batch_tool, openTelemetry,
-#                              primary_tools, continue_loop_on_deny
-#   unsupported compaction   = prune, tail_turns
-# These fields are accepted but IGNORED by V2 (some are reported only as an
-# internal "unsupported" diagnostic, not a hard error). Re-verify against the
+# --- 3. unsupported / forbidden config fields --------------------------------
+# The unsupported lists mirror the installed runtime's config normalizer
+# (core/src/config/normalize.ts, verified on v2.0.8). Re-verify against the
 # runtime source if the opencode major version changes.
 
-echo "== [3/10] unsupported config fields =="
+echo "== [3/13] unsupported / forbidden config fields =="
 if ! have_python; then
   warn "python3 not found; skipping unsupported-config-field check"
 else
@@ -153,6 +157,17 @@ for key in unsupported_top:
         print(f"ERROR: opencode.json has unsupported top-level field '{key}' "
               f"(ignored by V2)")
 
+# Forbidden / retired fields.
+if "instructions" in cfg:
+    print("ERROR: opencode.json has 'instructions' (accepted but NOT loaded by "
+          "V2; ambient reliance is forbidden)")
+if "small_model" in cfg:
+    print("ERROR: opencode.json has deprecated 'small_model' "
+          "(superseded by agents.title.model)")
+if "agent" in cfg:
+    print("ERROR: opencode.json has a singular 'agent' block "
+          "(V2-native is plural 'agents')")
+
 experimental = cfg.get("experimental")
 if isinstance(experimental, dict):
     for key in unsupported_experimental:
@@ -181,9 +196,48 @@ PY
   fi
 fi
 
-# --- 4. output_schema resolution ---------------------------------------------
+# --- 4. ambient AGENTS.md ----------------------------------------------------
 
-echo "== [4/10] output_schema files =="
+echo "== [4/13] ambient AGENTS.md =="
+AMBIENT_HITS=0
+while IFS= read -r f; do
+  [ -n "${f}" ] || continue
+  err "ambient AGENTS.md found: ${f#${ROOT}/} (rules live in agents/ + protocols/)"
+  AMBIENT_HITS=$((AMBIENT_HITS + 1))
+done < <(find "${ROOT}" \
+  \( -path "${ROOT}/.git" -o -path "${ROOT}/node_modules" -o -path "${ROOT}/.draft" \) -prune -o \
+  -type f -name 'AGENTS.md' -print 2>/dev/null)
+if [ "${AMBIENT_HITS}" -eq 0 ]; then
+  echo "ok: no ambient AGENTS.md"
+fi
+
+# --- 5. secret scan ----------------------------------------------------------
+
+echo "== [5/13] secret scan =="
+SECRET_HITS=0
+while IFS= read -r f; do
+  [ -n "${f}" ] || continue
+  base="$(basename "${f}")"
+  # `.env.example` variants are the documented, committable template — allow them.
+  case "${base}" in
+    .env.example|*.env.example) continue ;;
+  esac
+  case "${base}" in
+    service.json|.env|*.env|.env.*|*.env.*|*.pem|*.key|*.secret)
+      err "secret-like file present in working tree: ${f#${ROOT}/}"
+      SECRET_HITS=$((SECRET_HITS + 1))
+      ;;
+  esac
+done < <(find "${ROOT}" \
+  \( -path "${ROOT}/.git" -o -path "${ROOT}/node_modules" -o -path "${ROOT}/.draft" \) -prune -o \
+  -type f -print 2>/dev/null)
+if [ "${SECRET_HITS}" -eq 0 ]; then
+  echo "ok: no secret-like files"
+fi
+
+# --- 6. output_schema resolution ---------------------------------------------
+
+echo "== [6/13] output_schema files =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   schema="$(frontmatter "${md}" | awk -F': *' '/^output_schema:/{gsub(/ /,"",$2); print $2; exit}')"
@@ -197,35 +251,173 @@ for md in "${AGENTS_DIR}"/*.md; do
   fi
 done
 
-# --- 4. permission.task entries ---------------------------------------------
+# --- 7. permission.task targets (fail-closed) --------------------------------
 
-echo "== [5/10] permission.task targets =="
-for md in "${AGENTS_DIR}"/*.md; do
-  [ -f "${md}" ] || continue
-  name="$(basename "${md}")"
-  # Accept both forms: scalar `task: allow|ask|deny` (no targets) and the map
-  # form `task:` followed by indented `<agent>: <action>` entries.
-  targets="$(frontmatter "${md}" | awk '
-    /^permission:/{p=1; next}
-    p && /^[^ ]/{p=0}
-    p && /^  task:/{t=1; rest=$0; sub(/^  task:[ ]*/,"",rest); if (rest!=""){t=0}; next}
-    t && /^    [^ ]/{print $1; next}
-    t && /^  [^ ]/{t=0}
-  ' | awk '{sub(/:.*/,""); print}')"
-  for id in ${targets}; do
-    case "${id}" in
-      *'*'*|*'?'*|*'['*) continue ;;   # wildcard pattern: nothing to resolve
-    esac
-    if [ ! -f "${AGENTS_DIR}/${id}.md" ]; then
-      err "${name} grants task access to '${id}' but agents/${id}.md does not exist"
-    fi
-  done
-  if [ -n "${targets}" ]; then echo "ok: ${name} task targets exist"; fi
-done
+echo "== [7/13] permission.task targets =="
+if ! have_python; then
+  warn "python3 not found; skipping permission.task target check"
+else
+  PY_OUT="$(python3 - "${AGENTS_DIR}" <<'PY'
+import glob, os, sys
 
-# --- 5. required frontmatter -------------------------------------------------
+agents_dir = sys.argv[1]
 
-echo "== [6/10] required frontmatter =="
+
+def frontmatter(path):
+    """Return the frontmatter lines, or None if there is no closed block."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines()
+    except OSError:
+        return None
+    if lines and lines[0].startswith("\ufeff"):
+        lines[0] = lines[0][1:]
+    if not lines or lines[0].strip() != "---":
+        return None
+    body = []
+    for ln in lines[1:]:
+        if ln.strip() == "---":
+            return body
+        body.append(ln)
+    return None
+
+
+def indent_of(line):
+    return len(line) - len(line.lstrip(" "))
+
+
+VALID_ACTIONS = ("allow", "deny", "ask")
+
+
+def parse_task(block, task_idx, task_indent, name):
+    """Parse the `task:` block. Returns (targets, errors). Fail-closed."""
+    errors = []
+    targets = []
+    rest = block[task_idx].strip()[len("task:"):].strip()
+
+    children = []
+    for ln in block[task_idx + 1:]:
+        if ln.strip() == "":
+            continue
+        ind = indent_of(ln)
+        if ind <= task_indent:
+            break
+        children.append((ind, ln))
+
+    if rest != "":
+        # Scalar form: `task: allow|deny|ask` (no targets).
+        if rest not in VALID_ACTIONS:
+            errors.append(f"{name} permission.task value '{rest}' is not "
+                          f"allow|deny|ask; cannot attribute targets")
+            return [], errors
+        if children:
+            errors.append(f"{name} permission.task has both a scalar value "
+                          f"'{rest}' and nested entries; cannot attribute targets")
+        return [], errors
+
+    # Map form: `task:` followed by `<agent>: <action>` children.
+    for ind, ln in children:
+        if ind != task_indent + 2:
+            errors.append(f"{name} permission.task entry has unexpected indent "
+                          f"{ind}; cannot attribute target: {ln.strip()!r}")
+            continue
+        s = ln.strip()
+        if ":" not in s:
+            errors.append(f"{name} permission.task entry is not "
+                          f"'<agent>: <action>': {s!r}")
+            continue
+        key, _, val = s.partition(":")
+        key = key.strip()
+        val = val.strip()
+        if not key:
+            errors.append(f"{name} permission.task entry has an empty target: {s!r}")
+            continue
+        if val not in VALID_ACTIONS:
+            errors.append(f"{name} permission.task target '{key}' has invalid "
+                          f"action '{val}' (expected allow|deny|ask)")
+            continue
+        targets.append(key)
+    return targets, errors
+
+
+files = sorted(glob.glob(os.path.join(agents_dir, "*.md")))
+for path in files:
+    name = os.path.basename(path)
+    fm = frontmatter(path)
+    if fm is None:
+        print(f"ERROR: {name} has no closed frontmatter block "
+              f"(missing opening/closing '---'); cannot validate permission.task")
+        continue
+
+    perm_idx = None
+    for i, ln in enumerate(fm):
+        if indent_of(ln) == 0 and ln.strip().startswith("permission:"):
+            perm_idx = i
+            break
+    if perm_idx is None:
+        continue
+
+    block = []
+    for ln in fm[perm_idx + 1:]:
+        if ln.strip() == "":
+            block.append(ln)
+            continue
+        if indent_of(ln) == 0:
+            break
+        block.append(ln)
+
+    task_idx = None
+    task_indent = None
+    for i, ln in enumerate(block):
+        if ln.strip().startswith("task:"):
+            ind = indent_of(ln)
+            if ind != 2:
+                print(f"ERROR: {name} permission.task is indented unexpectedly "
+                      f"(indent {ind}); cannot attribute targets")
+                task_idx = -1
+                break
+            task_idx = i
+            task_indent = ind
+            break
+
+    if task_idx is None or task_idx == -1:
+        continue
+
+    targets, errors = parse_task(block, task_idx, task_indent, name)
+    for e in errors:
+        print(f"ERROR: {e}")
+
+    if errors:
+        continue
+
+    bad = False
+    for t in targets:
+        if any(c in t for c in "*?["):
+            continue  # wildcard pattern: nothing to resolve
+        if not os.path.isfile(os.path.join(agents_dir, f"{t}.md")):
+            print(f"ERROR: {name} grants task access to '{t}' but "
+                  f"agents/{t}.md does not exist")
+            bad = True
+    if targets and not bad:
+        print(f"ok: {name} task targets exist")
+PY
+)"
+  if [ -z "${PY_OUT}" ]; then
+    echo "ok: no permission.task targets to resolve"
+  else
+    while IFS= read -r line; do
+      case "${line}" in
+        ERROR:*) err "${line#ERROR: }" ;;
+        WARN:*)  warn "${line#WARN: }" ;;
+        *)       [ -n "${line}" ] && echo "${line}" ;;
+      esac
+    done <<< "${PY_OUT}"
+  fi
+fi
+
+# --- 8. required frontmatter -------------------------------------------------
+
+echo "== [8/13] required frontmatter =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   name="$(basename "${md}")"
@@ -245,37 +437,27 @@ for md in "${AGENTS_DIR}"/*.md; do
 done
 echo "ok: frontmatter scanned"
 
-# --- 6. instructions / references paths --------------------------------------
+# --- 9. references paths -----------------------------------------------------
 
-echo "== [7/10] config instructions/references paths =="
+echo "== [9/13] config references paths =="
 if have_python; then
   PY_OUT="$(python3 - "${CONFIG}" "${ROOT}" <<'PY'
 import json, os, sys
-cfg = json.load(open(sys.argv[1]))
+try:
+    cfg = json.load(open(sys.argv[1]))
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
 root = sys.argv[2]
 
-def resolve(p):
-    cands = [os.path.join(root, p)]
-    for c in cands:
-        if os.path.exists(c):
-            return c
-    return None
-
-for p in cfg.get("instructions", []):
-    r = resolve(p)
-    if r is None:
-        is_docs = p.startswith("docs/")
-        tag = "WARN" if is_docs else "ERROR"
-        print(f"{tag}: instruction path '{p}' does not exist (docs/ = target project)")
-    else:
-        print(f"ok: instruction '{p}'")
+if not isinstance(cfg, dict):
+    sys.exit(0)
 
 for name, ref in cfg.get("references", {}).items():
-    r = resolve(ref.get("path", ""))
-    if r is None:
-        is_docs = ref.get("path", "").startswith("docs/")
+    p = ref.get("path", "")
+    if not os.path.exists(os.path.join(root, p)):
+        is_docs = p.startswith("docs/")
         tag = "WARN" if is_docs else "ERROR"
-        print(f"{tag}: reference '{name}' path '{ref.get('path')}' does not exist")
+        print(f"{tag}: reference '{name}' path '{p}' does not exist")
     else:
         print(f"ok: reference '{name}'")
 PY
@@ -284,14 +466,14 @@ PY
     case "${line}" in
       ERROR:*) err "${line#ERROR: }" ;;
       WARN:*)  warn "${line#WARN: }" ;;
-      *)       echo "${line}" ;;
+      *)       [ -n "${line}" ] && echo "${line}" ;;
     esac
   done <<< "${PY_OUT}"
 fi
 
-# --- 7. schema JSON files ----------------------------------------------------
+# --- 10. schema JSON files ---------------------------------------------------
 
-echo "== [8/10] schema JSON files =="
+echo "== [10/13] schema JSON files =="
 if ! have_python; then
   warn "python3 not found; skipping schema JSON validation"
 else
@@ -306,9 +488,9 @@ else
   done
 fi
 
-# --- 8. schema structural closure --------------------------------------------
+# --- 11. schema structural closure -------------------------------------------
 
-echo "== [9/10] schema structural closure =="
+echo "== [11/13] schema structural closure =="
 if ! have_python; then
   warn "python3 not found; skipping schema structural closure check"
 else
@@ -347,7 +529,7 @@ for f in files:
     try:
         schema = json.load(open(f))
     except json.JSONDecodeError:
-        continue  # check 7 already reports malformed JSON
+        continue  # check 10 already reports malformed JSON
     errors = []
     uri = schema.get("$schema")
     if not isinstance(uri, str) or "2020-12" not in uri:
@@ -364,14 +546,14 @@ PY
     case "${line}" in
       ERROR:*) err "${line#ERROR: }" ;;
       WARN:*)  warn "${line#WARN: }" ;;
-      *)       echo "${line}" ;;
+      *)       [ -n "${line}" ] && echo "${line}" ;;
     esac
   done <<< "${PY_OUT}"
 fi
 
-# --- 9. schema enum agent targets resolve ------------------------------------
+# --- 12. schema enum agent targets resolve -----------------------------------
 
-echo "== [10/10] schema enum agent targets resolve =="
+echo "== [12/13] schema enum agent targets resolve =="
 if ! have_python; then
   warn "python3 not found; skipping schema enum agent target check"
 else
@@ -399,7 +581,7 @@ for f in files:
     try:
         schema = json.load(open(f))
     except json.JSONDecodeError:
-        continue  # check 7 already reports malformed JSON
+        continue  # check 10 already reports malformed JSON
     found = []
     collect(schema, found)
     errors = []
@@ -429,7 +611,85 @@ PY
     case "${line}" in
       ERROR:*) err "${line#ERROR: }" ;;
       WARN:*)  warn "${line#WARN: }" ;;
-      *)       echo "${line}" ;;
+      *)       [ -n "${line}" ] && echo "${line}" ;;
+    esac
+  done <<< "${PY_OUT}"
+fi
+
+# --- 13. dangling markdown refs ----------------------------------------------
+
+echo "== [13/13] dangling refs =="
+if ! have_python; then
+  warn "python3 not found; skipping dangling-ref check"
+else
+  PY_OUT="$(python3 - "${ROOT}" <<'PY'
+import glob, os, re, sys
+
+root = sys.argv[1]
+agents_dir = os.path.join(root, "agents")
+protocols_dir = os.path.join(root, "protocols")
+
+link_re = re.compile(r"\]\(([^)]+)\)")
+
+
+def scan_file(path, base_dir, in_protocols):
+    errors = []
+    rel = os.path.relpath(path, root)
+    try:
+        text = open(path, encoding="utf-8").read()
+    except OSError:
+        return errors
+    for m in link_re.finditer(text):
+        raw = m.group(1).strip()
+        target = raw.split()[0] if raw.split() else raw
+        target = target.split("#")[0].split("?")[0]
+        if not target:
+            continue
+        if target.startswith(("http://", "https://", "mailto:", "tel:", "#")):
+            continue
+        if "workflows/" in target or target.rstrip("/").endswith("workflows"):
+            errors.append(f"{rel}: link points into retired 'workflows/' directory: {raw!r}")
+            continue
+        resolved = None
+        if target.startswith("./protocols/"):
+            resolved = os.path.join(root, target[2:])
+        elif target.startswith("../protocols/"):
+            resolved = os.path.normpath(os.path.join(base_dir, target))
+        elif in_protocols and target.startswith("./") and target.endswith(".md"):
+            resolved = os.path.normpath(os.path.join(base_dir, target))
+        else:
+            continue
+        if not os.path.exists(resolved):
+            errors.append(
+                f"{rel}: dangling link {raw!r} -> {os.path.relpath(resolved, root)}"
+            )
+    return errors
+
+
+targets = [
+    (p, agents_dir, False) for p in sorted(glob.glob(os.path.join(agents_dir, "*.md")))
+] + [
+    (p, protocols_dir, True) for p in sorted(glob.glob(os.path.join(protocols_dir, "*.md")))
+]
+# The readme carries the most protocol links; include it (its links are ./protocols/...).
+readme = os.path.join(root, "readme.md")
+if os.path.isfile(readme):
+    targets.append((readme, root, False))
+
+for path, base_dir, in_protocols in targets:
+    errs = scan_file(path, base_dir, in_protocols)
+    if errs:
+        for e in errs:
+            print(f"ERROR: {e}")
+    else:
+        print(f"ok: {os.path.relpath(path, root)}")
+PY
+)"
+  while IFS= read -r line; do
+    case "${line}" in
+      ERROR:*) err "${line#ERROR: }" ;;
+      WARN:*)  warn "${line#WARN: }" ;;
+      *)       [ -n "${line}" ] && echo "${line}" ;;
     esac
   done <<< "${PY_OUT}"
 fi

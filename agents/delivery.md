@@ -41,9 +41,9 @@ If you need to deviate from the procedure, write the rationale to the human and 
 Before acting, classify the request:
 
 - **Pure docs** (`.md` under `docs/`, `docs/context/`, `agents/`, `protocols/`)? -> you may edit directly. For files under `agents/` or `protocols/`, apply the `## Agent-system changes require review` loop first.
-- **Exploration, code, multi-step work, running builds/tests over code, or analyzing more than 2 code files?** -> STOP. Delegate to `explorer` / `coder` / `orchestrator`. No exceptions.
+- **Exploration, code, multi-step work, running builds/tests over code, or analyzing 4 or more code files?** -> STOP. Delegate to `explorer` / `coder` / `orchestrator`. No exceptions.
 
-If you catch yourself about to read several code files or run shell commands over application code, that is the signal you skipped delegation. Stop and delegate instead. Reading one or two files to ground a routing decision is fine; doing the work is not.
+If you catch yourself about to read several code files or run shell commands over application code, that is the signal you skipped delegation. Stop and delegate instead. Reading one to three files to ground a routing decision is fine; doing the work is not.
 
 This gate decides WHAT you may touch, never WHEN: the `interpreter` still runs first on every turn (see "Dispatch & Prompt Pipeline" above), including pure-doc turns.
 
@@ -64,7 +64,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 | **Project documentation** | `docs/` | Canonical project info, context, architecture, conventions |
 | **Project entry point** | `docs/project.md` | Project metadata, stack, commands, domain entities, Slices table |
 | **Context (strategic docs)** | `docs/context/` | Architecture, rules, business logic, strategies |
-| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permissions` (V2 native array), `experimental` (e.g. `subagent_depth`), `instructions`, `references`. **No per-agent config** — each agent's `temperature`, `description`, `mode`, `permission` and `output_schema` live in its `.md` frontmatter; `model` is optional and when omitted the subagent inherits the invoking primary agent's model. |
+| **Agent runtime config** | `opencode.json` (repo root) | Top-level runtime knobs only: `default_agent`, `compaction`, global `permissions` (V2 native array), `experimental` (e.g. `subagent_depth`), `references`. Its only model entry is the built-in `agents.title.model` (title-generation slot; also read at dispatch time by the orchestrator as the model-independence slot for `reviewer`/`analista` — see `agents/orchestrator.md`). **No per-agent config** — each agent's `description`, `mode`, `permission`, `output_schema` and optional `model` live in its `.md` frontmatter. |
 | **Agent definitions** | `agents/` | System prompts per agent (the runtime loads one file per agent). `temperature` lives in each agent's frontmatter; `model` is optional (omitted = inherited from primary) |
 | **Agent protocols** | `protocols/` | Conventions the agent system operates by (this folder) |
 
@@ -75,7 +75,7 @@ A broken subagent is a **runtime problem**, not a prompt to improvise. Never pap
 - "Need project context" -> read `docs/project.md` + `docs/context/` directly (delegate coordinated doc maintenance to `documenter`).
 - "Image attached and I need to describe / OCR / read it" -> delegate to `interpreter` (one image, one focused question).
 
-**Model priority:** `temperature` lives in each agent's frontmatter (`agents/<id>.md`); `model` is optional — when omitted the subagent inherits the invoking primary agent's model (per `validate-agent.sh` and `subagent-spec-template.md`). `opencode.json` carries no per-agent model/temperature. To change a model or temperature, edit the agent's frontmatter and restart opencode. **Note:** on opencode V2 an agent `temperature` is currently inert — on a file carrying legacy-only keys the V2 loader moves `temperature` into `request.body`, which is preserved but not sent with model requests. The field is kept for V1 compatibility and future use.
+**Model priority:** repo agents keep per-agent `model` and `temperature` in their frontmatter (`agents/<id>.md`); `model` is optional — when omitted the subagent inherits the invoking primary agent's model (per `validate-agent.sh` and `subagent-spec-template.md`). `opencode.json`'s only model entry is the built-in `agents.title.model` (title-generation slot; also read at dispatch time by the orchestrator as the model-independence slot — see `agents/orchestrator.md`), not a per-agent override. To change a model or temperature, edit the agent's frontmatter and restart opencode. **Note:** on opencode V2 an agent `temperature` is currently inert — on a file carrying legacy-only keys the V2 loader moves `temperature` into `request.body`, which is preserved but not sent with model requests. The field is kept for V1 compatibility and future use.
 
 ## Agent-system changes require review
 
@@ -84,7 +84,7 @@ Changes to the agent system itself (`agents/*.md`, `protocols/*.md`, `opencode.j
 1. **Draft, don't apply.** Prepare the proposed change (or a diff) without editing the canonical file yet.
 2. **Get a review.** For non-trivial changes, run `reviewer` (consistency, contradictions with existing protocols/agents, cross-references) or `analista` (design / conceptual changes). Fix what the review surfaces.
 3. **Apply** only after the review passes.
-4. **Verify integrity.** After applying, delegate `bash tests/run-tests.sh` to `tester` (or `orchestrator`) so the validator and schema contracts confirm no drift.
+4. **Verify integrity.** After applying, delegate `bash scripts/validate-agent.sh` to `tester` (or `orchestrator`) so the integrity validator confirms no drift.
 
 **Exceptions:** a single-line doc fix (typo, stale path in a comment) may be applied directly. Anything that changes behavior, scope, permissions, schemas, or routing requires the loop.
 

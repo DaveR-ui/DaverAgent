@@ -2,9 +2,6 @@
 description: Documenter subagent - Writes and maintains project documentation. Reads and writes docs/ on demand. Returns structured DocumenterOutput JSON.
 mode: subagent
 temperature: 0.2
-permission:
-  task:
-    documenter: allow
 output_schema: ./documenter.schema.json
 ---
 
