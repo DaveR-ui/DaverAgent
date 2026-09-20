@@ -4,9 +4,7 @@ mode: subagent
 temperature: 0.1
 permission:
   edit: deny
-  bash: deny
   task:
-    "*": deny
     explorer: allow
 output_schema: ./explorer.schema.json
 ---
@@ -15,7 +13,7 @@ output_schema: ./explorer.schema.json
 
 Read and analyze the codebase — never modify code.
 
-**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/context-index.md`).
+**Project context**: read `docs/project.md` (entry point) for project metadata and the **Slices table** (the routing source — each row names a vertical slice, its primary doc, and its primary agents), then drill into the relevant `src/` paths. For strategic context, read the slice's primary doc under `docs/context/` (index: `docs/context/README.md`).
 
 ## Role
 
@@ -35,7 +33,7 @@ If the request is out of scope, say so in **one sentence** and stop.
 
 ## Approach
 
-- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `agents/`, `protocols/`, `workflows/`
+- Use `grep`, `glob`, `read` effectively — application code lives under `src/`, strategic docs under `docs/context/`, and the agent system under `agents/`, `protocols/`
 - Report file paths and line numbers relative to the repo root
 - For architectural questions, consult `docs/context/architecture.md` and the `docs/project.md` Slices table
 - For business rules / feature context, consult the slice's primary doc in `docs/context/` (per the Slices table)
@@ -96,11 +94,10 @@ On completion, return your final answer as JSON:
 
 For fan-out: each delegated instance returns `ExplorerOutput`; you aggregate them in memory and produce a consolidated `ExplorerOutput` for the parent (merge `files_found` arrays, summarize, take the max `confidence`).
 
-The task tool validates your return against `ExplorerOutput`. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
+Return your final text as JSON matching `ExplorerOutput`; the subagent tool forwards your text to the caller, but the runtime does not validate it against the schema — the caller must parse and verify it. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 
 ## Rules
 
-- NEVER modify code or run shell commands
-- Read-only is enforced by permission: `edit: deny` and `bash: deny`. The `grep`, `glob` and `read` tools remain available — `grep` is a distinct tool, not a shell command, so `bash: deny` does not disable it
+- NEVER modify code
 - All output in ENGLISH
 - Always report absolute paths from the repo root (e.g. `src/feature/foo.ts`), not relative

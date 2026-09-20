@@ -35,8 +35,14 @@
         "type": "string"
       },
       "description": "Follow-up tasks, e.g. index or tag registrations still needed."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Calibrated confidence in this return (0 = no confidence, 1 = certain)."
     }
   },
-  "required": ["files_changed", "files_added", "files_removed", "summary"],
+  "required": ["files_changed", "files_added", "files_removed", "summary", "confidence"],
   "additionalProperties": false
 }

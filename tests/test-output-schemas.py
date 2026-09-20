@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Behavioral contract tests for the agent output schemas.
 
-Four kinds of assertions:
+Five kinds of assertions:
 
 1. Every fixture in tests/fixtures/outputs/<name>.json must VALIDATE against
    agents/<name>.schema.json (the happy path).
@@ -14,6 +14,9 @@ Four kinds of assertions:
 4. Every JSON code block inside agents/*.md that parses must VALIDATE
    against the agent's declared output_schema (keeps the documented examples in
    sync with the schemas — the bridge contract from subagent-spec-template.md).
+5. Every `required` key declared anywhere in an agents/*.schema.json is present
+   in that schema's valid fixture (proves the happy path actually exercises the
+   full contract, not just the fields the fixture happens to list).
 
 Exit code 0 = pass, 1 = any failure. Dependency-free (stdlib only).
 
@@ -64,7 +67,45 @@ def frontmatter_output_schema(md_path: Path) -> str | None:
     return None
 
 
-print("== [1/4] valid output fixtures validate ==")
+def unexercised(data, schema, path="$", required_here: bool = False) -> list[str]:
+    """Return a message for every `required` key absent from the fixture data.
+
+    `required_here` tracks whether the current value is a property listed in its
+    parent object's `required` array. It is what distinguishes a mandatory empty
+    array (whose nested `items.required` fields are genuinely unexercised) from
+    an optional empty array (where no nested instance is expected at all).
+    """
+    missing: list[str] = []
+    if isinstance(data, dict):
+        parent_required = schema.get("required", [])
+        for key in parent_required:
+            if key not in data:
+                missing.append(f"{path}: required '{key}' absent from fixture")
+        for key, subschema in schema.get("properties", {}).items():
+            if key in data and isinstance(subschema, dict):
+                missing.extend(
+                    unexercised(
+                        data[key],
+                        subschema,
+                        f"{path}.{key}",
+                        key in parent_required,
+                    )
+                )
+    elif isinstance(data, list):
+        items = schema.get("items")
+        if isinstance(items, dict):
+            if not data and required_here and items.get("required"):
+                missing.append(
+                    f"{path}: required array is empty; nested required fields unexercised"
+                )
+            for index, item in enumerate(data):
+                missing.extend(
+                    unexercised(item, items, f"{path}[{index}]", required_here)
+                )
+    return missing
+
+
+print("== [1/5] valid output fixtures validate ==")
 schema_files = sorted(AGENTS_DIR.glob("*.schema.json"))
 for schema_path in schema_files:
     schema = load_json(schema_path)
@@ -80,7 +121,7 @@ for schema_path in schema_files:
     errors = validate(data, schema)
     check(not errors, f"{fixture.name} validates" + (f" [{'; '.join(errors)}]" if errors else ""))
 
-print("== [2/4] invalid fixtures are rejected ==")
+print("== [2/5] invalid fixtures are rejected ==")
 invalid_dir = FIXTURES_DIR / "invalid"
 for schema_path in schema_files:
     schema = load_json(schema_path)
@@ -96,7 +137,7 @@ for schema_path in schema_files:
     errors = validate(data, schema)
     check(bool(errors), f"{fixture.name} rejected" + ("" if errors else " (VALIDATED — schema too weak)"))
 
-print("== [3/4] golden routing packets validate against interpreter schema ==")
+print("== [3/5] golden routing packets validate against interpreter schema ==")
 interp_schema = load_json(AGENTS_DIR / "interpreter.schema.json")
 for packet_path in sorted(PROMPTS_DIR.glob("*.json")):
     wrapper = load_json(packet_path)
@@ -108,7 +149,7 @@ for packet_path in sorted(PROMPTS_DIR.glob("*.json")):
     errors = validate(wrapper["packet"], interp_schema)
     check(not errors, f"{packet_path.name} packet validates" + (f" [{'; '.join(errors)}]" if errors else ""))
 
-print("== [4/4] documented JSON examples match their schema ==")
+print("== [4/5] documented JSON examples match their schema ==")
 for md_path in sorted(AGENTS_DIR.glob("*.md")):
     schema_ref = frontmatter_output_schema(md_path)
     if schema_ref is None:
@@ -133,6 +174,24 @@ for md_path in sorted(AGENTS_DIR.glob("*.md")):
             f"{md_path.name} example {index + 1} validates"
             + (f" [{'; '.join(errors)}]" if errors else ""),
         )
+
+print("== [5/5] every required field is exercised by its valid fixture ==")
+for schema_path in schema_files:
+    schema = load_json(schema_path)
+    if schema is None:
+        continue
+    fixture = FIXTURES_DIR / schema_path.name
+    if not fixture.exists():
+        continue  # section [1/5] already reports the missing fixture
+    data = load_json(fixture)
+    if data is None:
+        continue
+    missing = unexercised(data, schema)
+    check(
+        not missing,
+        f"{fixture.name} exercises all required fields"
+        + (f" [{'; '.join(missing)}]" if missing else ""),
+    )
 
 print()
 if failures:

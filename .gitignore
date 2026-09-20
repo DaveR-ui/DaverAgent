@@ -20,8 +20,5 @@ __pycache__/
 
 # ── Drafts / logs ────────────────────────────────────────────────
 .draft/
+.omo/
 *.log
-
-# ── Machine-specific plugin scripts (portable plugin source only) ─
-plugins/**/gk-hooks.js
-

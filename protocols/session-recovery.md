@@ -24,8 +24,7 @@ to reconstruct context by hand; with it, recovery is a mechanical API walk.
 Apply this protocol when you observe any of the following:
 
 - `STATUS: STUCK` returned by an orchestrator.
-- A child session interrupted mid-flight — observable as a non-`idle`
-  entry in the `GET /session/status` map after an abort (see
+- A `Subagent.Interrupted` event on the EventV2 bus (see
   `agents/orchestrator.md` — Subagent outcomes block and interruption
   notes).
 - `POST /session/:id/abort` triggered by `delivery` (see
@@ -61,7 +60,7 @@ How to parse (pseudo-steps, not code):
   `OPENCODE_SERVER_USERNAME`), password from `OPENCODE_SERVER_PASSWORD`.
 - **The password comes from the environment only — never from disk, never from
   command-line arguments, never into logs.**
-- Advanced (not covered by the helper script): mDNS discovery via `--mdns` /
+- Advanced (not covered by this protocol): mDNS discovery via `--mdns` /
   `--mdns-domain opencode.local`.
 
 ## Recovery flow per depth level
@@ -77,17 +76,15 @@ One sentence of context from the human is sufficient.
 Walk the opencode session API in this order:
 
 1. `GET /global/health` — pre-flight check that the server is reachable.
-2. `GET /session/status` — map of session id → state (`idle` | `busy` |
-   `retry`); find whether the failed session is still `busy`.
+2. `GET /session/status` — map of session id → state; find whether the failed
+   session is `running`, `idle`, or something else.
 3. `GET /session/:id` — metadata of the failed orchestrator (title, parentID,
    timestamps).
-4. `GET /session/:id/children` — list coder/tester/etc. children; the
-   response is `Session[]` (`id`, `parentID`, `title`, `time`). A child's
-   run state is read from the `GET /session/status` map, not from a
-   per-child `status` field.
-5. For each child still `busy`: `POST /session/:id/abort` (cleanup
+4. `GET /session/:id/children` — list coder/tester/etc. children as
+   `ChildInfo { status, summary, agentType, durationMs }`.
+5. For each child still in `running`: `POST /session/:id/abort` (cleanup
    before resume).
-6. If the orchestrator session itself is still `busy`:
+6. If the orchestrator session itself is still `running`:
    `POST /session/:id/abort`.
 7. `GET /session/:id/message?limit=20` — last 20 messages for context.
 8. `GET /session/:id/todo` — pending todo list.
@@ -108,8 +105,8 @@ child failures are managed by the existing `STATUS: STUCK` path.
 
 ## Output shape
 
-The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the fields
-of the `## Resume instructions (if restart)` block in
+The "recovered snapshot" produced by the Mode 2 walk MUST map 1:1 to the four
+fields of the `## Resume instructions (if restart)` block in
 `agents/orchestrator.md#resume-instructions-if-restart`:
 
 - **Original task** ← recovered from `GET /session/:id` title or the first
@@ -119,21 +116,12 @@ of the `## Resume instructions (if restart)` block in
   (`GET /session/:id/message?limit=20`).
 - **Next concrete step** ← the first unchecked todo item, or inferred from the
   last assistant message.
-- **Human decisions received** ← recovered from the last messages (already
-  answered `question` rounds); a fresh instance must not re-ask them.
-- **Open questions still unanswered** ← pending `question` requests or open
-  questions in the last messages.
 
-## Helper script
+## No helper script
 
-No helper script ships with this repo; the former PowerShell wrapper was
-retired (the project is Linux-only) and a bash twin was never written. Drive the
-endpoints above directly (e.g. with `curl`) as a sub-command (`health`, `list`,
-`status`, `inspect`, `children`, `abort`, `messages`, `todo`, `diff`, `resume`).
-Any helper is **dumb**: it does HTTP and prints JSON to stdout. All decisions
-about what to do with the data live in this protocol. It is invoked manually by
-the user or by a future orchestrator on STUCK recovery — never by `delivery` or
-`interpreter`.
+No helper script ships with this protocol. Perform the API walk above manually
+with any HTTP client (e.g. `curl`) — all decisions about what to do with the
+returned JSON live in this protocol.
 
 ## Cross-references
 
@@ -148,14 +136,14 @@ the user or by a future orchestrator on STUCK recovery — never by `delivery` o
 
 ## Caveats / non-goals
 
-- **Helper only, no library.** Any recovery helper is a thin HTTP wrapper; the
-  decision logic stays in this protocol. A dedicated helper is out of scope for
-  now; the endpoints can be driven directly.
+- **No shipped helper.** The API walk is performed manually (or by an
+  orchestrator instrumenting it directly); a packaged helper script is out of
+  scope.
 - **Single-server assumption.** Multi-server orchestration is out of scope; the
   flow assumes one `sidecar` server.
-- **No automatic invocation.** The script is run manually by the user or by a
-  future orchestrator recovering from STUCK. It is NOT invoked by `delivery`
-  or `interpreter`.
+- **No automatic invocation.** The API walk is performed manually by the user
+  or by a future orchestrator recovering from STUCK. It is NOT invoked by
+  `delivery` or `interpreter`.
 - **No auto-deletion of failed sessions.** Failed sessions are left in place.
   The user may delete them via `DELETE /session/:id` if desired (endpoint noted
   here for reference; intentionally not scripted).

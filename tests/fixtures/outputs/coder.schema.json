@@ -2,5 +2,6 @@
   "files_changed": ["src/feature/foo.ts"],
   "tests_run": true,
   "tests_passed": true,
-  "summary": "Implemented the feature"
+  "summary": "Implemented the feature",
+  "confidence": 0.9
 }

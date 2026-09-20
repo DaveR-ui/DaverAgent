@@ -9,5 +9,6 @@
     }
   ],
   "summary": "One blocking issue",
+  "confidence": 0.9,
   "extra_field": true
 }

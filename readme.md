@@ -9,27 +9,19 @@ same agents.
   agent prompts.
 - **Global config, per-project docs.** The agent system lives here; project
   facts live in each project's `docs/` and are resolved per session.
-- **Portable.** The install is a git clone plus `scripts/bootstrap.sh`; no
-  absolute paths are hardcoded anywhere except the documented `engram` binary
-  path in `opencode.json` (and its fallback default in `plugins/engram.ts`).
+- **Portable.** The install is a git clone; no absolute paths are hardcoded.
+  Machine-specific paths (e.g. an MCP server binary) must be provided through a
+  gitignored `opencode.local.json` override, never committed here.
 
 ## Install (per machine)
 
 ```bash
 git clone https://github.com/DaveR-ui/DaverAgent.git ~/.config/opencode
-bash ~/.config/opencode/scripts/bootstrap.sh        # install or update
 ```
 
-`scripts/bootstrap.sh` is idempotent and adds a `--verify-only` mode:
-
-```bash
-bash scripts/bootstrap.sh --verify-only   # report what would change, write nothing
-```
-
-If the target already exists and is **not** a clone of this repository, the
-script backs it up to `~/.config/opencode.bak.<timestamp>` before cloning. See
-[`install.md`](./install.md) for the full checklist and the optional per-project
-documentation bootstrap.
+There is no separate install step: opencode reads the config directly from the
+clone. Update with `git pull` in the clone and validate with
+`bash tests/run-tests.sh`.
 
 ## Path contract
 
@@ -39,18 +31,22 @@ reference's absolute root into every agent's context).
 
 | Vocabulary | Examples | Resolves against |
 |---|---|---|
-| **Agent-system assets** | `agents/`, `protocols/`, `workflows/`, `scripts/`, `tests/`, `templates/` | The `agent-system` reference in `opencode.json` |
+| **Agent-system assets** | `agents/`, `protocols/`, `scripts/`, `tests/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
-`opencode.json` lists `docs/project.md` under `instructions`; projects without a
-`docs/` folder are silently skipped. A project that wants explicit
-`docs/context` / `docs/protocols` references can drop
-[`templates/project-opencode.json`](./templates/project-opencode.json) in as its
-own `opencode.json`.
+`opencode.json` lists `docs/project.md` under `instructions`. **On opencode V2
+this field is decoded but NOT loaded** — V2 discovers only `AGENTS.md` (global
+`~/.config/opencode/AGENTS.md` and walked-up project `AGENTS.md`) as an
+instruction source, so treat `instructions` here as a V1-compat no-op.
+Under opencode V1,
+relative instruction paths are resolved against the session working directory
+(searched upward to the git worktree root), so a project without a `docs/`
+folder is silently skipped. A project that wants explicit `docs/context` /
+`docs/protocols` references declares them in its own `opencode.json`
+`references` block.
 
 **Golden rule:** never create a global `docs/`, and never hardcode an absolute
-path (the `engram` binary path noted above is the one documented exception). The
-read tool does not expand `~`.
+path. The read tool does not expand `~`.
 
 ## Structure
 
@@ -58,7 +54,6 @@ read tool does not expand `~`.
 ~/.config/opencode/              # == this repository
 ├── opencode.json                # Canonical global runtime config (no `agent` block)
 ├── readme.md                    # This file
-├── install.md                   # Install / update checklist
 │
 ├── agents/                      # FLAT global agents (the runtime scans agents/*.md)
 │   ├── delivery.md              # Interface with the human (primary)
@@ -68,32 +63,27 @@ read tool does not expand `~`.
 │   ├── reviewer.md              # Code review
 │   ├── architect.md             # Design
 │   ├── explorer.md              # Search and mapping (read-only)
-│   ├── project-context.md       # docs/ reading (read-only)
 │   ├── external-scout.md        # External docs via webfetch
-│   ├── standards-scout.md       # Standards/pattern discovery before coding (read-only)
 │   ├── interpreter.md           # Step 0 normalization + image inspection
 │   ├── analista.md              # Second opinion
 │   ├── documenter.md            # Documentation
 │   └── *.schema.json            # Structured-return schemas
 │
 ├── protocols/                   # Agent operating conventions (read on demand)
-├── workflows/                   # Thinking instructions
-├── commands/                    # Human-facing slash commands (e.g. /session)
-├── plugins/                     # Portable plugins (session tool, steer inbox, session export, engram, GitKraken hooks)
-├── scripts/                     # bootstrap.sh + validators
-├── tests/                       # Test suite of the agent tree
-└── templates/                   # Optional per-project opencode.json shim
+├── scripts/                     # Validators
+└── tests/                       # Test suite of the agent tree
 ```
 
-> `plugins/`, `commands/` and the root `package.json` + `package-lock.json` are
-> tracked (the committed lockfile pins the plugin dependency so `npm install` is
-> reproducible; `node_modules/` stays gitignored). `plugins/` holds portable
-> plugin modules; `commands/` holds slash commands.
+> A `plugins/` directory and a root `package.json` + lockfile are **optional**:
+> they exist only if you add portable plugins (or other JS dependencies). This
+> repo ships **neither** — do not add an empty `package.json` just to match a
+> diagram. Any `node_modules/` is gitignored.
 
 ## Available agents
 
 Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
-`primary`). Invoked from `delivery` or `orchestrator` via the `task` tool.
+`primary`). Invoked from `delivery` or `orchestrator` via the subagent tool
+(named `task` on opencode V1, `subagent` on V2).
 
 | Agent | Purpose |
 |---|---|
@@ -105,184 +95,114 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 | `architect` | Design, boundaries, patterns. Returns `ArchitectOutput`. |
 | `analista` | Second opinion, plan critique, stuck-recovery. Returns `AnalystOutput`. |
 | `explorer` | Search and mapping in the repo. Returns `ExplorerOutput`. |
-| `project-context` | Lookups and context assembly from `docs/` (read-only). |
 | `external-scout` | Brings docs of external libraries via webfetch. |
-| `standards-scout` | Discovers the project's standards/patterns before coding (read-only, ranked output). Text return. |
 | `interpreter` | Normalizes the prompt (Step 0) and inspects a single image. |
 | `documenter` | Writes/maintains `docs/`. Returns `DocumenterOutput`. |
 
-Temperature lives in **each agent's frontmatter** (`agents/<id>.md`). No agent
-currently declares `model:`, so a subagent inherits the model of the primary
-agent that invokes it — model is inherited unless an agent adds an explicit
-`model:` override in its frontmatter. Changing either = editing the agent's
-frontmatter and restarting opencode.
+Models and temperatures live in **each agent's frontmatter**
+(`agents/<id>.md`). Changing a model = editing the agent's frontmatter and
+restarting opencode. Without a declared `model:`, a subagent inherits the model
+of the primary agent that invokes it. **On opencode V2 an agent `temperature`
+is currently inert**: on a file carrying legacy-only keys, the V2 loader moves
+`temperature` into `request.body`, which is preserved but not sent with model
+requests. The field is retained for V1 compatibility.
 
 ## Protocols
 
-The protocols live in [`protocols/`](./protocols/readme.md). The most important
-is [`protocols/prompt-pipeline.md`](./protocols/prompt-pipeline.md): Step 0
-(Interpret) is executed by the `interpreter`; Phase 2 (Reduce) is executed by
-the `orchestrator`.
+The protocols live in `protocols/`:
+
+- [`prompt-pipeline.md`](./protocols/prompt-pipeline.md) — Step 0 (Interpret) is
+  executed by the `interpreter`; Phase 2 (Reduce) is executed by the
+  `orchestrator`.
+- [`dispatch.md`](./protocols/dispatch.md) — turn-entry procedure for the
+  `delivery` seat: the interpreter-first gate, the "about to ask" tripwire, and
+  the hand-off into the pipeline. Formerly `workflows/dispatch.md`.
+- [`orchestrate.md`](./protocols/orchestrate.md) — pre-action thinking process for
+  the `orchestrator` seat: Protocol Discovery → Context Refresh → Proposal →
+  Implementation → Verification → Documentation. Formerly `workflows/orchestrate.md`.
+- [`subagent-spec-template.md`](./protocols/subagent-spec-template.md) — canonical
+  shape for subagent definitions.
+- [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
+  interrupted or STUCK sessions in the delivery → orchestrator → subagent
+  hierarchy.
+- [`broad-investigation-template.md`](./protocols/broad-investigation-template.md) —
+  5-section scaffold for prompts that map, inventory, or audit the repo.
 
 ## Agent permissions
 
+- Global runtime permission rules live in `opencode.json` as the V2 native
+  top-level `permissions` array of `{ action, resource, effect }`. Each agent
+  also carries a singular `permission:` block in its `.md` frontmatter, which V2
+  auto-migrates (`task`→`subagent`, `bash`→`shell`, `write`/`patch`→`edit`).
+  Keep the singular form: repo agents carry legacy-only keys (`output_schema`,
+  `temperature`), so V2 routes the whole file through its V1 decoder, and a
+  native `permissions` array there would be captured as a rest key into
+  `request.body`, dropping all agent-level rules.
 - `orchestrator` and the subagents have no external skills pre-enabled. The only
   legitimate built-in skill is `customize-opencode` (part of the opencode
   runtime, not repo-local).
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
-
-## Session tool
-
-The session capability ships two ways:
-
-- **Agent tool** — [`plugins/session-tool.js`](./plugins/session-tool.js)
-  registers a `session` tool (`children`, `tree`, `parent`, `messages`,
-  `status`, `todo`, `diff`, `send`). Read ops target the caller's session by
-  default. `send` (which prompts another session) is restricted to the
-  `orchestrator` and `delivery` agents and asks for confirmation first.
-- **Slash command** — [`commands/session.md`](./commands/session.md) gives a
-  human-facing entry point: `/session <session-id> [op]`. Commands inject a
-  prompt, so the command delegates the actual read/write to the tool above.
-
-## Steering inbox
-
-[`plugins/steer-inbox.js`](./plugins/steer-inbox.js) is a file-based steering
-inbox. While an agent turn is running, append one JSON object per line (JSONL)
-to the inbox; the plugin delivers each message to the active session over
-opencode's **v2 steer channel** (`delivery:"steer"`), applied in the same turn
-at the next step boundary.
-
-- **Inbox** — `$XDG_STATE_HOME/opencode/steer-inbox.jsonl`, else
-  `~/.local/state/opencode/steer-inbox.jsonl`. It lives in the state dir
-  (outside this repo), so runtime state never pollutes `git status`.
-- **Override / kill switch** — `OPENCODE_STEER_INBOX` (absolute path);
-  `OPENCODE_STEER_INBOX_DISABLE=1` disables the plugin.
-- **Line format** — `{"text":"...", "session":"ses_..."}`; `text` is required,
-  `session` (or `target`) optionally names the target session.
-
-```bash
-echo '{"text":"use the staging DB"}' >> ~/.local/state/opencode/steer-inbox.jsonl
-```
-
-An `<inbox>.offset` byte-offset sidecar steers each line once within a running
-process (at-most-once); a crash between delivery and the offset write can
-re-deliver one line after restart. Malformed lines are skipped, and a line with
-no known session waits for a later drain. **Routing:** an explicit
-`session`/`target` wins, otherwise the most-recently-active session (ambiguity
-resolves to most-recently-active). The inbox path is global per machine and has
-no cross-process lock — run a single opencode instance per machine, or give
-instances distinct `OPENCODE_STEER_INBOX` paths, to avoid the same line being
-steered twice.
-
-**Safe by default / opt-in:** an absent inbox file leaves the plugin completely
-inert. It never throws and never blocks (async fs, fire-and-forget), sends no
-model override, reads no credentials, and connects nothing — so the session's
-own already-available default Zen model is used. To use a preferred
-`opencode-go/deepseek-v4.1-flash`, connect the `opencode-go` integration once in
-the opencode UI; the session can then select it. No `opencode.json` entry is
-needed — local plugins auto-load from `plugins/`.
-
-## Session export
-
-[`plugins/session-export.js`](./plugins/session-export.js) keeps a
-machine-readable snapshot of the opencode session list and each session's run
-state, so external consumers (e.g. a KDE Plasma widget) can render the active
-sessions without talking to the local server themselves.
-
-- **Output file** — `$XDG_STATE_HOME/opencode/sessions.json`, else
-  `~/.local/state/opencode/sessions.json`. It lives in the state dir (outside
-  this repo), so runtime state never pollutes `git status`.
-- **Override / kill switch** — `OPENCODE_SESSION_EXPORT` (absolute path);
-  `OPENCODE_SESSION_EXPORT_DISABLE=1` disables the plugin.
-
-```json
-{
-  "updatedAt": "2026-09-13T22:30:00.000Z",
-  "sessions": [
-    {"id":"ses_...","title":"...","parentID":null,
-     "status":"idle","updated":1757800200000}
-  ]
-}
-```
-
-`status` is one of `idle`, `busy`, `retry` (or `unknown`); `parentID` is `null`
-for top-level sessions; `updated` is epoch milliseconds. Sessions are sorted by
-status rank (busy, retry first), then by `updated` descending.
-
-**Safe by default / no-throw:** writes are async and fire-and-forget, atomic
-(temp file + `fs.rename`), and never throw. If the local server is unreachable
-the previous snapshot is left untouched. It sends no model override, reads no
-credentials, and connects nothing — no `opencode.json` entry is needed, since
-local plugins auto-load from `plugins/`.
-
-**Restart required:** opencode must be **restarted** after adding or changing
-the plugin for it to load.
+- **Structured returns are a prose contract, not runtime-enforced.** On V2,
+  `output_schema` is not a recognized agent field: it is captured as a legacy
+  rest key into `request.body` (preserved, not sent). The subagent tool returns
+  the child's final text as an opaque string and validates nothing. The
+  `agents/*.schema.json` files are checked only by this repo's own test suite
+  (`scripts/validate-agent.sh`, `tests/test-output-schemas.py`); agents are
+  instructed to conform by prose, and the caller must parse and verify.
 
 ## Updating the config
 
-- **Change an agent's temperature** → edit the `temperature:` in the frontmatter
-  of `agents/<id>.md`, then restart opencode. The model is inherited from the
-  invoking primary unless the agent declares an explicit `model:` override.
+- **Change an agent's model/temperature** → edit the frontmatter of
+  `agents/<id>.md` (`model` / `temperature`), then restart opencode.
 - **Change an agent's definition** (prompt, tools, permissions, schema) → edit
   `agents/<id>.md`.
-- **Add an agent** → create `agents/<id>.md` with its frontmatter
-  (`description`, `mode`, `temperature`, `permission`, `output_schema`, plus an
-  optional `model:` override). Do not touch `opencode.json` (it has no `agent`
-  block).
-- **Update the global install** → `bash scripts/bootstrap.sh` (or
-  `--verify-only` first).
-
-The per-project documentation bootstrap is separate; see [`install.md`](./install.md).
+- **Add an agent** → create `agents/<id>.md` with its full frontmatter
+  (`description`, `mode`, `model`, `temperature`, `permission`,
+  `output_schema`). Do not touch `opencode.json` (it has no `agent` block).
+- **Update the global install** → `git pull` in the `~/.config/opencode` clone.
 
 ## Validating the config
 
-Before committing changes to the agent system, run the full test suite (Git
-Bash / WSL):
+Before committing changes to the agent system, run the full test suite:
 
 ```bash
 bash tests/run-tests.sh
 ```
 
-It runs eight suites, all exit-code driven (CI-ready):
+It includes two suites, both exit-code driven (CI-ready):
 
-1. **`scripts/validate-agent.sh`** (integrity lint): that `opencode.json` is
-   valid JSON, that the flat `agents/` layout is intact, that no agent uses the
-   deprecated `tools:` field, that every `output_schema` points to an existing
-   file, that `delivery`/`orchestrator` `permission.task` targets are real
-   agents, and that the mandatory frontmatter (`description`/`mode`) exists.
-   Project `docs/` paths are reported as WARN, not errors.
+1. **`scripts/validate-agent.sh`** (integrity lint), ten checks: that
+   `opencode.json` is valid JSON; that the flat `agents/` layout is intact and
+   no agent uses the deprecated `tools:` field; that `opencode.json` declares no
+   field the installed runtime ignores (top-level `logLevel`/`server`/
+   `subagent_depth`/`layout`; experimental `disable_paste_summary`/`batch_tool`/
+   `openTelemetry`/`primary_tools`/`continue_loop_on_deny`; `compaction.prune`/
+   `compaction.tail_turns`); that every `output_schema`
+   points to an existing file; that every `permission.task` allow target in any
+   agent resolves to a real agent; that the mandatory frontmatter
+   (`description`/`mode`) exists; that config `instructions`/`references` paths
+   resolve (project `docs/` paths are reported as WARN, not errors); that every
+   `*.schema.json` parses as valid JSON; that every `agents/*.schema.json` is
+   structurally closed (draft 2020-12, `additionalProperties: false`, non-empty
+   `required`, a description on every property); and that every `re_route_to`
+   enum value resolves to an agent.
 2. **`tests/test-output-schemas.py`** (output contracts): every valid fixture in
    `tests/fixtures/outputs/` validates against its schema, every invalid fixture
    is rejected, the golden routing packets validate against
-   `interpreter.schema.json`, and the JSON examples documented in the agent
-   `.md` files stay in sync with their schemas.
-3. **`tests/test-docs-validator.sh`** (docs validator): the bundled
-   `templates/docs-validate.js` derives from upstream onrails without drift.
-4. **`tests/test-conformance-register.py`** (divergence register): the declared
-   onrails divergences in `templates/docs-conformance.json` are machine-checked.
-5. **`tests/test-agent-hardening.py`** (permission matrix): `subagent_depth: 4`,
-   no `lsp` block, the read-only/edit/`websearch` denies, the `permission.task`
-   catch-all model, and the absence of fabricated runtime claims.
-6. **`tests/test-session-tool.py`** (session capability): the `session` plugin
-   tool, the `/session` slash command, and the harness wiring.
-7. **`tests/test-steer-inbox.py`** (steering inbox): the `steer-inbox` plugin's
-   structure, safe/no-throw async behavior, v2 steer delivery channel, env
-   overrides, and `node --check` parse guard.
-8. **`tests/test-session-export.py`** (session export): the `session-export`
-   plugin's structure, safe/no-throw async behavior, atomic write, env
-   overrides, and `node --check` parse guard, plus the runner wiring.
+   `interpreter.schema.json`, the JSON examples documented in the agent `.md`
+   files stay in sync with their schemas, and every `required` field is
+   exercised by its valid fixture.
 
 ## Troubleshooting
 
 **"My config is not picked up"** — Verify `opencode.json` is valid JSON:
 `python3 -m json.tool opencode.json`.
 
-**"I want to go back to the previous version"** — If the change was made by
-`scripts/bootstrap.sh`, restore the `~/.config/opencode.bak.<timestamp>`
-directory. If you edited by hand, use your own version control.
+**"I want to go back to the previous version"** — Use your own version control
+(Git) to check out the previous state of the clone.
 
-**"A project doesn't see its `docs/`"** — Confirm the project has
-`docs/project.md` (or drop in
-[`templates/project-opencode.json`](./templates/project-opencode.json) for
-explicit `docs/context` / `docs/protocols` references).
+**"A project doesn't see its `docs/`"** — On opencode V2 this is expected:
+`opencode.json` lists `docs/project.md` under `instructions`, but V2 does not
+load config `instructions` (it discovers `AGENTS.md` only). The entry is retained
+for V1 compatibility and as a project convention.

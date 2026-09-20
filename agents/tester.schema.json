@@ -24,12 +24,19 @@
       "minimum": 0,
       "maximum": 1,
       "description": "Optional code coverage ratio between 0 and 1."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Calibrated confidence in this return (0 = no confidence, 1 = certain)."
     }
   },
   "required": [
     "tests_run",
     "tests_passed",
-    "failures"
+    "failures",
+    "confidence"
   ],
   "additionalProperties": false
 }

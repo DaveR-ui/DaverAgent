@@ -8,5 +8,6 @@
   ],
   "files_to_touch": ["src/feature/foo.ts"],
   "summary": "Design for the feature",
+  "confidence": 0.9,
   "extra_field": true
 }

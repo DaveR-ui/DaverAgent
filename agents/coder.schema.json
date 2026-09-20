@@ -22,13 +22,20 @@
     "summary": {
       "type": "string",
       "description": "One-line description of what was done."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Calibrated confidence in this return (0 = no confidence, 1 = certain)."
     }
   },
   "required": [
     "files_changed",
     "tests_run",
     "tests_passed",
-    "summary"
+    "summary",
+    "confidence"
   ],
   "additionalProperties": false
 }

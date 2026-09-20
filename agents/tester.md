@@ -3,9 +3,7 @@ description: Tester - framework-parameterized test execution for vitest, karma-j
 mode: subagent
 temperature: 0.2
 permission:
-  edit: deny
   task:
-    "*": deny
     tester: allow
 output_schema: ./tester.schema.json
 ---
@@ -30,13 +28,13 @@ Linter (optional, conditional): only when a `linter` parameter is also informed 
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->
 
-Minimal slot — testing standards and flaky-test playbooks are delegated to `docs/project.md` (Common Commands) and the relevant `docs/context/*.md` docs (see `docs/context/context-index.md` index). Run the canonical command for the selected framework from the affected package directory — never from the repo root (guard `do-not-run-tests-from-root`). When `framework` and `linter` are both informed, merge lint diagnostics into `failures[]` and report `coverage` only for test coverage (lint-only → `coverage` omitted, not 0).
+Minimal slot — testing standards and flaky-test playbooks are delegated to `docs/project.md` (Common Commands) and the relevant `docs/context/*.md` docs (see `docs/context/README.md` index). Run the canonical command for the selected framework from the affected package directory — never from the repo root (guard `do-not-run-tests-from-root`). When `framework` and `linter` are both informed, merge lint diagnostics into `failures[]` and report `coverage` only for test coverage (lint-only → `coverage` omitted, not 0).
 
 ## 3 — Finalization / Return  <!-- Section 3: Finalization -->
 
 ### Structured Return
 
-Return `TesterOutput` JSON (schema: `./tester.schema.json`, unchanged: `tests_run`, `tests_passed`, `failures` required, `coverage` optional 0–1). Reuse `failures[]` for test and lint failures; do not add fields. Coverage tri-state: tests(+lint) → `coverage` = test ratio when available; lint-only or not-run → omit `coverage` (not 0 — 0 means 0% coverage).
+Return `TesterOutput` JSON (schema: `./tester.schema.json`, unchanged: `tests_run`, `tests_passed`, `failures`, `confidence` required, `coverage` optional 0–1). Reuse `failures[]` for test and lint failures; do not add fields. Coverage tri-state: tests(+lint) → `coverage` = test ratio when available; lint-only or not-run → omit `coverage` (not 0 — 0 means 0% coverage).
 
 Success:
 
@@ -45,7 +43,8 @@ Success:
   "tests_run": 12,
   "tests_passed": 12,
   "failures": [],
-  "coverage": 0.85
+  "coverage": 0.85,
+  "confidence": 0.9
 }
 ```
 
@@ -55,7 +54,8 @@ Not-run (no framework and no linter):
 {
   "tests_run": 0,
   "tests_passed": 0,
-  "failures": ["no framework informed — test ignored"]
+  "failures": ["no framework informed — test ignored"],
+  "confidence": 0.9
 }
 ```
 

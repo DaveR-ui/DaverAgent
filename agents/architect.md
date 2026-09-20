@@ -2,9 +2,7 @@
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
 permission:
-  edit: deny
   task:
-    "*": deny
     architect: allow
 output_schema: ./architect.schema.json
 ---
@@ -36,8 +34,8 @@ If the request is out of scope, say so in **one sentence** and stop.
 ## Stack / Context
 
 - Read `docs/project.md` (entry point) first — project metadata, stack, commands, and the **Slices table** for area routing.
-- Architecture and conventions live in `docs/context/` (index: `docs/context/context-index.md`); those docs are the source of truth and override legacy `src/` patterns.
-- Verify versions against `docs/project.md` / `package.json` before claiming specifics.
+- Architecture and conventions live in `docs/context/` (index: `docs/context/README.md`); those docs are the source of truth and override legacy `src/` patterns.
+- Verify versions against the target project's `docs/project.md` / `package.json` before claiming specifics.
 
 ## Principles
 
@@ -74,8 +72,9 @@ On completion, return your final answer as JSON:
     "src/app/<feature>/<feature>.component.ts",
     "src/app/<feature>/<feature>.service.ts"
   ],
-  "summary": "one-line description of the design"
+  "summary": "one-line description of the design",
+  "confidence": 0.8
 }
 ```
 
-The task tool validates your return against `ArchitectOutput`. Do not write to disk.
+Return your final text as JSON matching `ArchitectOutput`; the subagent tool forwards your text to the caller, but the runtime does not validate it against the schema — the caller must parse and verify it. Do not write to disk.

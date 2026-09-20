@@ -3,5 +3,6 @@
   "files_added": [],
   "files_removed": [],
   "summary": "Clarified the layering section",
-  "follow_up": ["docs/context/context-index.md needs a new row for the data-requests slice"]
+  "follow_up": ["docs/context/README.md needs a new row for the data-requests slice"],
+  "confidence": 0.9
 }

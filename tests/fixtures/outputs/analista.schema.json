@@ -7,5 +7,7 @@
   ],
   "recommendation": "Proceed but split phase 1 to reduce blast radius.",
   "reasoning": "Read the plan and the affected docs; the risk is isolated to phase 1.",
-  "summary": "Plan is sound"
+  "summary": "Plan is sound",
+  "re_route_to": "coder",
+  "re_route_language": "angular"
 }
