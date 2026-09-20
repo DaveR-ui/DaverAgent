@@ -27,7 +27,11 @@ ambient instruction source — silently discovered, injected, and invisible in t
 inventory. Step 0 reads `docs/project.md` explicitly; never assume ambient context.
 
 This bans *ambient* files, not *on-demand* reads: explicit `docs/context/*.md` reads
-remain expected.
+remain expected. The same boundary scopes `AGENTS.md` itself: *this* repository's own
+`AGENTS.md` (the agent-system repo installed at `~/.config/opencode`) is a forbidden
+ambient channel — it must not exist and must never be read — while a **consumer
+project's** root `AGENTS.md` is an allowed *on-demand* read and is the canonical
+source of that project's conventions (read explicitly, never relied upon ambiently).
 
 ## Step 0: Interpret (executed by the `interpreter` subagent)
 
