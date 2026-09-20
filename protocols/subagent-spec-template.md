@@ -44,9 +44,9 @@ Rationale: a future `explorer.typescript` fans out exactly like the base `explor
 | `description` | **required** | One line, routing-oriented — the orchestrator reads this to decide delegation. Name the discipline, the accepted task shapes, and the structured return if any. |
 | `mode` | **required** | Literal value (`primary` for delivery, `subagent` for everything else). |
 | `model` | optional | Fully qualified (`<provider>/<model>`). Declared in the agent's frontmatter as an explicit override; when omitted, the subagent inherits the invoking primary agent's model (per opencode docs). Part of the cost contract — see the orchestrator's subagent table. |
-| `temperature` | optional | Declared in the agent's frontmatter. Omit when the model ignores it (e.g. `kimi-k3`, kimi family). |
+| `temperature` | optional | Declared in the agent's frontmatter. Omit when the model ignores it (e.g. `kimi-k3`, kimi family). On opencode V2 it is currently inert (moved into `request.body`, which is not sent); retained for V1 compatibility. |
 | `tools` | optional | Tool allow/deny map. |
-| `permission` | optional | Permission rules (e.g. read-only adapters, `task` fan-out grants). |
+| `permission` | optional | Permission rules in the singular V1 block (e.g. read-only adapters, `task` fan-out grants; `task` is named `subagent` on V2). Keep it singular: repo agents carry legacy-only keys (`output_schema`, `temperature`), so V2 routes the whole file through its V1 decoder; a native `permissions` array would be captured as a rest key into `request.body`, dropping all agent-level rules. V2 auto-maps `task`→`subagent`, `bash`→`shell`, `write`/`patch`→`edit`. |
 | `output_schema` | optional | Relative path to the sibling JSON Schema (`./<id>.schema.json`) — see the bridge below. |
 
 ## Canonical full shape
@@ -63,7 +63,7 @@ The 7+1 canonical headings are grouped into 3 macro sections. The mapping is los
 | 2 — Execution / Standards | `<!-- Section 2: Execution -->` | `### Standards`, `### Anti-Patterns`, (slot) role-specific operational sections | how to work + what to avoid |
 | 3 — Finalization / Return | `<!-- Section 3: Finalization -->` | `### Structured Return`, `### Rules` | output contract + hard rules |
 
-SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permission` global, `instructions`, `references`, `compaction`) — no `agent` block. The shell does not move frontmatter fields. A manually created subagent MUST emit the three macro anchors.
+SSOT re-assertion (inside the shell, unchanged): frontmatter remains the single source of truth for per-agent config (`description`, `mode`, `model`, `temperature`, `permission`, `output_schema` → sibling `./<id>.schema.json`); `opencode.json` carries top-level runtime only (`$schema`, `default_agent`, `permissions` global, `instructions`, `references`, `compaction`, `experimental`) — no `agent` block. The shell does not move frontmatter fields. A manually created subagent MUST emit the three macro anchors.
 
 Original canonical order preserved (for reference):
 
@@ -216,20 +216,20 @@ Rules for thin variants:
 - The subagent's `## Structured Return` section documents the JSON shape, names the schema, shows an example, and points at the sibling file.
 - The two MUST stay in sync: change one, change the other. The `.md` frontmatter and its sibling schema are authored together.
 - Subagents without an `output_schema` return plain text (or markdown); their `## Structured Return` (full shape) or `## Contract` (minimal/thin Variant B) describes the expected return in prose. Current subagents without a schema: `external-scout` (plain-text contract) and `orchestrator` (returns a markdown agent-snapshot).
-- The task tool validates the return against the schema; on mismatch it prepends a validation warning and keeps the raw text **for diagnostics**. Per `agents/orchestrator.md` → Hard Limits, a return that does not match its `output_schema` is a **subagent failure to be re-invoked** — the raw text is never reinterpreted as a valid return. This spec defers to the orchestrator contract. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
+- **`output_schema` is NOT runtime-enforced.** On opencode V2 it is not a recognized agent field: it is captured as a legacy rest key and routed to `request.body` (preserved, not sent), and the subagent tool returns the child's final text as an opaque string without validating it (the JSON is a convention the child is instructed to follow, not a runtime contract). Per `agents/orchestrator.md` → Hard Limits, verifying the return is a **MANUAL check the orchestrator performs**: a return that does not match its `output_schema` is a **subagent failure to be re-invoked**, and the raw text is never reinterpreted as a valid return. The runtime does not preserve raw text for diagnostics. This spec defers to the orchestrator contract. Never write `summary.md` / `output-full.md` / `manifest.md` to disk — the runtime captures returns on the EventV2 bus.
 
 ## `opencode.json` — top-level runtime knobs only
 
-Since the 2026-07-29 centralization and the simplification ratified 2026-08-02, `opencode.json` carries **top-level runtime config only**: `$schema`, `default_agent`, `permission` (global), `instructions`, `references`, `compaction`. There is **no `agent` block** — every per-agent field (including `model` and `temperature`) lives in the agent's `.md` frontmatter.
+Since the 2026-07-29 centralization and the simplification ratified 2026-08-02, `opencode.json` carries **top-level runtime config only**: `$schema`, `default_agent`, `permissions` (global, V2 native array), `instructions`, `references`, `compaction`, `experimental`, `mcp`, `model`, `small_model`. There is **no `agent` block** — every per-agent field (including `model` and `temperature`) lives in the agent's `.md` frontmatter. Note that on V2 an agent `temperature` is currently inert (moved into `request.body`, which is not sent); the field is retained for V1 compatibility.
 
 Every per-agent field lives in the agent's `.md` frontmatter:
 
 | Field | Home |
 |---|---|
-| `description`, `mode`, `model`, `temperature`, `permission` | The agent `.md` frontmatter |
+| `description`, `mode`, `model`, `temperature` (inert on V2), `permission` | The agent `.md` frontmatter |
 | `output_schema` | Frontmatter path → sibling `<id>.schema.json` |
 | `permission.task` fan-out (which subagents `delivery` / `orchestrator` may call) | Frontmatter of `delivery.md` / `orchestrator.md` |
-| Global `permission` rules | Stay in `opencode.json` |
+| Global `permissions` rules (`{action, resource, effect}`) | Stay in `opencode.json` |
 
 **To change a model or temperature**: edit the agent's frontmatter (`agents/<id>.md`), then restart opencode. `opencode.json` is untouched.
 

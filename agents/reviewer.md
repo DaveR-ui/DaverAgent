@@ -120,7 +120,7 @@ The free-form review report goes inside the `summary` field of the JSON envelope
 }
 ```
 
-The task tool validates your return against `ReviewerOutput`. Do not write to disk.
+Return your final text as JSON matching `ReviewerOutput`; the subagent tool forwards your text to the caller, but the runtime does not validate it against the schema — the caller must parse and verify it. Do not write to disk.
 
 ## Rules
 

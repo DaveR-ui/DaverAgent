@@ -134,7 +134,7 @@ Image handling through the packet (schema unchanged): an image inspection task f
 ### Rules
 
 - Do not implement, do not research broadly, do not coordinate multi-step work.
-- Do not call other subagents (no `task` tool).
+- Do not call other subagents (no subagent tool; named `task` on V1, `subagent` on V2).
 - Do not write files, do not edit files, do not run shell commands.
 - Produce the routing packet entirely in English — `normalized_goal` and every other field must be written in English, never in the human's original language. The raw prompt is input only; do not leak the human's language into the packet. The sole exception is `resolved_by_lookup[].raw`, which by design echoes the human's original term as written.
 - Image inspection output is text only — never an image; one image, one question, one compact answer.

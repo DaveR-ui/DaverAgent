@@ -7,23 +7,28 @@
 # Verifies the agent configuration the way a linter would, so broken installs
 # fail loudly instead of silently degrading the system:
 #
-#   1. opencode.json is valid JSON
-#   2. flat agents/ layout (no legacy agents/subagents/); no agent uses the
-#      deprecated `tools:` frontmatter field (use `permission:`); `model:` is
-#      optional (omission inherits the invoking primary agent's model)
-#   3. every output_schema frontmatter path resolves to an existing schema file
-#   4. every permission.task allow target in any agent maps to a real agent
-#      (scalar `task: allow|ask|deny` is valid and has no targets; wildcard
-#      targets are skipped; a file with no permission.task is fine)
-#   5. required frontmatter (description, mode) on every agent file
-#   6. config instructions/references paths resolve (docs/ paths are warnings -
-#      they live in the target project; the `agent-system` reference resolves here)
-#   7. every *.schema.json parses as valid JSON
-#   8. every agents/*.schema.json is structurally closed: draft 2020-12, root
-#      additionalProperties:false with a non-empty required array, and a
-#      description on every property (recursively, through properties/items)
-#   9. every re_route_to enum value resolves to agents/<value>.md; a
-#      re_route_language enum only allows angular|go
+#   1.  opencode.json is valid JSON
+#   2.  flat agents/ layout (no legacy agents/subagents/); no agent uses the
+#       deprecated `tools:` frontmatter field (use `permission:`); `model:` is
+#       optional (omission inherits the invoking primary agent's model)
+#   3.  opencode.json declares no field the installed runtime ignores: the
+#       unsupported top-level keys (logLevel, server, subagent_depth, layout),
+#       the unsupported experimental keys (disable_paste_summary, batch_tool,
+#       openTelemetry, primary_tools, continue_loop_on_deny), and the
+#       unsupported compaction keys (prune, tail_turns)
+#   4.  every output_schema frontmatter path resolves to an existing schema file
+#   5.  every permission.task allow target in any agent maps to a real agent
+#       (scalar `task: allow|ask|deny` is valid and has no targets; wildcard
+#       targets are skipped; a file with no permission.task is fine)
+#   6.  required frontmatter (description, mode) on every agent file
+#   7.  config instructions/references paths resolve (docs/ paths are warnings -
+#       they live in the target project; the `agent-system` reference resolves here)
+#   8.  every *.schema.json parses as valid JSON
+#   9.  every agents/*.schema.json is structurally closed: draft 2020-12, root
+#       additionalProperties:false with a non-empty required array, and a
+#       description on every property (recursively, through properties/items)
+#   10. every re_route_to enum value resolves to agents/<value>.md; a
+#       re_route_language enum only allows angular|go
 #
 # Exit code: 0 = OK (warnings allowed), 1 = errors found.
 # Pure bash + python3 (no jq/node required).
@@ -66,7 +71,7 @@ frontmatter() {
 
 # --- 1. config JSON validity -------------------------------------------------
 
-echo "== [1/9] config JSON =="
+echo "== [1/10] config JSON =="
 if ! have_python; then
   warn "python3 not found; skipping JSON validation of ${CONFIG}"
 else
@@ -83,7 +88,7 @@ fi
 # omission means the subagent inherits the invoking primary agent's model.
 # The only hard frontmatter error here is the deprecated `tools:` field.
 
-echo "== [2/9] flat agents/ layout + frontmatter (model optional; tools: check) =="
+echo "== [2/10] flat agents/ layout + frontmatter (model optional; tools: check) =="
 if [ -d "${ROOT}/agents/subagents" ]; then
   err "legacy agents/subagents/ layout found; agents must be flat under agents/"
 fi
@@ -104,9 +109,81 @@ else
   echo "ok: flat layout; frontmatter scanned (model optional; tools: check)"
 fi
 
-# --- 3. output_schema resolution ---------------------------------------------
+# --- 3. unsupported config fields --------------------------------------------
+# SCHEMA-ONLY CHECK. The lists below mirror the installed runtime's config
+# normalizer (core/src/config/normalize.ts, verified on v2.0.8):
+#   unsupportedTopLevel      = logLevel, server, subagent_depth, layout
+#   unsupportedExperimental  = disable_paste_summary, batch_tool, openTelemetry,
+#                              primary_tools, continue_loop_on_deny
+#   unsupported compaction   = prune, tail_turns
+# These fields are accepted but IGNORED by V2 (some are reported only as an
+# internal "unsupported" diagnostic, not a hard error). Re-verify against the
+# runtime source if the opencode major version changes.
 
-echo "== [3/9] output_schema files =="
+echo "== [3/10] unsupported config fields =="
+if ! have_python; then
+  warn "python3 not found; skipping unsupported-config-field check"
+else
+  PY_OUT="$(python3 - "${CONFIG}" <<'PY'
+import json, sys
+
+try:
+    cfg = json.load(open(sys.argv[1]))
+except (json.JSONDecodeError, OSError):
+    # Check [1] reports the malformed config; emit nothing so this check
+    # cannot claim "ok" for a file it could not read.
+    sys.exit(0)
+
+# Keep in sync with core/src/config/normalize.ts (installed runtime v2.0.8).
+unsupported_top = ["logLevel", "server", "subagent_depth", "layout"]
+unsupported_experimental = [
+    "disable_paste_summary",
+    "batch_tool",
+    "openTelemetry",
+    "primary_tools",
+    "continue_loop_on_deny",
+]
+unsupported_compaction = ["prune", "tail_turns"]
+
+if not isinstance(cfg, dict):
+    sys.exit(0)
+
+for key in unsupported_top:
+    if key in cfg:
+        print(f"ERROR: opencode.json has unsupported top-level field '{key}' "
+              f"(ignored by V2)")
+
+experimental = cfg.get("experimental")
+if isinstance(experimental, dict):
+    for key in unsupported_experimental:
+        if key in experimental:
+            print(f"ERROR: opencode.json has unsupported field "
+                  f"'experimental.{key}' (ignored by V2)")
+
+compaction = cfg.get("compaction")
+if isinstance(compaction, dict):
+    for key in unsupported_compaction:
+        if key in compaction:
+            print(f"ERROR: opencode.json has unsupported field "
+                  f"'compaction.{key}' (ignored by V2)")
+PY
+)"
+  if [ -z "${PY_OUT}" ]; then
+    echo "ok: no unsupported config fields"
+  else
+    while IFS= read -r line; do
+      case "${line}" in
+        ERROR:*) err "${line#ERROR: }" ;;
+        WARN:*)  warn "${line#WARN: }" ;;
+        *)       [ -n "${line}" ] && echo "${line}" ;;
+      esac
+    done <<< "${PY_OUT}"
+  fi
+fi
+
+# --- 4. output_schema resolution ---------------------------------------------
+
+echo "== [4/10] output_schema files =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   schema="$(frontmatter "${md}" | awk -F': *' '/^output_schema:/{gsub(/ /,"",$2); print $2; exit}')"
@@ -122,7 +199,7 @@ done
 
 # --- 4. permission.task entries ---------------------------------------------
 
-echo "== [4/9] permission.task targets =="
+echo "== [5/10] permission.task targets =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   name="$(basename "${md}")"
@@ -148,7 +225,7 @@ done
 
 # --- 5. required frontmatter -------------------------------------------------
 
-echo "== [5/9] required frontmatter =="
+echo "== [6/10] required frontmatter =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   name="$(basename "${md}")"
@@ -170,7 +247,7 @@ echo "ok: frontmatter scanned"
 
 # --- 6. instructions / references paths --------------------------------------
 
-echo "== [6/9] config instructions/references paths =="
+echo "== [7/10] config instructions/references paths =="
 if have_python; then
   PY_OUT="$(python3 - "${CONFIG}" "${ROOT}" <<'PY'
 import json, os, sys
@@ -214,7 +291,7 @@ fi
 
 # --- 7. schema JSON files ----------------------------------------------------
 
-echo "== [7/9] schema JSON files =="
+echo "== [8/10] schema JSON files =="
 if ! have_python; then
   warn "python3 not found; skipping schema JSON validation"
 else
@@ -231,7 +308,7 @@ fi
 
 # --- 8. schema structural closure --------------------------------------------
 
-echo "== [8/9] schema structural closure =="
+echo "== [9/10] schema structural closure =="
 if ! have_python; then
   warn "python3 not found; skipping schema structural closure check"
 else
@@ -294,7 +371,7 @@ fi
 
 # --- 9. schema enum agent targets resolve ------------------------------------
 
-echo "== [9/9] schema enum agent targets resolve =="
+echo "== [10/10] schema enum agent targets resolve =="
 if ! have_python; then
   warn "python3 not found; skipping schema enum agent target check"
 else

@@ -43,7 +43,8 @@ Fetch only what is needed to answer the question. Do not crawl.
 
 ## When to use
 
-Callers (orchestrator, delivery) invoke you with the `task` tool and
+Callers (orchestrator, delivery) invoke you with the subagent tool (named
+`task` on V1, `subagent` on V2) and
 `subagent_type: "external-scout"`, passing the module path, version, and a
 focused question. Typical use cases:
 

@@ -94,7 +94,7 @@ On completion, return your final answer as JSON:
 
 For fan-out: each delegated instance returns `ExplorerOutput`; you aggregate them in memory and produce a consolidated `ExplorerOutput` for the parent (merge `files_found` arrays, summarize, take the max `confidence`).
 
-The task tool validates your return against `ExplorerOutput`. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
+Return your final text as JSON matching `ExplorerOutput`; the subagent tool forwards your text to the caller, but the runtime does not validate it against the schema — the caller must parse and verify it. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 
 ## Rules
 

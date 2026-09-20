@@ -34,7 +34,11 @@ reference's absolute root into every agent's context).
 | **Agent-system assets** | `agents/`, `protocols/`, `scripts/`, `tests/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
-`opencode.json` lists `docs/project.md` under `instructions`. Under opencode V1,
+`opencode.json` lists `docs/project.md` under `instructions`. **On opencode V2
+this field is decoded but NOT loaded** — V2 discovers only `AGENTS.md` (global
+`~/.config/opencode/AGENTS.md` and walked-up project `AGENTS.md`) as an
+instruction source, so treat `instructions` here as a V1-compat no-op.
+Under opencode V1,
 relative instruction paths are resolved against the session working directory
 (searched upward to the git worktree root), so a project without a `docs/`
 folder is silently skipped. A project that wants explicit `docs/context` /
@@ -78,7 +82,8 @@ path. The read tool does not expand `~`.
 ## Available agents
 
 Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
-`primary`). Invoked from `delivery` or `orchestrator` via the `task` tool.
+`primary`). Invoked from `delivery` or `orchestrator` via the subagent tool
+(named `task` on opencode V1, `subagent` on V2).
 
 | Agent | Purpose |
 |---|---|
@@ -97,7 +102,10 @@ Defined in `agents/<id>.md` (`subagent` mode, except `delivery` which is
 Models and temperatures live in **each agent's frontmatter**
 (`agents/<id>.md`). Changing a model = editing the agent's frontmatter and
 restarting opencode. Without a declared `model:`, a subagent inherits the model
-of the primary agent that invokes it.
+of the primary agent that invokes it. **On opencode V2 an agent `temperature`
+is currently inert**: on a file carrying legacy-only keys, the V2 loader moves
+`temperature` into `request.body`, which is preserved but not sent with model
+requests. The field is retained for V1 compatibility.
 
 ## Protocols
 
@@ -106,6 +114,12 @@ The protocols live in `protocols/`:
 - [`prompt-pipeline.md`](./protocols/prompt-pipeline.md) — Step 0 (Interpret) is
   executed by the `interpreter`; Phase 2 (Reduce) is executed by the
   `orchestrator`.
+- [`dispatch.md`](./protocols/dispatch.md) — turn-entry procedure for the
+  `delivery` seat: the interpreter-first gate, the "about to ask" tripwire, and
+  the hand-off into the pipeline. Formerly `workflows/dispatch.md`.
+- [`orchestrate.md`](./protocols/orchestrate.md) — pre-action thinking process for
+  the `orchestrator` seat: Protocol Discovery → Context Refresh → Proposal →
+  Implementation → Verification → Documentation. Formerly `workflows/orchestrate.md`.
 - [`subagent-spec-template.md`](./protocols/subagent-spec-template.md) — canonical
   shape for subagent definitions.
 - [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
@@ -116,11 +130,26 @@ The protocols live in `protocols/`:
 
 ## Agent permissions
 
+- Global runtime permission rules live in `opencode.json` as the V2 native
+  top-level `permissions` array of `{ action, resource, effect }`. Each agent
+  also carries a singular `permission:` block in its `.md` frontmatter, which V2
+  auto-migrates (`task`→`subagent`, `bash`→`shell`, `write`/`patch`→`edit`).
+  Keep the singular form: repo agents carry legacy-only keys (`output_schema`,
+  `temperature`), so V2 routes the whole file through its V1 decoder, and a
+  native `permissions` array there would be captured as a rest key into
+  `request.body`, dropping all agent-level rules.
 - `orchestrator` and the subagents have no external skills pre-enabled. The only
   legitimate built-in skill is `customize-opencode` (part of the opencode
   runtime, not repo-local).
 - All project info lives in each project's `docs/context/` and is read **on
   demand**.
+- **Structured returns are a prose contract, not runtime-enforced.** On V2,
+  `output_schema` is not a recognized agent field: it is captured as a legacy
+  rest key into `request.body` (preserved, not sent). The subagent tool returns
+  the child's final text as an opaque string and validates nothing. The
+  `agents/*.schema.json` files are checked only by this repo's own test suite
+  (`scripts/validate-agent.sh`, `tests/test-output-schemas.py`); agents are
+  instructed to conform by prose, and the caller must parse and verify.
 
 ## Updating the config
 
@@ -143,9 +172,13 @@ bash tests/run-tests.sh
 
 It includes two suites, both exit-code driven (CI-ready):
 
-1. **`scripts/validate-agent.sh`** (integrity lint), nine checks: that
+1. **`scripts/validate-agent.sh`** (integrity lint), ten checks: that
    `opencode.json` is valid JSON; that the flat `agents/` layout is intact and
-   no agent uses the deprecated `tools:` field; that every `output_schema`
+   no agent uses the deprecated `tools:` field; that `opencode.json` declares no
+   field the installed runtime ignores (top-level `logLevel`/`server`/
+   `subagent_depth`/`layout`; experimental `disable_paste_summary`/`batch_tool`/
+   `openTelemetry`/`primary_tools`/`continue_loop_on_deny`; `compaction.prune`/
+   `compaction.tail_turns`); that every `output_schema`
    points to an existing file; that every `permission.task` allow target in any
    agent resolves to a real agent; that the mandatory frontmatter
    (`description`/`mode`) exists; that config `instructions`/`references` paths
@@ -169,5 +202,7 @@ It includes two suites, both exit-code driven (CI-ready):
 **"I want to go back to the previous version"** — Use your own version control
 (Git) to check out the previous state of the clone.
 
-**"A project doesn't see its `docs/`"** — Confirm the project has
-`docs/project.md`; it is listed under `instructions` in `opencode.json`.
+**"A project doesn't see its `docs/`"** — On opencode V2 this is expected:
+`opencode.json` lists `docs/project.md` under `instructions`, but V2 does not
+load config `instructions` (it discovers `AGENTS.md` only). The entry is retained
+for V1 compatibility and as a project convention.
