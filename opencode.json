@@ -4,7 +4,6 @@
     "auto": true,
     "buffer": 10000
   },
-  "default_agent": "delivery",
   "mcp": {
     "servers": {
       "angular-cli": {
@@ -18,9 +17,8 @@
       }
     }
   },
-  "model": "opencode-go/deepseek-v4.1-flash",
   "permissions": [
-    { "action": "question", "resource": "*", "effect": "ask" },
+    { "action": "question", "resource": "*", "effect": "allow" },
     { "action": "read", "resource": "*", "effect": "allow" },
     { "action": "read", "resource": ".env", "effect": "deny" },
     { "action": "read", "resource": "**/.env", "effect": "deny" },
