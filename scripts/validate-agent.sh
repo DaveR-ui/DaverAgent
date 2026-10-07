@@ -18,7 +18,7 @@
 #           `small_model` (superseded by agents.title.model),
 #           singular `agent` block (V2-native is plural `agents`)
 #   4.  no ambient AGENTS.md anywhere in the repo (rules live in agents/ +
-#       protocols/; ambient instruction files are never relied upon).
+#       protocols/ + code-lang/; ambient instruction files are never relied upon).
 #   5.  no secret-like filename in the Git index (tracked/staged NUL paths),
 #       including service.json, .env, *.env, *.pem, *.key, *.secret.
 #   6.  every output_schema frontmatter path resolves to an existing file.
@@ -38,8 +38,10 @@
 #       re_route_language in angular|go).
 #   13. no dangling markdown refs: links of the form ../protocols/<x>.md,
 #       ./protocols/<x>.md, ../agents/<x>.md or (inside protocols/) ./<x>.md
-#       must resolve, as must inline-code paths `agents/<x>.md` /
-#       `protocols/<x>.md`; links or inline-code paths into the retired
+#       must resolve, as must code-lang/ links and relative Markdown refs
+#       inside recursively scanned code-lang/. Inline-code paths
+#       `agents/<x>.md`, `protocols/<x>.md`, and `code-lang/.../<x>.md`
+#       must resolve; links or inline-code paths into the retired
 #       workflows/ directory are ERRORs.
 #   14. stdlib child-return checker unit tests pass.
 #   15. schema-agent Structured Return JSON examples pass the checker.
@@ -231,7 +233,7 @@ echo "== [4/15] ambient AGENTS.md =="
 AMBIENT_HITS=0
 while IFS= read -r f; do
   [ -n "${f}" ] || continue
-  err "ambient AGENTS.md found: ${f#${ROOT}/} (rules live in agents/ + protocols/)"
+  err "ambient AGENTS.md found: ${f#${ROOT}/} (rules live in agents/ + protocols/ + code-lang/)"
   AMBIENT_HITS=$((AMBIENT_HITS + 1))
 done < <(find "${ROOT}" \
   \( -path "${ROOT}/.git" -o -path "${ROOT}/node_modules" -o -path "${ROOT}/.draft" \) -prune -o \
@@ -669,18 +671,28 @@ import glob, os, re, sys
 root = sys.argv[1]
 agents_dir = os.path.join(root, "agents")
 protocols_dir = os.path.join(root, "protocols")
+code_lang_dir = os.path.join(root, "code-lang")
 
 link_re = re.compile(r"\]\(([^)]+)\)")
-# Inline-code agent-system paths, e.g. `agents/delivery.md`. The name class
-# excludes glob/placeholder forms (`agents/<id>.md`, `agents/*.schema.json`),
+# Inline-code agent-system paths, e.g. `agents/delivery.md` or
+# `code-lang/angular/standards.md`. The name class excludes glob/placeholder
+# forms (`agents/<id>.md`, `agents/*.schema.json`, `code-lang/*/standards.md`),
 # which are diagrams, not references. Backticked `workflows/<x>.md` is banned
 # like a workflows/ link.
-inline_re = re.compile(r"`((?:agents|protocols|workflows)/[A-Za-z0-9._-]+\.md)`")
+inline_re = re.compile(
+    r"`((?:agents|protocols|workflows)/[A-Za-z0-9._-]+\.md|"
+    r"code-lang/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+\.md)`"
+)
+relative_inline_re = re.compile(
+    r"`((?:\.\.?/)+(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+\.md|"
+    r"[A-Za-z0-9._-]+\.md)`"
+)
 
 
 def scan_file(path, base_dir, in_protocols):
     errors = []
     rel = os.path.relpath(path, root)
+    in_code_lang = rel.startswith("code-lang" + os.sep)
     try:
         text = open(path, encoding="utf-8").read()
     except OSError:
@@ -705,6 +717,13 @@ def scan_file(path, base_dir, in_protocols):
             resolved = os.path.normpath(os.path.join(base_dir, target))
         elif target.startswith("../agents/"):
             resolved = os.path.normpath(os.path.join(base_dir, target))
+        elif target.startswith(("./code-lang/", "code-lang/")):
+            ref = target[2:] if target.startswith("./") else target
+            resolved = os.path.join(root, ref)
+        elif target.startswith("../code-lang/"):
+            resolved = os.path.normpath(os.path.join(base_dir, target))
+        elif in_code_lang and target.endswith(".md") and not os.path.isabs(target):
+            resolved = os.path.normpath(os.path.join(base_dir, target))
         elif in_protocols and target.startswith("./") and target.endswith(".md"):
             resolved = os.path.normpath(os.path.join(base_dir, target))
         else:
@@ -725,6 +744,13 @@ def scan_file(path, base_dir, in_protocols):
             errors.append(
                 f"{rel}: dangling inline-code path `{ref}` -> {ref}"
             )
+    if in_code_lang:
+        for m in relative_inline_re.finditer(text):
+            ref = m.group(1)
+            resolved = os.path.normpath(os.path.join(base_dir, ref))
+            if not os.path.exists(resolved):
+                errors.append(f"{rel}: dangling inline-code path `{ref}` -> "
+                              f"{os.path.relpath(resolved, root)}")
     return errors
 
 
@@ -732,8 +758,11 @@ targets = [
     (p, agents_dir, False) for p in sorted(glob.glob(os.path.join(agents_dir, "*.md")))
 ] + [
     (p, protocols_dir, True) for p in sorted(glob.glob(os.path.join(protocols_dir, "*.md")))
+] + [
+    (p, os.path.dirname(p), False)
+    for p in sorted(glob.glob(os.path.join(code_lang_dir, "**", "*.md"), recursive=True))
 ]
-# The readme carries the most protocol links; include it (its links are ./protocols/...).
+# Include the readme's agent, protocol, and code-lang links.
 readme = os.path.join(root, "readme.md")
 if os.path.isfile(readme):
     targets.append((readme, root, False))

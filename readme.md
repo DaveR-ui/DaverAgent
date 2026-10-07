@@ -31,7 +31,7 @@ reference's absolute root into every agent's context).
 
 | Vocabulary | Examples | Resolves against |
 |---|---|---|
-| **Agent-system assets** | `agents/`, `protocols/`, `scripts/` | The `agent-system` reference in `opencode.json` |
+| **Agent-system assets** | `agents/`, `protocols/`, `code-lang/`, `scripts/` | The `agent-system` reference in `opencode.json` |
 | **Project documents** | `docs/project.md`, `docs/context/**` | The session working directory (each project's repo) |
 
 This repo deliberately declares **no** `instructions` key. On opencode V2
@@ -66,6 +66,10 @@ path. The read tool does not expand `~`.
 │   └── *.schema.json            # Structured-return schemas
 │
 ├── protocols/                   # Agent operating conventions (read on demand)
+├── code-lang/                   # Coding standards (read on demand)
+│   ├── default/standards.md      # Language-agnostic design baseline
+│   ├── angular/standards.md      # Angular-specific guidance and references
+│   └── go/standards.md           # Maintainer placeholder; no Go guidance yet
 └── scripts/                     # Validators
 ```
 
@@ -128,15 +132,23 @@ The protocols live in `protocols/`:
   shape for subagent definitions.
 - [`subagent-return-check.md`](./protocols/subagent-return-check.md) — shared manual
   return assessment, optional checker, and bounded schema repair (not a runtime hook).
-- [`angular-standards.md`](./protocols/angular-standards.md) — on-demand Angular baseline;
-  project docs govern facts and explicit conventions.
-- [`go-standards.md`](./protocols/go-standards.md) — on-demand Go baseline;
-  project docs govern facts and explicit conventions.
 - [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
   interrupted or STUCK sessions in the delivery → orchestrator → subagent
   hierarchy.
 - [`broad-investigation-template.md`](./protocols/broad-investigation-template.md) —
   5-section scaffold for prompts that map, inventory, or audit the repo.
+
+## Coding standards
+
+Standards live in `code-lang/` and are loaded on demand by
+[`coder`](./agents/coder.md):
+
+- [`default/standards.md`](./code-lang/default/standards.md) — language-agnostic
+  architectural principles, not a list of supported languages.
+- [`angular/standards.md`](./code-lang/angular/standards.md) — Angular-specific
+  guidance and canonical references.
+- [`go/standards.md`](./code-lang/go/standards.md) — maintainer placeholder;
+  contains no Go guidance.
 
 ## Agent permissions
 
@@ -164,7 +176,8 @@ The protocols live in `protocols/`:
 - `orchestrator` and the subagents have no external skills pre-enabled. Any
   built-in skills come from the opencode runtime itself, not from this repo (the
   runtime owns the skill names, which may change). **This repo ships no skills by
-  design**: conventions are `protocols/*.md` — intentionally prose markdown, not
+  design**: operating conventions are `protocols/*.md` and coding standards are
+  `code-lang/**/standards.md` — intentionally prose markdown, not
   `.opencode/skills/`, because skills are strict-text and protocols are the
   preferred mechanism here.
 - All project info lives in each project's `docs/context/` and is read **on
@@ -225,8 +238,9 @@ It is exit-code driven (CI-ready) and checks:
   closed (any `scripts/*.schema.json` is included when present; this repo
   currently ships none);
 - every schema enum target (e.g. `re_route_to`) resolves to an agent;
-- no dangling references: markdown links plus inline-code `agents/*.md` /
-  `protocols/*.md` paths all resolve.
+- no dangling references: markdown links plus inline-code agent-system Markdown
+  paths resolve across `agents/`, `protocols/`, and recursively scanned
+  `code-lang/`, including relative Markdown references inside `code-lang/`.
 - checker unit tests and schema-agent Structured Return JSON examples pass.
 
 ### Optional child-return checker
