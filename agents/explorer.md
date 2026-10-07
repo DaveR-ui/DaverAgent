@@ -95,7 +95,7 @@ On completion, return your final answer as JSON:
 
 For fan-out: each delegated instance returns `ExplorerOutput`; you aggregate them in memory and produce a consolidated `ExplorerOutput` for the parent (merge `files_found` arrays, summarize, take the max `confidence`).
 
-Return your final text as JSON matching `ExplorerOutput`; the caller must parse and verify it. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
+Return your final text as JSON matching `ExplorerOutput`; callers, including this seat for fan-out children, follow `protocols/subagent-return-check.md` for the single bounded verification/repair procedure. Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 
 ## Rules
 

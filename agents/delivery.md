@@ -53,6 +53,16 @@ If a subagent fails to launch (e.g. `Model not found`, provider error, permissio
 
 A broken subagent is a **runtime problem**, not a prompt to improvise. Never paper over it by doing the work in the delivery tier.
 
+### Direct schema-child returns
+
+For every direct schema-child call (including `interpreter`, `reviewer`, and
+`analista`), follow [`protocols/subagent-return-check.md`](../protocols/subagent-return-check.md).
+This is the same single manual responsibility as the orchestrator's: optional
+checker/manual assessment, one bounded repair, and truthful verification evidence.
+It does not relax the launch-failure STOP above or authorize technical execution
+in this seat; delegate checker execution when required by the Delegation table,
+or assess the exact schema manually. No scratch return files and no fabricated validity.
+
 ## Source of Truth
 
 | Layer | Location | Role |

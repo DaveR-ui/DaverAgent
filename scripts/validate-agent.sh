@@ -19,8 +19,8 @@
 #           singular `agent` block (V2-native is plural `agents`)
 #   4.  no ambient AGENTS.md anywhere in the repo (rules live in agents/ +
 #       protocols/; ambient instruction files are never relied upon).
-#   5.  no secret-like file in the working tree (service.json, .env, *.env,
-#       *.pem, *.key, *.secret), excluding .git/, node_modules/, .draft/.
+#   5.  no secret-like filename in the Git index (tracked/staged NUL paths),
+#       including service.json, .env, *.env, *.pem, *.key, *.secret.
 #   6.  every output_schema frontmatter path resolves to an existing file.
 #   7.  every permission.task target resolves to agents/<id>.md. Scalar
 #       `task: allow|deny|ask` is valid (no targets); wildcard patterns are
@@ -41,9 +41,11 @@
 #       must resolve, as must inline-code paths `agents/<x>.md` /
 #       `protocols/<x>.md`; links or inline-code paths into the retired
 #       workflows/ directory are ERRORs.
+#   14. stdlib child-return checker unit tests pass.
+#   15. schema-agent Structured Return JSON examples pass the checker.
 #
 # Exit code: 0 = OK (warnings allowed), 1 = one or more ERRORs.
-# Pure bash + python3.
+# Pure bash + Python 3 (PYTHON override, otherwise python3 then python).
 
 set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
@@ -66,14 +68,29 @@ warn() { echo "WARN:  $*" >&2;  WARNINGS=$((WARNINGS + 1)); }
 
 # --- helpers -----------------------------------------------------------------
 
-have_python() { command -v python3 >/dev/null 2>&1; }
-
-# python3 powers checks 1, 3, 7, 9, 10, 11, 12 and 13. Fail closed: a missing
-# interpreter must NOT let the gate report success.
-if ! have_python; then
-  echo "ERROR: python3 is required by validate-agent.sh; refusing to pass without it" >&2
-  exit 1
+probe_python() { "$1" -c 'import sys; sys.exit(0 if sys.version_info.major == 3 else 1)' >/dev/null 2>&1; }
+PYTHON_BIN=""
+if [ "${PYTHON+x}" = x ]; then
+  if ! probe_python "${PYTHON:-}"; then
+    echo "ERROR: explicit PYTHON must be an executable Python 3 interpreter; refusing fallback" >&2
+    exit 1
+  fi
+  PYTHON_BIN="${PYTHON}"
+else
+  for candidate in python3 python; do
+    if probe_python "${candidate}"; then
+      PYTHON_BIN="${candidate}"
+      break
+    fi
+  done
+  if [ -z "${PYTHON_BIN}" ]; then
+    echo "ERROR: executable Python 3 is required; python3 and python probes failed" >&2
+    exit 1
+  fi
 fi
+# Selection is fail-closed above; retained guards can never silently skip a check.
+have_python() { [ -n "${PYTHON_BIN}" ]; }
+export PYTHONDONTWRITEBYTECODE=1
 
 frontmatter() {
   # Print the frontmatter block (between the first two --- lines) of a file.
@@ -83,11 +100,12 @@ frontmatter() {
 
 # --- 1. config JSON validity -------------------------------------------------
 
-echo "== [1/13] config JSON =="
+echo "== [1/15] config JSON =="
 if ! have_python; then
-  warn "python3 not found; skipping JSON validation of ${CONFIG}"
+  err "selected Python interpreter unavailable; cannot validate config JSON"
+  exit 1
 else
-  if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "${CONFIG}"; then
+  if ! "${PYTHON_BIN}" -c 'import json,sys; json.load(open(sys.argv[1]))' "${CONFIG}"; then
     err "${CONFIG} is not valid JSON"
   else
     echo "ok: ${CONFIG}"
@@ -99,7 +117,7 @@ fi
 # `model:` is an OPTIONAL per-agent override. The only hard frontmatter error
 # here is the deprecated `tools:` field.
 
-echo "== [2/13] flat agents/ layout + frontmatter (tools: check) =="
+echo "== [2/15] flat agents/ layout + frontmatter (tools: check) =="
 if [ -d "${ROOT}/agents/subagents" ]; then
   err "legacy agents/subagents/ layout found; agents must be flat under agents/"
 fi
@@ -132,11 +150,12 @@ fi
 # several of these were present in earlier revisions). Do NOT delete a branch
 # just because it is currently dormant.
 
-echo "== [3/13] unsupported / forbidden config fields =="
+echo "== [3/15] unsupported / forbidden config fields =="
 if ! have_python; then
-  warn "python3 not found; skipping unsupported-config-field check"
+  err "selected Python interpreter unavailable; cannot check config fields"
+  exit 1
 else
-  PY_OUT="$(python3 - "${CONFIG}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${CONFIG}" <<'PY'
 import json, sys
 
 try:
@@ -208,7 +227,7 @@ fi
 
 # --- 4. ambient AGENTS.md ----------------------------------------------------
 
-echo "== [4/13] ambient AGENTS.md =="
+echo "== [4/15] ambient AGENTS.md =="
 AMBIENT_HITS=0
 while IFS= read -r f; do
   [ -n "${f}" ] || continue
@@ -223,9 +242,14 @@ fi
 
 # --- 5. secret scan ----------------------------------------------------------
 
-echo "== [5/13] secret scan =="
+echo "== [5/15] Git index secret filename scan =="
 SECRET_HITS=0
-while IFS= read -r f; do
+if ! git -C "${ROOT}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  err "Git index unavailable: secret filename scan requires a Git working tree"
+elif ! git -C "${ROOT}" ls-files --cached -z >/dev/null 2>&1; then
+  err "Git index unavailable: cannot list tracked/staged paths"
+else
+while IFS= read -r -d '' f; do
   [ -n "${f}" ] || continue
   base="$(basename "${f}")"
   # `.env.example` variants are the documented, committable template — allow them.
@@ -234,20 +258,19 @@ while IFS= read -r f; do
   esac
   case "${base}" in
     service.json|.env|*.env|.env.*|*.env.*|*.pem|*.key|*.secret)
-      err "secret-like file present in working tree: ${f#${ROOT}/}"
+      err "secret-like filename present in Git index: ${f}"
       SECRET_HITS=$((SECRET_HITS + 1))
       ;;
   esac
-done < <(find "${ROOT}" \
-  \( -path "${ROOT}/.git" -o -path "${ROOT}/node_modules" -o -path "${ROOT}/.draft" \) -prune -o \
-  -type f -print 2>/dev/null)
+done < <(git -C "${ROOT}" ls-files --cached -z)
 if [ "${SECRET_HITS}" -eq 0 ]; then
-  echo "ok: no secret-like files"
+  echo "ok: no secret-like filenames in Git index (untracked runtime state excluded)"
+fi
 fi
 
 # --- 6. output_schema resolution ---------------------------------------------
 
-echo "== [6/13] output_schema files =="
+echo "== [6/15] output_schema files =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   schema="$(frontmatter "${md}" | awk -F': *' '/^output_schema:/{gsub(/ /,"",$2); print $2; exit}')"
@@ -263,11 +286,12 @@ done
 
 # --- 7. permission.task targets (fail-closed) --------------------------------
 
-echo "== [7/13] permission.task targets =="
+echo "== [7/15] permission.task targets =="
 if ! have_python; then
-  warn "python3 not found; skipping permission.task target check"
+  err "selected Python interpreter unavailable; cannot check permission.task"
+  exit 1
 else
-  PY_OUT="$(python3 - "${AGENTS_DIR}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${AGENTS_DIR}" <<'PY'
 import glob, os, sys
 
 agents_dir = sys.argv[1]
@@ -427,7 +451,7 @@ fi
 
 # --- 8. required frontmatter -------------------------------------------------
 
-echo "== [8/13] required frontmatter =="
+echo "== [8/15] required frontmatter =="
 for md in "${AGENTS_DIR}"/*.md; do
   [ -f "${md}" ] || continue
   name="$(basename "${md}")"
@@ -449,9 +473,9 @@ echo "ok: frontmatter scanned"
 
 # --- 9. references paths -----------------------------------------------------
 
-echo "== [9/13] config references paths =="
+echo "== [9/15] config references paths =="
 if have_python; then
-  PY_OUT="$(python3 - "${CONFIG}" "${ROOT}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${CONFIG}" "${ROOT}" <<'PY'
 import json, os, sys
 try:
     cfg = json.load(open(sys.argv[1]))
@@ -483,14 +507,15 @@ fi
 
 # --- 10. schema JSON files ---------------------------------------------------
 
-echo "== [10/13] schema JSON files =="
+echo "== [10/15] schema JSON files =="
 if ! have_python; then
-  warn "python3 not found; skipping schema JSON validation"
+  err "selected Python interpreter unavailable; cannot validate schema JSON"
+  exit 1
 else
   for f in "${AGENTS_DIR}"/*.schema.json "${SCRIPT_DIR}"/*.schema.json; do
     # `[ -f ]` also skips an unmatched glob literal (e.g. no scripts/*.schema.json).
     [ -f "${f}" ] || continue
-    if ! python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "${f}" 2>/dev/null; then
+    if ! "${PYTHON_BIN}" -c 'import json,sys; json.load(open(sys.argv[1]))' "${f}" 2>/dev/null; then
       err "invalid JSON schema: ${f}"
     else
       echo "ok: $(basename "${f}")"
@@ -500,11 +525,12 @@ fi
 
 # --- 11. schema structural closure -------------------------------------------
 
-echo "== [11/13] schema structural closure =="
+echo "== [11/15] schema structural closure =="
 if ! have_python; then
-  warn "python3 not found; skipping schema structural closure check"
+  err "selected Python interpreter unavailable; cannot check schema closure"
+  exit 1
 else
-  PY_OUT="$(python3 - "${AGENTS_DIR}" "${ROOT}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${AGENTS_DIR}" "${ROOT}" <<'PY'
 import glob, json, os, sys
 agents_dir = sys.argv[1]
 root = sys.argv[2]
@@ -566,11 +592,12 @@ fi
 
 # --- 12. schema enum agent targets resolve -----------------------------------
 
-echo "== [12/13] schema enum agent targets resolve =="
+echo "== [12/15] schema enum agent targets resolve =="
 if ! have_python; then
-  warn "python3 not found; skipping schema enum agent target check"
+  err "selected Python interpreter unavailable; cannot check schema enum targets"
+  exit 1
 else
-  PY_OUT="$(python3 - "${AGENTS_DIR}" "${ROOT}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${AGENTS_DIR}" "${ROOT}" <<'PY'
 import glob, json, os, sys
 agents_dir = sys.argv[1]
 root = sys.argv[2]
@@ -631,11 +658,12 @@ fi
 
 # --- 13. dangling markdown refs ----------------------------------------------
 
-echo "== [13/13] dangling refs =="
+echo "== [13/15] dangling refs =="
 if ! have_python; then
-  warn "python3 not found; skipping dangling-ref check"
+  err "selected Python interpreter unavailable; cannot check dangling references"
+  exit 1
 else
-  PY_OUT="$(python3 - "${ROOT}" <<'PY'
+  PY_OUT="$("${PYTHON_BIN}" - "${ROOT}" <<'PY'
 import glob, os, re, sys
 
 root = sys.argv[1]
@@ -726,6 +754,20 @@ PY
       *)       [ -n "${line}" ] && echo "${line}" ;;
     esac
   done <<< "${PY_OUT}"
+fi
+
+# --- 14. return checker unit tests --------------------------------------------
+
+echo "== [14/15] child-return checker unit tests =="
+if ! "${PYTHON_BIN}" -B "${SCRIPT_DIR}/test_check_subagent_return.py"; then
+  err "child-return checker unit tests failed"
+fi
+
+# --- 15. schema-agent return examples -----------------------------------------
+
+echo "== [15/15] Structured Return JSON examples =="
+if ! "${PYTHON_BIN}" -B "${SCRIPT_DIR}/check-subagent-return.py" --check-examples; then
+  err "schema-agent Structured Return examples could not be verified"
 fi
 
 # --- summary -----------------------------------------------------------------

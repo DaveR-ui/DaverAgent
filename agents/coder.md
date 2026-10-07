@@ -14,13 +14,13 @@ Language-parameterized implementation specialist. Implements features, bug fixes
 
 Branch on the `language` parameter in the task payload:
 
-- `language=angular` — read `docs/context/architecture.md` first, then the **Angular docs in `docs/context/`** (reactivity / resource API, coding conventions, project rules, testing) — not `src/`, which may contain legacy patterns. Use the Angular MCP (`angular-cli`) for CLI actions and best practices. Match the task to a slice in `docs/project.md` and follow that slice's primary doc.
-- `language=go` — read the **Go docs in `docs/context/`** (architecture, project rules, backend best practices) — not `src/`, which may contain legacy patterns. Apply Go conventions: `gofmt` / `go vet` clean, explicit error handling, standard project layout. Match the task to a slice in `docs/project.md` and follow that slice's primary doc.
+- `language=angular` — read `protocols/angular-standards.md` on demand, resolved against the injected `agent-system` reference. Explicitly read `docs/project.md`, match the slice, then read its primary doc, `docs/context/architecture.md`, and relevant Angular docs in `docs/context/` (reactivity/resource API, coding, project rules, testing).
+- `language=go` — read `protocols/go-standards.md` on demand, resolved against the injected `agent-system` reference. Explicitly read `docs/project.md`, match the slice, then read its primary doc and relevant Go docs in `docs/context/` (architecture, project rules, backend practices).
 - otherwise (generic fallback) — read `docs/project.md` first: stack, commands, and the **Slices table** (the routing source). Match the task to a slice and follow that slice's primary doc.
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->
 
-Minimal slot — standards are delegated to the language docs referenced in `### Stack / Context` (no duplication here). Apply the documented standards for the selected language before reporting done.
+Apply the selected agent-owned language baseline and project docs referenced in `### Stack / Context`. Project facts and explicit conventions take precedence; do not duplicate technical standards here or assume legacy `src/` patterns are authoritative.
 
 ## 3 — Finalization / Return  <!-- Section 3: Finalization -->
 
@@ -44,7 +44,7 @@ Do not write `summary.md` / `output-full.md` / `manifest.md` to disk.
 
 - Read the relevant code before modifying.
 - Follow `docs/context/*.md`; do not mimic legacy `src/` anti-patterns.
-- Go conventions: `gofmt` / `go vet` clean, explicit error handling, standard project layout (when `language=go`).
+- Apply the selected on-demand language protocol; project docs govern versions, layout, and commands.
 - Run the canonical test/lint/build commands from `docs/project.md` (Common Commands) before reporting done.
 - Comments and docs in ENGLISH.
 - Never commit without explicit instruction.

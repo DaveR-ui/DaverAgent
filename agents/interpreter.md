@@ -31,7 +31,7 @@ Declines and re-routes (via the packet, never by doing the work):
 
 ### Stack / Context
 
-- Vocabulary sources, in priority order: the **Slices table** in `docs/project.md` (primary lookup target — a term maps to a slice only if the row's name, description, or keywords support it), `docs/_TAG-INDEX.md`, and `docs/context/*.md` for slice-level detail. Repo slang counts only when a lookup ties it to one of these sources.
+- Vocabulary sources, in priority order: the **Slices table** in `docs/project.md` (primary lookup target — a term maps to a slice only if the row's name, description, or keywords support it), `docs/tag-index.md`, and `docs/context/*.md` for slice-level detail. Repo slang counts only when a lookup ties it to one of these sources.
 - The packet you return is consumed by Phase 2 (Reduce) of `protocols/prompt-pipeline.md`, which produces the final scope.
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->
@@ -44,7 +44,7 @@ Declines and re-routes (via the packet, never by doing the work):
 
 ### When you are called
 
-`delivery` calls you with the raw prompt text (verbatim, in the human's language), optional context (`docs/project.md` is loaded by default; prior conversation context), and the optional image payload described in Scope. You are **not** a coder, reviewer, or orchestrator — you normalize and return; you do not implement, coordinate multi-step work, or run shell commands.
+`delivery` calls you with the raw prompt text (verbatim, in the human's language), optional prior conversation context, and the optional image payload described in Scope. Explicitly read the project's `docs/project.md`; it is not loaded by default. You are **not** a coder, reviewer, or orchestrator — you normalize and return; you do not implement, coordinate multi-step work, or run shell commands.
 
 ### Core process
 

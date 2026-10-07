@@ -126,6 +126,12 @@ The protocols live in `protocols/`:
   Implementation → Verification → Documentation.
 - [`subagent-spec-template.md`](./protocols/subagent-spec-template.md) — canonical
   shape for subagent definitions.
+- [`subagent-return-check.md`](./protocols/subagent-return-check.md) — shared manual
+  return assessment, optional checker, and bounded schema repair (not a runtime hook).
+- [`angular-standards.md`](./protocols/angular-standards.md) — on-demand Angular baseline;
+  project docs govern facts and explicit conventions.
+- [`go-standards.md`](./protocols/go-standards.md) — on-demand Go baseline;
+  project docs govern facts and explicit conventions.
 - [`session-recovery.md`](./protocols/session-recovery.md) — recovery flow for
   interrupted or STUCK sessions in the delivery → orchestrator → subagent
   hierarchy.
@@ -210,6 +216,8 @@ It is exit-code driven (CI-ready) and checks:
 - unsupported fields are absent: no `instructions`, no `small_model`, no singular `agent` block;
 - no `AGENTS.md` is shipped;
 - no secret material is committed;
+- secret-like filenames are checked in the Git index (tracked/staged NUL paths),
+  not ignored/untracked runtime state; `.env.example` templates remain allowed;
 - every `output_schema` resolves to an existing file;
 - `permission.task` grants fail closed (every allow target resolves to a real agent);
 - every `references` entry resolves;
@@ -219,6 +227,31 @@ It is exit-code driven (CI-ready) and checks:
 - every schema enum target (e.g. `re_route_to`) resolves to an agent;
 - no dangling references: markdown links plus inline-code `agents/*.md` /
   `protocols/*.md` paths all resolve.
+- checker unit tests and schema-agent Structured Return JSON examples pass.
+
+### Optional child-return checker
+
+Resolve `AGENT_SYSTEM_ROOT` at execution time from the injected `agent-system`
+reference; do not commit a machine-specific absolute path. Pipe the **existing
+in-memory child return** using the current shell's ordinary stdin piping (no
+scratch file). For example, with `child_return` already holding the return in Bash:
+
+```bash
+printf '%s' "$child_return" | python3 "$AGENT_SYSTEM_ROOT/scripts/check-subagent-return.py" --agent coder
+python3 "$AGENT_SYSTEM_ROOT/scripts/check-subagent-return.py" --check-examples
+python3 "$AGENT_SYSTEM_ROOT/scripts/test_check_subagent_return.py"
+```
+
+Use an available Python interpreter for the optional checker. The integrity script
+execution-probes `python3`, then `python`, requiring Python 3. To choose explicitly,
+set `PYTHON` to an interpreter executable (not a command with arguments); an invalid
+explicit override fails loudly without fallback. No installation or shim is needed.
+Exit 0 is valid shape, 1 invalid, 2 cannot verify (including
+distinct `no_schema` for intentional prose contracts). Diagnostics are bounded JSON
+on stdout without raw child data. No schema references or unsupported assertions
+are silently accepted. The shared protocol owns manual fallback, truthful reporting,
+the one-repair-per-child cap, and STUCK/NEEDS_HUMAN routing. Shape validity is not
+semantic approval or a Confidence Gate result; no automatic runtime gate is added.
 
 ## Troubleshooting
 
