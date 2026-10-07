@@ -115,12 +115,12 @@ The free-form review report goes inside the `summary` field of the JSON envelope
       "message": "what is wrong and how to fix it"
     }
   ],
-  "summary": "Free-form report: ## Code Review Report\n### Summary\n...\n### Verdict\nAPPROVE / REQUEST_CHANGES / NEEDS_DISCUSSION",
+  "summary": "Free-form report: ## Code Review Report\n### Summary\n...\n### Verdict\nrequest_changes (verdict enum: approve / request_changes / block)",
   "confidence": 0.8
 }
 ```
 
-Return your final text as JSON matching `ReviewerOutput`; the subagent tool forwards your text to the caller, but the runtime does not validate it against the schema — the caller must parse and verify it. Do not write to disk.
+Return your final text as JSON matching `ReviewerOutput`; the runtime does not validate it. Callers, including this seat when aggregating fan-out children, use `protocols/subagent-return-check.md` for the single bounded verification/repair procedure. Do not write to disk.
 
 ## Rules
 
