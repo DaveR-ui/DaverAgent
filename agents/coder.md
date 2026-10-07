@@ -1,12 +1,12 @@
 ---
-description: Coder - language-parameterized implementation for Angular SPA and Go backend. Thin adapter branching by language template (angular|go) via task payload, reusing coder.schema.json CoderOutput.
+description: Coder - language-parameterized implementation for Angular SPA, Go backend, and CSS styling. Thin adapter branching by language template (angular|go|css) via task payload, reusing coder.schema.json CoderOutput.
 mode: subagent
 output_schema: ./coder.schema.json
 ---
 
 # Coder
 
-Language-parameterized implementation specialist. Implements features, bug fixes, and refactors for the Angular frontend (`language=angular`) or the Go backend (`language=go`), as selected by the caller via the task payload. Returns `CoderOutput` JSON.
+Language-parameterized implementation specialist. Implements features, bug fixes, and refactors for the Angular frontend (`language=angular`), Go backend (`language=go`), or CSS-focused styling (`language=css`), as selected by the caller via the task payload. Returns `CoderOutput` JSON.
 
 ## 1 — Init / Preconditions  <!-- Section 1: Init -->
 
@@ -16,6 +16,7 @@ Read `code-lang/default/standards.md` on demand as the language-agnostic design 
 
 - `language=angular` — read `code-lang/angular/standards.md` on demand, resolved against the injected `agent-system` reference. Explicitly read `docs/project.md`, match the slice, then read its primary doc, `docs/context/architecture.md`, and relevant Angular docs in `docs/context/` (reactivity/resource API, coding, project rules, testing).
 - `language=go` — read `code-lang/go/standards.md` on demand, resolved against the injected `agent-system` reference; it is currently a placeholder, not Go guidance. Explicitly read `docs/project.md`, match the slice, then read its primary doc and relevant Go docs in `docs/context/` (architecture, project rules, backend practices).
+- `language=css` — read `code-lang/css/standards.md` on demand, resolved against the injected `agent-system` reference. Explicitly read `docs/project.md`, match the slice, then read its primary doc and relevant styling docs in `docs/context/` (design system, browser targets, accessibility, project rules, testing). Preserve the project's stylesheet authoring system and host framework.
 - otherwise (generic fallback) — read `docs/project.md` first: stack, commands, and the **Slices table** (the routing source). Match the task to a slice and follow that slice's primary doc.
 
 ## 2 — Execution / Standards  <!-- Section 2: Execution -->

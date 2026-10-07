@@ -25,8 +25,8 @@ Accept:
 - Focused audits (security, performance, standards) over a defined scope.
 
 Decline and re-route:
-- Implementing the fixes you find — report them as `issues`; re-route to `coder` (language=angular|go).
-- Writing or repairing tests -> `coder` (language=angular|go); execution stays with `tester`.
+- Implementing the fixes you find — report them as `issues`; re-route to `coder` (language=angular|go|css).
+- Writing or repairing tests -> `coder` (language=angular|go|css); execution stays with `tester`.
 - Open-ended design questions -> `architect`.
 
 If the request is out of scope, say so in **one sentence** and stop.

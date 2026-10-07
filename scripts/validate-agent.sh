@@ -35,7 +35,7 @@
 #       `additionalProperties: false`, a non-empty `required` array, and a
 #       description on every property (recursively through properties/items).
 #   12. schema enum agent targets resolve (re_route_to -> agents/<v>.md;
-#       re_route_language in angular|go).
+#       re_route_language in angular|go|css).
 #   13. no dangling markdown refs: links of the form ../protocols/<x>.md,
 #       ./protocols/<x>.md, ../agents/<x>.md or (inside protocols/) ./<x>.md
 #       must resolve, as must code-lang/ links and relative Markdown refs
@@ -636,9 +636,9 @@ for f in files:
                     errors.append(f"{rel} re_route_to enum value '{v}' has no agents/{v}.md")
         else:  # re_route_language
             for v in values:
-                if v not in ("angular", "go"):
+                if v not in ("angular", "go", "css"):
                     errors.append(
-                        f"{rel} re_route_language enum value '{v}' is not one of angular|go"
+                        f"{rel} re_route_language enum value '{v}' is not one of angular|go|css"
                     )
     if errors:
         for e in errors:

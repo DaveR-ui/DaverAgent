@@ -139,7 +139,7 @@ Rationale: the `.md` is the canonical artifact the runtime loads; keeping `model
 ## Naming convention
 
 - Parent keeps the plain role name (e.g. `coder.md`).
-- No specialization files exist today: the coder is centralized into a single language-parameterized `coder.md` (Variant A) that branches by a `language=angular|go` task payload, and the tester does the same by `framework=…`.
+- No specialization files exist today: the coder is centralized into a single language-parameterized `coder.md` (Variant A) that branches by a `language=angular|go|css` task payload, and the tester does the same by `framework=…`.
 
 ## Rules
 
