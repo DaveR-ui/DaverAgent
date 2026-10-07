@@ -16,6 +16,19 @@
           "@angular/cli",
           "mcp"
         ]
+      },
+      "playwright": {
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ]
+      },
+      "ag-mcp": {
+        "command": "npx",
+        "args": [
+          "ag-mcp"
+        ],
+        "type": "stdio"
       }
     }
   },
