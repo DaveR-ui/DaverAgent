@@ -54,7 +54,7 @@ path. The read tool does not expand `~`.
 ├── agents/                      # FLAT global agents (the runtime scans agents/*.md)
 │   ├── delivery.md              # Interface with the human (primary)
 │   ├── orchestrator.md          # Coordinator (deeply delegable)
-│   ├── coder.md                 # Implementation (language=angular|go)
+│   ├── coder.md                 # Implementation (language=angular|go|css)
 │   ├── tester.md                # Tests (framework=vitest|karma-jasmine|playwright|go)
 │   ├── reviewer.md              # Code review
 │   ├── architect.md             # Design
@@ -69,6 +69,7 @@ path. The read tool does not expand `~`.
 ├── code-lang/                   # Coding standards (read on demand)
 │   ├── default/standards.md      # Language-agnostic design baseline
 │   ├── angular/standards.md      # Angular-specific guidance and references
+│   ├── css/standards.md          # CSS guidance adapted from good-css
 │   └── go/standards.md           # Maintainer placeholder; no Go guidance yet
 └── scripts/                     # Validators
 ```
@@ -92,7 +93,7 @@ model-independence dispatch rule — is the authoritative table in
 |---|---|
 | `delivery` | Interface with the human. Does NOT delegate technical work to itself. |
 | `orchestrator` | Executes Phase 2 (Reduce), coordinates multi-step work, fans out subagents. |
-| `coder` | Implementation (`language=angular|go`). Returns `CoderOutput`. |
+| `coder` | Implementation (`language=angular|go|css`). Returns `CoderOutput`. |
 | `tester` | Tests (`framework=vitest|karma-jasmine|playwright|go`). Returns `TesterOutput`. |
 | `reviewer` | Code review, security, performance. Returns `ReviewerOutput`. |
 | `architect` | Design, boundaries, patterns. Returns `ArchitectOutput`. |
@@ -147,6 +148,8 @@ Standards live in `code-lang/` and are loaded on demand by
   architectural principles, not a list of supported languages.
 - [`angular/standards.md`](./code-lang/angular/standards.md) — Angular-specific
   guidance and canonical references.
+- [`css/standards.md`](./code-lang/css/standards.md) — CSS styling guidance
+  adapted from [good-css](https://good-css.com/) and its linked references.
 - [`go/standards.md`](./code-lang/go/standards.md) — maintainer placeholder;
   contains no Go guidance.
 

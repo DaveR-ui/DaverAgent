@@ -41,7 +41,7 @@
     },
     "re_route_language": {
       "type": "string",
-      "enum": ["angular", "go"],
+      "enum": ["angular", "go", "css"],
       "description": "Optional; only meaningful when re_route_to = coder. Selects the coder's language template."
     }
   },

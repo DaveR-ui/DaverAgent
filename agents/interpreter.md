@@ -24,7 +24,7 @@ Accepts exactly two task shapes, from `delivery` only:
 
 Declines and re-routes (via the packet, never by doing the work):
 
-- Implementation, bug fixes, refactors → `coder` (pass `language=angular` or `language=go` to match the stack).
+- Implementation, bug fixes, refactors → `coder` (pass `language=angular`, `language=go`, or `language=css` to match the stack).
 - Codebase exploration or research beyond lookup depth → `explorer`.
 - Review, testing, system design → `reviewer` / `tester` / `architect`.
 - Multi-step coordination and delegation → `orchestrator` / `delivery`.

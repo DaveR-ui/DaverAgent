@@ -114,7 +114,7 @@ Routes for handing work to a subagent. Triage the action first, then route.
 | Multi-file coordination (3+ files, multiple subagents)     | No     | `orchestrator`               |
 | Code/runtime config (source code, `opencode.json`)         | No     | `coder` / `orchestrator`      |
 
-**Pick coder language param:** Angular frontend -> `coder` with `language=angular`. Go backend -> `coder` with `language=go`. When the task spans both, delegate to `orchestrator`.
+**Pick coder language param:** Angular frontend -> `coder` with `language=angular`. Go backend -> `coder` with `language=go`. CSS-focused styling -> `coder` with `language=css`. When the task spans multiple languages, delegate to `orchestrator`.
 
 ## Skill Loading Contract
 
