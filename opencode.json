@@ -1,13 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode-go/qwen3.8-flash",
-  "default_agent": "delivery",
+  "default_agent": "Delivery",
   "compaction": {
     "auto": true,
     "buffer": 10000
   },
   "mcp": {
     "servers": {
+      "playwright": {
+        "type": "local",
+        "command": ["bunx", "@playwright/mcp"],
+      },
       "angular-cli": {
         "type": "local",
         "command": [
@@ -53,12 +57,22 @@
     { "action": "shell", "resource": "docker *", "effect": "ask" }
   ],
   "references": {
+    "documentation-onrails": {
+      "repository": "https://github.com/DaveR-ui/documentation-onrails",
+      "branch": "main",
+    },
     "agent-system": {
       "path": ".",
       "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, agents/, scripts/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
   "agents": {
+    "coder":       { "model": "opencode-go/deepseek-v4.1-flash" },
+    "documenter":  { "model": "opencode-go/deepseek-v4.1-flash" },
+    "tester":      { "model": "opencode-go/deepseek-v4.1-flash" },
+    "reviewer":    { "model": "opencode-go/glm-5.3-flash" },
+    "architect":   { "model": "opencode-go/step-5-preview-free" },
+    "orquestator": { "model": "opencode-go/step-5-preview-free" },
     "title": {
       "model": "opencode-go/glm-5.3-flash"
     }
