@@ -19,6 +19,30 @@ that a fresh orchestrator instance can consume through the
 Without this protocol, an interrupted orchestrator forces the human
 to reconstruct context by hand; with it, recovery is a mechanical API walk.
 
+## Principle: resumability belongs to stateful seats
+
+A seat is resumable if and only if it owns durable task state that cannot be
+reconstructed from its artifacts. Only the `orchestrator` holds that state
+(decomposition, checkpoints, the `agent-snapshot`). `delivery` holds no durable
+state (Mode 1: nothing to recover). Every other subagent — `coder`, `tester`,
+`explorer`, `documenter`, `reviewer`, `analista`, `architect`, `external-scout`,
+`interpreter` — is a stateless worker: its value is the artifact it produced,
+which the orchestrator already recorded.
+
+**Consequence:** only the `orchestrator` has a resume path
+(`agents/orchestrator.md#resume-instructions-if-restart`). All other subagents
+are always re-instantiated as **fresh instances**, deterministically, from the
+artifacts the stateful seat recorded — never resumed from memory.
+
+**Mechanism (option A — snapshot-based):** a "resume" always means a **new**
+orchestrator session seeded by the prior `agent-snapshot` (the four fields of
+`## Resume instructions (if restart)`). Literal session-lineage resume — reusing
+the failed session's identity via `POST /session {parentID}`, or the automated
+`fork` step — is **out of scope for this protocol's resume mechanism**: recovery
+never reuses a dead session's lineage. (A human may still fork a dead session
+manually to discard a half-applied diff — see the Mode 2 step 10 note; that is
+diff hygiene, not seat reinstatement.)
+
 ## When to apply
 
 Apply this protocol when you observe any of the following:
@@ -90,12 +114,14 @@ Walk the opencode session API in this order:
 8. `GET /session/:id/todo` — pending todo list.
 9. `GET /session/:id/diff` — files changed so far (optionally
    `?messageID=<msgID>` for a per-message diff).
-10. Resume: `POST /session` with
-    `{ "parentID": "<failed_id>", "title": "Resume of <original-title>" }`.
-    The new session inherits the lineage.
-11. Alternative "clean" resume: `POST /session/:id/fork` with
-    `{ "messageID": "<checkpoint>" }` — fork at a specific known-good message,
-    discarding any half-applied diff after that point.
+10. Resume (option A): synthesize the recovered snapshot (see Output shape below)
+    and have `delivery` launch a **new** orchestrator instance seeded with it.
+    The failed session's identity/lineage is NOT reused — recovery produces a
+    snapshot, not a revived session.
+
+> `POST /session/:id/fork` at a known-good checkpoint remains available as a
+> **manual human action** to discard a half-applied diff, but it is not part of
+> the system's resume mechanism and does not reinstate the seat's state.
 
 ### Mode 3 — subagent child interrupted inside a LIVE orchestrator
 

@@ -10,7 +10,7 @@
     "servers": {
       "playwright": {
         "type": "local",
-        "command": ["bunx", "@playwright/mcp"],
+        "command": ["bunx", "@playwright/mcp"]
       },
       "angular-cli": {
         "type": "local",
@@ -54,12 +54,12 @@
     { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
     { "action": "shell", "resource": "curl *", "effect": "ask" },
     { "action": "shell", "resource": "wget *", "effect": "ask" },
-    { "action": "shell", "resource": "docker *", "effect": "ask" }
+    { "action": "shell", "resource": "docker *", "effect": "allow" }
   ],
   "references": {
     "documentation-onrails": {
       "repository": "https://github.com/DaveR-ui/documentation-onrails",
-      "branch": "main",
+      "branch": "main"
     },
     "agent-system": {
       "path": ".",
@@ -67,15 +67,14 @@
     }
   },
   "agents": {
-    "coder":       { "model": "opencode-go/deepseek-v4.1-flash" },
-    "documenter":  { "model": "opencode-go/deepseek-v4.1-flash" },
-    "tester":      { "model": "opencode-go/deepseek-v4.1-flash" },
-    "reviewer":    { "model": "opencode-go/glm-5.3-flash" },
-    "architect":   { "model": "opencode-go/step-5-preview-free" },
-    "orquestator": { "model": "opencode-go/step-5-preview-free" },
-    "title": {
-      "model": "opencode-go/glm-5.3-flash"
-    }
+    "coder":        { "model": "opencode-go/deepseek-v4.1-flash" },
+    "documenter":   { "model": "opencode-go/deepseek-v4.1-flash" },
+    "tester":       { "model": "opencode-go/deepseek-v4.1-flash" },
+    "architect":    { "model": "opencode-go/deepseek-v4.1-flash" },
+    "orchestrator": { "model": "opencode-go/step-5-preview-free" },
+    "reviewer":     { "model": "opencode-go/glm-5.3-flash" },
+    "analista":     { "model": "opencode-go/glm-5.3-flash" },
+    "title":        { "model": "opencode-go/glm-5.3-flash" }
   },
   "experimental": {
     "subagent_depth": 4

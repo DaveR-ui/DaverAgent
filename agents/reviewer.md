@@ -98,6 +98,17 @@ Run all three in parallel when the diff is `> 30` files AND the concerns are cle
 - Diffs that are coupled (see step 3). Always single-pass.
 - Diffs that are mostly test-only. A test-only diff has no security/perf concerns; the standards reviewer alone is enough — do not fan out to three.
 
+## Always a fresh instance (never resumed)
+
+A `reviewer` is never resumed from a previous session — not the top-level
+reviewer, not its fan-out children. The seat's value is its **independence**: a
+resumed reviewer carries the stale diff and the verdict it already formed, which
+defeats the very check it exists to provide. To re-validate after a fix,
+re-dispatch a **new** reviewer with the same explicit input (diff scope +
+checklist); "knowing where to look" lives in that input, not in session memory.
+See `protocols/session-recovery.md` → "Principle: resumability belongs to
+stateful seats".
+
 ## Structured Return
 
 You have an `output_schema` declared in your frontmatter: `./reviewer.schema.json` (`ReviewerOutput`).
