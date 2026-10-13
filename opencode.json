@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/qwen3.8-flash",
+  "model": "opencode-go/deepseek-v4.1-flash",
   "default_agent": "delivery",
   "compaction": {
     "auto": true,
@@ -8,6 +8,10 @@
   },
   "mcp": {
     "servers": {
+      "playwright": {
+        "type": "local",
+        "command": ["bunx", "@playwright/mcp"]
+      },
       "angular-cli": {
         "type": "local",
         "command": [
@@ -63,18 +67,27 @@
     { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
     { "action": "shell", "resource": "curl *", "effect": "ask" },
     { "action": "shell", "resource": "wget *", "effect": "ask" },
-    { "action": "shell", "resource": "docker *", "effect": "ask" }
+    { "action": "shell", "resource": "docker *", "effect": "allow" }
   ],
   "references": {
+    "documentation-onrails": {
+      "repository": "https://github.com/DaveR-ui/documentation-onrails",
+      "branch": "main"
+    },
     "agent-system": {
       "path": ".",
       "description": "Global agent-system root (this repo, installed at ~/.config/opencode). Its assets (e.g. protocols/, agents/, scripts/) are NOT resolvable by relative or alias paths — join THIS reference's absolute root with the relative path to read an asset (e.g. ROOT/protocols/prompt-pipeline.md). Never commit machine-specific absolute paths; resolve the root at runtime from this reference."
     }
   },
   "agents": {
-    "title": {
-      "model": "opencode-go/glm-5.3-flash"
-    }
+    "coder":        { "model": "opencode-go/deepseek-v4.1-flash" },
+    "documenter":   { "model": "opencode-go/deepseek-v4.1-flash" },
+    "tester":       { "model": "opencode-go/deepseek-v4.1-flash" },
+    "architect":    { "model": "opencode-go/deepseek-v4.1-flash" },
+    "orchestrator": { "model": "opencode-go/step-5-preview-free" },
+    "reviewer":     { "model": "opencode-go/deepseek-v4.1-flash" },
+    "analista":     { "model": "opencode-go/deepseek-v4.1-flash" },
+    "title":        { "model": "opencode-go/glm-5.3-flash" }
   },
   "experimental": {
     "subagent_depth": 4

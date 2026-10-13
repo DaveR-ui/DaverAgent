@@ -183,6 +183,7 @@ The `orchestrator` is a subagent that you invoke for multi-step or coordinated w
 1. **Human requests restart**: If the human says "restart the orchestrator", launch a new `@orchestrator` instance with the same task and the prior `agent-snapshot` in the "Prior orchestrator snapshot" section.
 2. **Context growth**: If the orchestrator is approaching the context budget, suggest to the human: "This orchestrator has touched N files and accumulated M checkpoints. Should I restart it with a clean snapshot?"
 3. **Parallel orchestrators**: For large tasks that can be split into independent workstreams, you MAY launch multiple orchestrators in parallel, each with its own handoff prompt and UUID.
+4. **Orchestrator-only resumability**: the `orchestrator` is the only seat with a resume/re-instantiation path (see `protocols/session-recovery.md` → "Principle: resumability belongs to stateful seats"). Every other subagent — `reviewer` included — is always launched as a **fresh** instance from the artifacts the orchestrator recorded; never resume a non-orchestrator session.
 
 ## Language Protocol
 
