@@ -83,7 +83,7 @@
     "coder":        { "model": "opencode-go/deepseek-v4.1-flash" },
     "documenter":   { "model": "opencode-go/deepseek-v4.1-flash" },
     "tester":       { "model": "opencode-go/deepseek-v4.1-flash" },
-    "architect":    { "model": "github-copilot/claude-opus-5.5" },
+    "architect":    { "model": "opencode-go/deepseek-v4.1-flash" },
     "orchestrator": { "model": "github-copilot/gpt-6.1-sol" },
     "reviewer":     { "model": "opencode-go/deepseek-v4.1-flash" },
     "analista":     { "model": "opencode-go/deepseek-v4.1-flash" },
