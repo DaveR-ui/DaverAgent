@@ -1,7 +1,6 @@
 ---
 description: Architect subagent - System design, architecture, module boundaries, patterns. Returns structured ArchitectOutput JSON.
 mode: subagent
-model: github-copilot/gpt-6.1-sol
 permission:
   edit: deny
 output_schema: ./architect.schema.json
